@@ -20,81 +20,126 @@ mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 
 
- 
 ################## Step 1 bring in the raw logged data and make file name  ##############################################
-#######2019 05 17 ########
-ac213_20190517<- read_csv("P:/Damian/Jim Eden Valley/Converted data/collar logs/20190517/ac213.csv") %>% 
-  mutate(file_name = "ac213_20190517") 
-ad3396_20190517<- read_csv("P:/Damian/Jim Eden Valley/Converted data/collar logs/20190517/ad3396.csv") %>% 
-  mutate(file_name = "ad3396_20190517")
-ac219_20190517<- read_csv("P:/Damian/Jim Eden Valley/Converted data/collar logs/20190517/ac219.csv") %>% 
-  mutate(file_name = "ac219_20190517")
 
-#######2019 05 18 ########
-ac213_20190518<- read_csv("P:/Damian/Jim Eden Valley/Converted data/collar logs/20190518/ac213.csv") %>% 
-  mutate(file_name = "ac213_20190518") 
-ad3396_20190518<- read_csv("P:/Damian/Jim Eden Valley/Converted data/collar logs/20190518/ad3396.csv") %>% 
-  mutate(file_name = "ad3396_20190518")
-ac219_20190518<- read_csv("P:/Damian/Jim Eden Valley/Converted data/collar logs/20190518/ac219.csv") %>% 
-  mutate(file_name = "ac219_20190518")
-################## Step 2 join the raw logged data   ##############################################
-cattle_merge20190517_8 <- rbind(ac213_20190517, ad3396_20190517, ac219_20190517,
-                              ac213_20190518, ad3396_20190518, ac219_20190518)
 
-################## Step 3 extra clms for  raw logged data   ##############################################
-cattle_merge20190517_8 <- cattle_merge20190517_8 %>% 
-  separate(file_name,into =  c("collar", "date"),  sep = "_", remove = FALSE ) %>% 
+setwd("W:/VF/Eden_Valley/logged_VF_data/Converted data/collar logs/")
+mydir = "20190518"
+myfiles = list.files(path=mydir, pattern="*.csv", full.names=TRUE)
+
+#1a########### Get file names
+filenames <- myfiles
+collars <- str_extract(myfiles, "[a-z]+\\d{1,6}")
+
+#1b########## Get length of each csv
+file_lengths <- unlist(lapply(lapply(filenames, read_csv), nrow))
+file_lengths
+#1c########## Repeat collars using lengths
+file_names <- rep(collars,file_lengths)
+
+#1d######### Create table
+tbl <- lapply(filenames, read_csv) %>% 
+  bind_rows()
+
+#1e######### Combine file_names and tbl
+VF2019_05_18 <- cbind(tbl, collar_ID = file_names)
+glimpse(VF2019_05_18)
+
+
+################## Step 2 extra clms for  raw logged data   ##############################################
+VF2019_05_18 <- VF2019_05_18 %>% 
+  separate(collar_ID,into =  c("collar", "date"),  sep = "_", remove = FALSE ) %>% 
   mutate(hms = hms::as.hms(time, tz="GMT"),
          date= date(time),
          month = month(time),
          day = day(time))
-glimpse(cattle_merge20190517_8)
+glimpse(VF2019_05_18)
 
 #################### step 4 convert lat and longs to x and Y    ##########################################
-coordinates(cattle_merge20190517_8) <- ~ lon + lat
-proj4string(cattle_merge20190517_8) <- wgs84CRS   # assume input lat and longs are WGS84
+coordinates(VF2019_05_18) <- ~ lon + lat
+proj4string(VF2019_05_18) <- wgs84CRS   # assume input lat and longs are WGS84
 #make new object_1
-cattle_merge20190517_8_1 <- spTransform(cattle_merge20190517_8, mapCRS)
+VF2019_05_18_1 <- spTransform(VF2019_05_18, mapCRS)
 #make new df_1
-cattle_merge20190517_8 = as.data.frame(cattle_merge20190517_8_1) #this has the new coordinates projected !YES!!
+VF2019_05_18 = as.data.frame(VF2019_05_18_1) #this has the new coordinates projected !YES!!
 #make new df with point x and point y
-cattle_merge20190517_8 <- mutate(cattle_merge20190517_8,POINT_X = lon,  POINT_Y = lat )
-glimpse(cattle_merge20190517_8)
+VF2019_05_18 <- mutate(VF2019_05_18,POINT_X = lon,  POINT_Y = lat )
+glimpse(VF2019_05_18)
 #############################    step 3 plot data                        #########################################
-ggplot (cattle_merge20190517_8, aes( hms, value))+
+ggplot (VF2019_05_18, aes( hms, value))+
   geom_point()+
   facet_wrap(day~ collar)
 
 
 
-####### Mess about bringing many files ####
-#library(plyr)
-#library(readr)
-#"P:/Damian/Jim Eden Valley/Converted data/collar logs/20190518"
 
 
 
-setwd("P:/Damian/Jim Eden Valley/Converted data/collar logs/")
-mydir = "20190518"
+################## Step 1 bring in the raw logged data and make file name  ##############################################
+
+#"W:/VF/Eden_Valley/logged_VF_data/Converted data/collar logs/20190528"
+setwd("W:/VF/Eden_Valley/logged_VF_data/Converted data/collar logs/")
+mydir = "20190528"
 myfiles = list.files(path=mydir, pattern="*.csv", full.names=TRUE)
-
-#dat_csv = ldply(myfiles, read_csv)
-#dat_csv
-
-### Get file names
+myfiles
+#1a########### Get file names
 filenames <- myfiles
 collars <- str_extract(myfiles, "[a-z]+\\d{1,6}")
 
-### Get length of each csv
-file_lengths <- unlist(lapply(lapply(filenames, read_csv), nrow))
+#1b########## Get length of each csv
+file_lengths <- unlist(lapply(lapply(filenames, read_csv), nrow)) #I have error meassage here?? do I need to be explicit in how the files are brought in?
+#file_lengths <- unlist(lapply(lapply(filenames, read_csv(col_types = cols(event = col_character(), 
+                                                                          #hdop = col_double(), heading = col_double(), 
+                                                                          #lat = col_double(), lon = col_double(), 
+                                                                          #`m/s` = col_double(), value = col_double()))), nrow))
+file_lengths
 
-### Repeat sites using lengths
+
+#1c########## Repeat collars using lengths
 file_names <- rep(collars,file_lengths)
 
-### Create table
+#1d######### Create table
 tbl <- lapply(filenames, read_csv) %>% 
   bind_rows()
+tbl
+#1e######### Combine file_names and tbl
+VF2019_05_28 <- cbind(tbl, collar_ID = file_names)
+#tbl <- cbind(tbl, collar_ID = file_names)
+glimpse(VF2019_05_28)
 
-### Combine file_names and tbl
-VF2019_05_18 <- cbind(tbl, collar_ID = file_names)
-glimpse(VF2019_05_18)
+
+################## Step 2 extra clms for  raw logged data   ##############################################
+VF2019_05_28 <- VF2019_05_28 %>% 
+  separate(collar_ID,into =  c("collar", "date"),  sep = "_", remove = FALSE ) %>% 
+  mutate(hms = hms::as.hms(time, tz="GMT"),
+         date= date(time),
+         month = month(time),
+         day = day(time))
+glimpse(VF2019_05_28)
+
+#################### step 4 convert lat and longs to x and Y    ##########################################
+coordinates(VF2019_05_28) <- ~ lon + lat
+proj4string(VF2019_05_28) <- wgs84CRS   # assume input lat and longs are WGS84
+#make new object_1
+VF2019_05_28_1 <- spTransform(VF2019_05_28, mapCRS)
+#make new df_1
+VF2019_05_28 = as.data.frame(VF2019_05_28_1) #this has the new coordinates projected !YES!!
+#make new df with point x and point y
+VF2019_05_28 <- mutate(VF2019_05_28,POINT_X = lon,  POINT_Y = lat )
+glimpse(VF2019_05_28)
+#############################    step 3 plot data                        #########################################
+ggplot (VF2019_05_28, aes( hms, value))+
+  geom_point()+
+  facet_wrap(day~ collar)
+
+
+
+
+
+
+
+
+
+
+
+
