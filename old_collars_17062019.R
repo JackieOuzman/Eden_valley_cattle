@@ -11,13 +11,14 @@ library(stringr)
 library(rgdal)
 library(sf)
 
-
+############################# second download before new collar were fitted #####################
 
 
 
 
 #### try a more streamline approach ? make a function??#####
-setwd("W:/VF/Eden_Valley/logged_VF_data/Converted data/collar logs/")
+
+setwd("W:/VF/Eden_Valley/logged_VF_data/collar logs_download2/")
 #create a function with importing setting that you want eg with a defined data type for value column
 
 read_csv_FUN <- function(file ){
@@ -54,13 +55,47 @@ import_function <- function(mydir){
            date= date(time),
            month = month(time),
            day = day(time))
-  write_csv(VF, path = paste0("W:/VF/Eden_Valley/logged_VF_data/Converted data/collar logs/test/", "VF_", mydir, ".csv")) 
+  write_csv(VF, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_", mydir, ".csv")) 
 }
 
+
+
+##### Use the function to bring in data for one day that is specified ######
+VF_20190607 <- import_function("20190607")
+VF_20190606 <- import_function("20190606")
+VF_20190605 <- import_function("20190605")
+VF_20190604 <- import_function("20190604")
+VF_20190603 <- import_function("20190603")
+VF_20190602 <- import_function("20190602") #not written r bind 
+VF_20190601 <- import_function("20190601")
+VF_20190531 <- import_function("20190531")
+VF_20190530 <- import_function("20190530")
+VF_20190529 <- import_function("20190529")
 VF_20190528 <- import_function("20190528")
+VF_20190527 <- import_function("20190527")
+VF_20190526 <- import_function("20190526")
+VF_20190525 <- import_function("20190525")
+VF_20190524 <- import_function("20190524")
+VF_20190523 <- import_function("20190523")
+VF_20190522 <- import_function("20190522")
+VF_20190521 <- import_function("20190521")
+VF_20190520 <- import_function("20190520")
+VF_20190519 <- import_function("20190519")
+VF_20190518 <- import_function("20190518")
+VF_20190517 <- import_function("20190517")
 
+VF_week1 <- rbind(VF_20190517, VF_20190518, VF_20190519,
+                  VF_20190520, VF_20190521, VF_20190522, VF_20190523)
+VF_week2 <- rbind(VF_20190524, VF_20190525, VF_20190526,
+                  VF_20190527, VF_20190528, VF_20190529, VF_20190530)
+VF_week3 <- rbind(VF_20190531, VF_20190601, 
+                  #VF_20190602, #not written ? not sure why
+                  VF_20190603, VF_20190604, VF_20190605, VF_20190606)
 
-glimpse(VF_20190528)
+write_csv(VF_week1, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week1.csv"))
+write_csv(VF_week2, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week2.csv"))
+write_csv(VF_week1, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week1.csv"))
+glimpse(VF_20190607)
 
 ########################################################################################################################
 #1.filter out data that is just for the InclusionBorder_m
@@ -72,9 +107,10 @@ glimpse(VF_20190528)
 #2.change the value to double         
 
 
-VF_20190528_InclusionBord <- filter(VF_20190528, event == "InclusionBorder_m") %>% 
-  mutate( value = as.double(value)) 
+VF_week1_InclusionBord <- filter(VF_week1, event == "InclusionBorder_m") %>%   
+  mutate( value = as.double(value)) #not working not sure why
 
+glimpse(VF_week1_InclusionBord)
 #3.do projections
 ########################## set up coods ##################################  
 
@@ -85,19 +121,68 @@ mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 
 ####################  convert lat and longs to x and Y    ##########################################
-coordinates(VF_20190528_InclusionBord) <- ~ lon + lat
-proj4string(VF_20190528_InclusionBord) <- wgs84CRS   # assume input lat and longs are WGS84
+coordinates(VF_week1_InclusionBord) <- ~ lon + lat
+proj4string(VF_week1_InclusionBord) <- wgs84CRS   # assume input lat and longs are WGS84
 #make new object_1
-VF_20190528_InclusionBord_1 <- spTransform(VF_20190528_InclusionBord, mapCRS)
+VF_week1_InclusionBord_1 <- spTransform(VF_week1_InclusionBord, mapCRS)
 #make new df_1
-VF_20190528_InclusionBord = as.data.frame(VF_20190528_InclusionBord_1) #this has the new coordinates projected !YES!!
+VF_week1_InclusionBord = as.data.frame(VF_week1_InclusionBord_1) #this has the new coordinates projected !YES!!
 #make new df with point x and point y
-VF_20190528_InclusionBord <- mutate(VF_20190528_InclusionBord,POINT_X = lon,  POINT_Y = lat )
-glimpse(VF_20190528_InclusionBord)
+VF_week1_InclusionBord <- mutate(VF_week1_InclusionBord,POINT_X = lon,  POINT_Y = lat )
+glimpse(VF_week1_InclusionBord)
 
 
 
 ########################  display data ######################## 
-ggplot (VF_20190528_InclusionBord, aes( hms, value))+
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-17") %>% 
+ggplot(aes(x = hms, y = value, colour = collar))+
   geom_point()+
-  facet_grid(.~ collar)
+  facet_wrap(.~collar)
+  
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-18") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  labs(title= "week1 2019-05-18",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-19") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  labs(title= "week1 2019-05-19",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-20") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  labs(title= "week1 2019-05-20",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-21") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week1 2019-05-21",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+ 
+
+
+
+
