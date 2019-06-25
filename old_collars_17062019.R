@@ -108,7 +108,13 @@ glimpse(VF_20190607)
 
 
 VF_week1_InclusionBord <- filter(VF_week1, event == "InclusionBorder_m") %>%   
-  mutate( value = as.double(value)) #not working not sure why
+  mutate( value = as.double(value)) 
+
+VF_week2_InclusionBord <- filter(VF_week2, event == "InclusionBorder_m") %>%   
+  mutate( value = as.double(value)) 
+VF_week3_InclusionBord <- filter(VF_week3, event == "InclusionBorder_m") %>%   
+  mutate( value = as.double(value)) 
+
 
 glimpse(VF_week1_InclusionBord)
 #3.do projections
@@ -133,12 +139,19 @@ glimpse(VF_week1_InclusionBord)
 
 
 
-########################  display data ######################## 
+########################  display data week 1######################## 
 VF_week1_InclusionBord %>% 
   filter(date == "2019-05-17") %>% 
 ggplot(aes(x = hms, y = value, colour = collar))+
   geom_point()+
-  facet_wrap(.~collar)
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week1 2019-05-17",
+       x= "Time of day",
+       y = "Distance (m) from VF")
   
 VF_week1_InclusionBord %>% 
   filter(date == "2019-05-18") %>% 
@@ -146,7 +159,8 @@ VF_week1_InclusionBord %>%
   geom_point()+
   facet_wrap(.~collar)+
   geom_hline(yintercept = 0)+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
   labs(title= "week1 2019-05-18",
        x= "Time of day",
        y = "Distance (m) from VF")
@@ -156,7 +170,8 @@ VF_week1_InclusionBord %>%
   geom_point()+
   facet_wrap(.~collar)+
   geom_hline(yintercept = 0)+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
   labs(title= "week1 2019-05-19",
        x= "Time of day",
        y = "Distance (m) from VF")
@@ -166,7 +181,8 @@ VF_week1_InclusionBord %>%
   geom_point()+
   facet_wrap(.~collar)+
   geom_hline(yintercept = 0)+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
   labs(title= "week1 2019-05-20",
        x= "Time of day",
        y = "Distance (m) from VF")
@@ -182,7 +198,121 @@ VF_week1_InclusionBord %>%
        x= "Time of day",
        y = "Distance (m) from VF")
  
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-22") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week1 2019-05-22",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week1_InclusionBord %>% 
+  filter(date == "2019-05-23") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week1 2019-05-23",
+       x= "Time of day",
+       y = "Distance (m) from VF")
 
 
 
+########################  display data week 2######################## 
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-24") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-24",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-25") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-25",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-26") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-26",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-27") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-27",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-28") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-28",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-29") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-29",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+
+VF_week2_InclusionBord %>% 
+  filter(date == "2019-05-30") %>% 
+  ggplot(aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~collar)+
+  facet_wrap(.~collar)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "week2 2019-05-30",
+       x= "Time of day",
+       y = "Distance (m) from VF")
 
