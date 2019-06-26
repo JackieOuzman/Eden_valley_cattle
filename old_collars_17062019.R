@@ -16,11 +16,13 @@ library(sf)
 
 
 
-#### try a more streamline approach ? make a function??#####
+#### streamline approach with function#####
 
 setwd("W:/VF/Eden_Valley/logged_VF_data/collar logs_download2/")
-#create a function with importing setting that you want eg with a defined data type for value column
 
+#function 1 - just defining how the csv files should be imported
+#this needs to be done for this data set because the data column 'value' is a mix of numbers and text
+#but in some years its just one or the other
 read_csv_FUN <- function(file ){
   the_data <- read_csv(file, col_types = cols(value = col_character()))
 }
@@ -89,12 +91,12 @@ VF_week1 <- rbind(VF_20190517, VF_20190518, VF_20190519,
 VF_week2 <- rbind(VF_20190524, VF_20190525, VF_20190526,
                   VF_20190527, VF_20190528, VF_20190529, VF_20190530)
 VF_week3 <- rbind(VF_20190531, VF_20190601, 
-                  #VF_20190602, #not written ? not sure why
+                  VF_20190602, #not written ? not sure why
                   VF_20190603, VF_20190604, VF_20190605, VF_20190606)
 
 write_csv(VF_week1, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week1.csv"))
 write_csv(VF_week2, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week2.csv"))
-write_csv(VF_week1, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week1.csv"))
+write_csv(VF_week3, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week3.csv"))
 glimpse(VF_20190607)
 
 ########################################################################################################################
@@ -126,7 +128,7 @@ glimpse(VF_week1_InclusionBord)
 mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 
-####################  convert lat and longs to x and Y    ##########################################
+####################  convert lat and longs to x and Y    Thsi is not working yet ##########################################
 coordinates(VF_week1_InclusionBord) <- ~ lon + lat
 proj4string(VF_week1_InclusionBord) <- wgs84CRS   # assume input lat and longs are WGS84
 #make new object_1
@@ -347,6 +349,14 @@ VF_week3_InclusionBord %>%
        y = "Distance (m) from VF")
 
 ##### MISSING THIS DATA SOMETHING WRONG WITH IMPORT #######
+#test <- VF_week3_InclusionBord %>% 
+#  filter(date == "2019-06-02") 
+#glimpse(test)
+#ggplot(test, aes(x = hms, y = value, colour = collar))+
+#  geom_point()+
+#  facet_wrap(.~collar)
+#summary(test)  
+  
 VF_week3_InclusionBord %>% 
   filter(date == "2019-06-02") %>% 
   ggplot(aes(x = hms, y = value, colour = collar))+
