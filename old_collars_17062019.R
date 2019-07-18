@@ -1,3 +1,6 @@
+install.packages("tidyverse")
+install.packages("biogeo")
+
 library(tidyverse)
 library(dplyr)
 library(lubridate)
@@ -19,6 +22,8 @@ library(sf)
 #### streamline approach with function#####
 
 setwd("W:/VF/Eden_Valley/logged_VF_data/collar logs_download2/")
+
+
 
 #function 1 - just defining how the csv files should be imported
 #this needs to be done for this data set because the data column 'value' is a mix of numbers and text
@@ -99,6 +104,8 @@ write_csv(VF_week2, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_
 write_csv(VF_week3, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week3.csv"))
 glimpse(VF_20190607)
 
+###check####
+
 ########################################################################################################################
 #1.filter out data that is just for the InclusionBorder_m
 #2.change the value to double
@@ -107,6 +114,9 @@ glimpse(VF_20190607)
 #1.filter out data that is just for the InclusionBorder_m
 #and                                       
 #2.change the value to double         
+
+
+VF_week1 <- read_csv("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/VF_week1.csv")
 
 
 VF_week1_InclusionBord <- filter(VF_week1, event == "InclusionBorder_m") %>%   
@@ -146,7 +156,6 @@ VF_week1_InclusionBord %>%
   filter(date == "2019-05-17") %>% 
 ggplot(aes(x = hms, y = value, colour = collar))+
   geom_point()+
-  facet_wrap(.~collar)+
   facet_wrap(.~collar)+
   geom_hline(yintercept = 0)+
   theme(axis.text.x=element_text(angle=90,hjust=1),
