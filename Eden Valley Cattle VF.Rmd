@@ -23,7 +23,7 @@ library(gganimate)
 library(png)
 library(gifski)
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(include = FALSE)
 ```
 
 ## The first steps is to bring in the data files
@@ -42,7 +42,7 @@ This function attaches the collar name to the file
 creates a sensiable time column and writes the files out to another directory.
 Note this could be changes if you are working on a vitrual machine.
 
-```{r setting up functions to import the data}
+```{r setting up functions to import the data, eval=FALSE, include=FALSE}
 read_csv_FUN <- function(file ){
   the_data <- read_csv(file, col_types = cols(value = col_character()))
 }
@@ -85,7 +85,7 @@ import_function <- function(mydir){
 It would be better if this was a loop.
 
 
-```{r use function bring n data, echo=FALSE}
+```{r use function bring n data, eval=FALSE, include=FALSE}
 ##### Use the function to bring in data for one day that is specified ######
 VF_20190607 <- import_function("20190607")
 VF_20190606 <- import_function("20190606")
@@ -436,25 +436,113 @@ VF_week1_2_3_InclusionBord %>%
 
 Still got some problem points...
 
-```{r animation}
-VF_week1_2_3_InclusionBord %>% 
-  filter(date == "2019-05-20") %>% 
-  ggplot(aes(x = POINT_X, y = POINT_Y, colour = collar))+
-  geom_point()+
-  labs(title= "week1 2019-05-xx",
-       x= "POINT_X",
-       y = "POINT_Y")+
-       #,
-       #subtitle = "hour: {closest_state}",
-       #caption = "Frame {frame} of {nframes} ({progress * 100}%)")+
-  theme(axis.text.x=element_text(angle=90,hjust=1),
-        legend.position = "none")+
-  transition_time(hour)
+I can use the clip(from sf) function but I need to convert it into a df and I am not sure how to get it back
+1) turn data into spatial data
+```{r use clip}
+
+### turn my data into 'shapefile' format - not sure i need this step 
+
+mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
+
+VF_week1_2_3_InclusionBord_spatial <- st_as_sf(VF_week1_2_3_InclusionBord, coords = c("POINT_X", "POINT_Y"), crs = mapCRS)
+glimpse(VF_week1_2_3_InclusionBord_spatial)
+
+
+
+
 ```
 
 
-  
-  
 
+2)Bring in the paddock and VF boundaries and plot it
+
+```{r}
+###bring in the polygon file
+eden_valley <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/EdenValley_site1GDA_a.shp")
+
+fence1 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence1.shx")
+fence2 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence2.shx")
+fence3 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence3.shx")
+fence4 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence4a.shx")
+fence5 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence_hotwire_rd_side_clipped.shx")
+
+
+ggplot()+
+  geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
+  geom_sf(data = fence1, size = 1 , colour = "black")+
+  geom_sf(data = fence2, size = 1 , colour = "grey")+
+  geom_sf(data = fence3, size = 1 , colour = "blue")+
+  geom_sf(data = fence4, size = 1 , colour = "red")+
+  geom_sf(data = fence5, size = 1 , colour = "pink")+
+  coord_sf()
+
+```
+
+  #) clip function
+
+```{r clip }
+VF_week1_2_3_InclusionBord_clip <- st_intersection(VF_week1_2_3_InclusionBord_spatial, eden_valley)
+head(VF_week1_2_3_InclusionBord_clip)
+```
+
+
+Plot
+
+```{r might be too big?}
+ggplot()+
+    geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
+    geom_sf(data = fence1, size = 1 , colour = "black")+
+    geom_sf(data = fence2, size = 1 , colour = "grey")+
+    geom_sf(data = fence3, size = 1 , colour = "blue")+
+    geom_sf(data = fence4, size = 1 , colour = "red")+
+    geom_sf(data = fence5, size = 1 , colour = "pink")+
+    geom_sf(data = VF_week1_2_3_InclusionBord_clip, size = 1 , colour = "black")
+  coord_sf()
+```
+
+Not sure how to get my spatial data back to df
+also need to create a new colum for the animal number and work out when to change it over
+
+
+
+Make an annimation
+
+```{r annimation}
+###can split this up a bit and add in larger data set
+##subset data to messing about
+animmation_data <- VF_week1_2_3_InclusionBord_clip %>% 
+  filter(date == "2019-05-20") 
+write.csv(animmation_data, "animmation_data.csv")
+
+p4a <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_sf(data = fence3, color = "grey") +
+  geom_sf(data = fence4, color = "grey") +
+  geom_sf(data = fence5, color = "grey") +
+  geom_point(data = animmation_data, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
+  #facet_wrap(.~collar)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_text(angle=90,hjust=1))
+
+  
+p4a  
+  
+p4b <- p4a +
+  labs(subtitle = 'Date: {format(frame_time, "%b %e")}',
+       caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  transition_time(time) +
+  shadow_wake(0.3)
+
+animate(p4b, duration = 30) 
+```
 
 
