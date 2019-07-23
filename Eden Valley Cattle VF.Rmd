@@ -166,6 +166,7 @@ proj4string(VF_week1_2_3_InclusionBord) <- wgs84CRS   # assume input lat and lon
 #make new object_1
 VF_week1_2_3_InclusionBord_1 <- spTransform(VF_week1_2_3_InclusionBord, mapCRS)
 #make new df_1
+head(VF_week1_2_3_InclusionBord_1,3)
 VF_week1_2_3_InclusionBord = as.data.frame(VF_week1_2_3_InclusionBord_1) #this has the new coordinates projected !YES!!
 #make new df with point x and point y
 VF_week1_2_3_InclusionBord <- mutate(VF_week1_2_3_InclusionBord,POINT_X = lon,  POINT_Y = lat )
@@ -495,6 +496,15 @@ head(VF_week1_2_3_InclusionBord_clip)
 Plot
 
 ```{r might be too big?}
+
+##subset the data so I can work out what I am doing 
+VF_week1_2_3_InclusionBord_clip_subset <- filter(VF_week1_2_3_InclusionBord_clip, 
+                                          between(time, as_datetime('2019-05-28 08:00:00', tz="GMT"),
+                                                        as_datetime('2019-05-28 09:30:00', tz="GMT"))) 
+
+
+
+
 ggplot()+
     geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
     geom_sf(data = fence1, size = 1 , colour = "black")+
@@ -502,13 +512,32 @@ ggplot()+
     geom_sf(data = fence3, size = 1 , colour = "blue")+
     geom_sf(data = fence4, size = 1 , colour = "red")+
     geom_sf(data = fence5, size = 1 , colour = "pink")+
-    geom_sf(data = VF_week1_2_3_InclusionBord_clip, size = 1 , colour = "black")
+    geom_sf(data = VF_week1_2_3_InclusionBord_clip_subset, size = 1 , colour = "black")
   coord_sf()
 ```
 
 Not sure how to get my spatial data back to df
 also need to create a new colum for the animal number and work out when to change it over
 
+Mess about getting my spatial data back into data frame
+```{r back to df}
+
+head(VF_week1_2_3_InclusionBord_clip_subset ,3)
+
+VF_week1_2_3_InclusionBord_clip_subset = as.data.frame(VF_week1_2_3_InclusionBord_clip_subset) 
+#make new df with point x and point y
+VF_week1_2_3_InclusionBord_clip_subset <- mutate(VF_week1_2_3_InclusionBord_clip_subset,POINT_X = lon,  POINT_Y = lat )
+
+head(VF_week1_2_3_InclusionBord_clip_subset ,3)
+
+
+##try on real data
+head(VF_week1_2_3_InclusionBord_clip ,3)
+df_VF_week1_2_3_InclusionBord_clip <- data.frame(VF_week1_2_3_InclusionBord_clip)
+df_VF_week1_2_3_InclusionBord_clip <- mutate(df_VF_week1_2_3_InclusionBord_clip,
+                                             POINT_X = lon,  POINT_Y = lat )
+
+```
 
 
 Make an annimation
@@ -516,9 +545,14 @@ Make an annimation
 ```{r annimation}
 ###can split this up a bit and add in larger data set
 ##subset data to messing about
-animmation_data <- VF_week1_2_3_InclusionBord_clip %>% 
-  filter(date == "2019-05-20") 
-write.csv(animmation_data, "animmation_data.csv")
+
+head(VF_week1_2_3_InclusionBord_clip_subset ,3)
+
+animmation_data <- VF_week1_2_3_InclusionBord_clip_subset %>% 
+  filter(date == "2019-05-28") 
+#write.csv(animmation_data, "animmation_data.csv")
+
+head(animmation_data,3)
 
 p4a <- ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
@@ -535,9 +569,10 @@ p4a <- ggplot() +
 
   
 p4a  
-  
+  #as_datetime('2019-05-28 08:00:00', tz="GMT"
 p4b <- p4a +
-  labs(subtitle = 'Date: {format(frame_time, "%b %e")}',
+  labs( title = 'Date: {format(frame_time, "%b %e")}',
+        subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
   transition_time(time) +
   shadow_wake(0.3)
