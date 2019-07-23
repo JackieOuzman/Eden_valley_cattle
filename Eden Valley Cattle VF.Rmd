@@ -516,10 +516,8 @@ ggplot()+
   coord_sf()
 ```
 
-Not sure how to get my spatial data back to df
-also need to create a new colum for the animal number and work out when to change it over
+Get my spatial data back to df
 
-Mess about getting my spatial data back into data frame
 ```{r back to df}
 
 head(VF_week1_2_3_InclusionBord_clip_subset ,3)
@@ -579,5 +577,7 @@ p4b <- p4a +
 
 animate(p4b, duration = 30) 
 ```
+Create a new colum for the animal number and work out when to change it over
+
 
 
