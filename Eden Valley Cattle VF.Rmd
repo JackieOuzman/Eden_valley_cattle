@@ -414,14 +414,7 @@ ggplot() +
         axis.text.x=element_text(angle=90,hjust=1))
 
 
-  ggplot(Inclusion_20_05_2019, aes(x = POINT_X, y = POINT_Y))+
-  geom_point()+
-  facet_wrap(.~collar)+
-  labs(title= "week1 2019-05-xx",
-       x= "POINT_X",
-       y = "POINT_Y")+
-  theme(axis.text.x=element_text(angle=90,hjust=1),
-        legend.position = "none")
+  
 ```
 
 
