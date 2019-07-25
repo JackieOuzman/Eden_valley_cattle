@@ -98,16 +98,84 @@ df_VF_week1_2_3_InclusionBord_c_test <- mutate(df_VF_week1_2_3_InclusionBord_c,
 
 
 
-head(df_VF_week1_2_3_InclusionBord_c_test,3)
-table(df_VF_week1_2_3_InclusionBord_c_test$animal_ID)
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_20_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~collar)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())+
+  labs(title= "Fence 1 and 2 with data from 2019-05-20")
+       
+ggsave(filename = "x_yInclusion_Dist20_05.png", device = "png" ,dpi=600)
 
 
-mutate(VF_week1_2_3_InclusionBord,
-       chuck = case_when(
-         collar_ID == "ad2042" & 
-           value > 3000  ~ 1,
-         TRUE ~ chuck))
 
-VF_week1_2_3_InclusionBord_clip_20 <- filter(VF_week1_2_3_InclusionBord_clip, 
-                                                   between(time, as_datetime('2019-05-20 12:00:00', tz="GMT"),
-                                                           as_datetime('2019-05-20 23:55:00', tz="GMT"))) 
+
+
+head(Inclusion_20_05_2019 ,3)
+
+
+
+
+
+p4a <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_20_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
+  #facet_wrap(.~collar)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())
+
+
+p4a  
+
+p4b <- p4a +
+  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  transition_time(time) +
+  shadow_wake(0.3)
+
+animation_20th <- animate(p4b, duration = 30) 
+animation_20th
+
+anim_save(animation = animation_20th , filename = "animation_20th.gif")
+
+
+
+##### DAy 2
+
+p4a <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_21_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
+  #facet_wrap(.~collar)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())
+
+
+p4a  
+
+p4b <- p4a +
+  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  transition_time(time) +
+  shadow_wake(0.3)
+
+animation_21th <- animate(p4b, duration = 60) 
+animation_21th
+
+anim_save(animation = animation_21th , filename = "animation_21th.gif")
+
+
