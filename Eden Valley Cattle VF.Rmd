@@ -184,6 +184,8 @@ If I need to look at the other data types I might need to revist this step.
 
 #write_csv(VF_week1_2_3_InclusionBord, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", #"VF_week1_2_3_InclusionBord.csv"))
 
+saveRDS(VF_week1_2_3_InclusionBord,  paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/","VF_week1_2_3_InclusionBord.rds"))
+
 VF_week1_2_3_InclusionBord <- read_csv("//172.20.104.21/OSM_Mel_ces_spatiotemp_scratch/Users/Jackie/VF_week1_2_3_InclusionBord.csv")
 
 ```
@@ -272,7 +274,7 @@ ggplot()+
 
  3) use the st intersection function to clip the data to the paddock boundaries.
 
-```{r clip }
+```{r clip_a }
 VF_week1_2_3_InclusionBord_clip <- st_intersection(VF_week1_2_3_InclusionBord_spatial, eden_valley)
 head(VF_week1_2_3_InclusionBord_clip, 3)
 ```
@@ -334,16 +336,11 @@ test <- filter(df_VF_week1_2_3_InclusionBord_c,collar_ID == "ac220" )
 min(as_datetime(test$time, tz="GMT")) 
 max(as_datetime(test$time, tz="GMT"))
 
-df_VF_week1_2_3_InclusionBord_c_test <- mutate(df_VF_week1_2_3_InclusionBord_c,
+df_VF_week1_2_3_InclusionBord_c_animalID <- mutate(df_VF_week1_2_3_InclusionBord_c,
                                              animal_ID = case_when(
                                                collar_ID == "ac138" ~ "Q46",
                                                collar_ID == "ac187" ~ "Q36",
-                                               collar_ID == "ac204"  &
-                                                 between(time, as_datetime('2019-05-20 12:30:00', tz="GMT"),
-                                                         as_datetime('2019-05-30 13:26:00', tz="GMT")) ~ "Q108",
-                                               #collar_ID == "xxxx"  &
-                                               #  between(time, as_datetime('2019-xx-xx xx:xx:00', tz="GMT"),
-                                               #          as_datetime('2019-xx-xx xx:xx:00', tz="GMT")) ~ "Q108",
+                                               collar_ID == "ac204" ~ "Q108",
                                                collar_ID == "ac207" ~ "Q42",
                                                collar_ID == "ac212" ~ "Q29",
                                                collar_ID == "ac213" &
@@ -381,312 +378,34 @@ df_VF_week1_2_3_InclusionBord_c_test <- mutate(df_VF_week1_2_3_InclusionBord_c,
 
 ```
 
-
-
-
-# 4. Now I need to view each day collar to work out when the collars failed.
-I have done this using the filter function and then check out the distance from fence.
-
-```{r inspect data to view quaility}
-dim(df_VF_week1_2_3_InclusionBord_c_test)
-Inclusion_20_05_2019 <- df_VF_week1_2_3_InclusionBord_c_test %>% 
-  filter(date == "2019-05-20") 
-
-  ggplot(Inclusion_20_05_2019, aes(x = hms, y = value, colour = collar))+
-  geom_point()+
-  facet_wrap(.~collar)+
-  geom_hline(yintercept = 0)+
-  theme(axis.text.x=element_text(angle=90,hjust=1),
-        legend.position = "none")+
-  labs(title= "weekX 2019-xx-xx",
-       x= "Time of day",
-       y = "Distance (m) from VF")
-
-
-ggplot() +
-  geom_sf(data = eden_valley, color = "black", fill = NA) +
-  geom_sf(data = fence1, color = "grey") +
-  geom_sf(data = fence2, color = "grey") +
-  geom_point(data = Inclusion_20_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
-  facet_wrap(.~collar)+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.text.x=element_text(angle=90,hjust=1))
-
-
-  
+```{r saving week1 to 3 df}
+saveRDS(df_VF_week1_2_3_InclusionBord_c_animalID,  paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/","df_VF_week1_2_3_InclusionBord_c_animalID.rds"))
 ```
 
 
 
-Remove week one odd readings.
-I am doing this by creating a new data column called chuck.
-I assign a value of 1 if I intent to remove it and a value 2 if I want to retain it.
-ac209 20/5/2019 
-ac207 23/5/2019 07:00-10:00
-ac213 23/5/2019 07:00 -10:00
+
+This indicates that some distance measure are wrong and should be removed.
+I think anything between 0 to 500 should be retained and -500 to 0
+
+```{r remove invalid distance readings}
 
 
-
-```{r filter out week 1 readings}
-################################################################################################################
-###################      Filter out rows of data for 20/5/2019 ac209  #################################
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                      chuck = case_when(
-                                        collar_ID == "ac209" & 
-                                          date == as_datetime('2019-05-20') ~ 1,
-                                                  TRUE ~ 2))
-#check_week1 <- filter(VF_week1_2_3_InclusionBord,
-                      #chuck == 1)
-#dim(check_week1)
-
-################################################################################################################
-###################      Filter out rows of data for 23/5/2019 ac207 and ac213 #################################
-################### This creates a clm called chuck for the data to be discarded
-
-################ for ac207 between 08:00 to 09:00 on the 23/5/2019 ####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                               chuck = case_when(
-                               collar_ID == "ac207" & 
-                               between(time, as_datetime('2019-05-23 07:00:00', tz="GMT"),
-                               as_datetime('2019-05-23 10:00:00', tz="GMT")) ~1,
-                               TRUE ~ chuck))
-
-#check_week1 <- filter(VF_week1_2_3_InclusionBord, chuck == 1)
-#dim(check_week1)
-################ for ac213 between 08:00 to 09:00 on the 23/5/2019 ####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                      chuck = case_when(
-                                        collar_ID == "ac213" & 
-                                          between(time, as_datetime('2019-05-23 07:00:00', tz="GMT"),
-                                                  as_datetime('2019-05-23 10:00:00', tz="GMT")) ~1,
-                                        TRUE ~ chuck))
+Check_df_VF_week1_2_3_InclusionBord_c_animalID <- filter(df_VF_week1_2_3_InclusionBord_c_animalID, 
+                                                  between(value,-500, 0)|
+                                                  between(value,0, 500))
 
 
-#check_week1 <- filter(VF_week1_InclusionBord_VF1,chuck == 1)
-#summary(check_week1)
-#dim(check_week1)
+#summary(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
 
-```
+ saveRDS(Check_df_VF_week1_2_3_InclusionBord_c_animalID,  paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/","df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds"))                                             
 
-Remove week two odd readings.
-I am doing this by creating a new data column called chuck.
-I assign a value of 1 if I intent to remove it and a value 2 if I want to retain it.
-To chuck:
-ac219 from 15:00 onwards      on the  24/5/2019
-ac219                         on the  25/5/2019 
-ac220  before  11:00  on the  on the 25/5/2019 
-ad3925 before 20:30 to 22:30  on the  25/5/2019
-ad3396 between 1500-23:00     on the  27/5/2019
-ad3925 between 19:30-20:30     on the  27/5/2019
-ac320 between 11:00-11:30     on the  28/5/2019
-ac209 between 11:00-11:30     on the  28/5/2019
-ac211 between 11:00-11:30     on the  28/5/2019
-ad3396 between 10:00-12:30     on the  28/5/2019
-ac211 between whole day     on the  28/5/2019
-ad2042 value >3000 on the 28/5/2019
-ac333 06:00-14:00 on the 30/5/2019
-
-
-
-
-
-
-
-```{r filter out week 2 readings}
-################ for ac219 from 15:00  on the 24/5/2019 and 25/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                      chuck = case_when(
-                                        collar_ID == "ac219" & 
-                                          between(time, as_datetime('2019-05-24 15:00:00', tz="GMT"),
-                                               as_datetime('2019-05-24 24:00:00', tz="GMT")) ~1,
-                                        TRUE ~ chuck))
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                      chuck = case_when(
-                                        collar_ID == "ac219" & 
-                                          date == as_datetime('2019-05-25') ~ 1,
-                                        TRUE ~ chuck))
-
-############### for ac220 before 11:00  on the  25/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                  chuck = case_when(
-                                    collar_ID == "ac220" & 
-                                      time < as_datetime('2019-05-25 11:00:00', tz="GMT") ~ 1,
-                                    TRUE ~ chuck))
-
-############### for ad3925 before 20:30 to 21:30  on the  25/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ad3925" & 
-                                       between(time, as_datetime('2019-05-25 20:30:00', tz="GMT"),
-                                               as_datetime('2019-05-25 22:30:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-############### for ad3396 between 1500-23:00  on the  27/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                      chuck = case_when(
-                                        collar_ID == "ad3396" & 
-                                          between(time, as_datetime('2019-05-27 15:00:00', tz="GMT"),
-                                                  as_datetime('2019-05-27 23:00:00', tz="GMT")) ~1,
-                                        TRUE ~ chuck))
-
-
-
-############### for ad3925 between 1500-23:00  on the  27/5/2019####
-#table(VF_week2_InclusionBord1$collar_ID)
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ad3925" & 
-                                       between(time, as_datetime('2019-05-27 19:30:00', tz="GMT"),
-                                               as_datetime('2019-05-27 20:30:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-
-
-
-############### for ac320 between 10:00-11:45  on the  28/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ac320" & 
-                                       between(time, as_datetime('2019-05-28 11:00:00', tz="GMT"),
-                                               as_datetime('2019-05-28 11:30:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-
-
-############### for ac209 between 10:00-11:45  on the  28/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ac209" & 
-                                       between(time, as_datetime('2019-05-28 11:00:00', tz="GMT"),
-                                               as_datetime('2019-05-28 11:30:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-
-
-############### for ac211 between 10:00-11:45  on the  28/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ac211" & 
-                                       between(time, as_datetime('2019-05-28 11:00:00', tz="GMT"),
-                                               as_datetime('2019-05-28 11:30:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-
-
-############### for ad3396 between 10:00-11:45  on the  28/5/2019####
-
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ad3396" & 
-                                       between(time, as_datetime('2019-05-28 10:00:00', tz="GMT"),
-                                               as_datetime('2019-05-28 12:30:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-
-############### for ac211 between 10:00-11:45  on the  28/5/2019####
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                      chuck = case_when(
-                                        collar_ID == "ac211" & 
-                                          date == as_datetime('2019-05-28') ~ 1,
-                                        TRUE ~ chuck))
-
-
-############### for ad2042 for values greater than 3000meter from VF  on the  28/5/2019####
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ad2042" & 
-                                       value > 3000  ~ 1,
-                                     TRUE ~ chuck))
-
-
-############### for ac333   on the 06:00 - 14:00 30/5/2019####
-#table(VF_week2_InclusionBord1$collar_ID)
-VF_week1_2_3_InclusionBord <-  mutate(VF_week1_2_3_InclusionBord,
-                                   chuck = case_when(
-                                     collar_ID == "ac333" & 
-                                       between(time, as_datetime('2019-05-30 06:00:00', tz="GMT"),
-                                               as_datetime('2019-05-30 14:00:00', tz="GMT")) ~1,
-                                     TRUE ~ chuck))
-
-check_week2 <- filter(VF_week1_2_3_InclusionBord,
-                      chuck == 1)
-dim(check_week2)
-
-
-
-```
-
-Now remove the rows we dont want
-```{r filtering out the rows}
-
-VF_week1_2_3_InclusionBord <- filter(VF_week1_2_3_InclusionBord, chuck == 2)
-
-VF_week1_2_3_InclusionBord <- mutate(VF_week1_2_3_InclusionBord,
-                                    hour= hour(time))
-
-```
-
-Check out what we have done??
-```{r}
-VF_week1_2_3_InclusionBord %>% 
-  filter(date == "2019-05-20") %>% 
-  ggplot(aes(x = POINT_X, y = POINT_Y, colour = hour))+
-  geom_point()+
-  facet_wrap(.~collar)+
-  labs(title= "week1 2019-05-xx",
-       x= "POINT_X",
-       y = "POINT_Y")+
-  theme(axis.text.x=element_text(angle=90,hjust=1),
-        legend.position = "none")
 ```
 
 
 
 
 
-
-
-
-  #) clip function
-
-```{r clip }
-VF_week1_2_3_InclusionBord_clip <- st_intersection(VF_week1_2_3_InclusionBord_spatial, eden_valley)
-head(VF_week1_2_3_InclusionBord_clip)
-```
-
-
-Plot
-
-```{r might be too big?}
-
-##subset the data so I can work out what I am doing 
-VF_week1_2_3_InclusionBord_clip_subset <- filter(VF_week1_2_3_InclusionBord_clip, 
-                                          between(time, as_datetime('2019-05-28 08:00:00', tz="GMT"),
-                                                        as_datetime('2019-05-28 09:30:00', tz="GMT"))) 
-
-
-
-
-ggplot()+
-    geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
-    geom_sf(data = fence1, size = 1 , colour = "black")+
-    geom_sf(data = fence2, size = 1 , colour = "grey")+
-    geom_sf(data = fence3, size = 1 , colour = "blue")+
-    geom_sf(data = fence4, size = 1 , colour = "red")+
-    geom_sf(data = fence5, size = 1 , colour = "pink")+
-    geom_sf(data = VF_week1_2_3_InclusionBord_clip_subset, size = 1 , colour = "black")
-  coord_sf()
-```
 
 
 
@@ -722,8 +441,8 @@ p4a <- ggplot() +
 p4a  
  
 p4b <- p4a +
-  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
-        subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+  labs( #title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
   transition_time(time) +
   shadow_wake(0.3)
