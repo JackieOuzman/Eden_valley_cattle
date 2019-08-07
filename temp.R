@@ -179,3 +179,122 @@ animation_21th
 anim_save(animation = animation_21th , filename = "animation_21th.gif")
 
 
+
+
+
+##################################################################################################################################
+
+Check_df_VF_week1_2_3_InclusionBord_c_animalID
+summary(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
+
+Inclusion_week1_almost_positive <- Inclusion_week1 %>% 
+  filter(value >= -5 )
+####################################################################################################################################
+################                          TRy something a bit different                 ############################################
+####################################################################################################################################
+#I want to create a clm called start this will have value in the row > 0 and value in the previous row <0
+#I want to create a clm called end this will have value in the row > 0 and value in the previous row >0
+#then I will do occurance search on start and end 
+
+Inclusion_week1_almost_positive_test1 <- mutate(Inclusion_week1_almost_positive,
+                                        start = ifelse(value >0,"start", "" ))
+                                        #start = lead(ifelse(value >0,"start", "" )))
+summary(Inclusion_week1_almost_positive_test1$start) #37788
+
+
+
+
+Inclusion_week1_almost_positive_test4 <- mutate(Inclusion_week1_almost_positive,
+       start = case_when(
+         value >=0  & lead(value <0) ~ "start",
+         TRUE ~ "NA"))
+                           
+                                                
+summary(Inclusion_week1_almost_positive_test4$start) #37788 its the same is it working - think so just shifted everything by one.
+##################################################################################################################################
+
+
+
+
+Inclusion_week1_positive1 <- group_by(Inclusion_week1_positive,
+                                      day, animal_ID) %>%   
+  summarise(count = n())
+
+head(Inclusion_week1_positive1)
+#change the day to factor
+Inclusion_week1_positive1$day_factor <- as.factor(Inclusion_week1_positive1$day)
+
+
+
+
+
+
+head(dat_vlines)
+
+ggplot(Inclusion_week1_positive1, aes(x = day_factor, y = count))+
+  geom_boxplot(alpha = 0.2)+
+  geom_point()+
+  theme_bw()+
+  #facet_wrap(.~animal_ID)+
+  geom_vline(xintercept = c(1,3),color = "blue", size=0.5)+ #this is the order which it appears on the axis can add 1.3 values too!
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+        #,legend.position = "none")+
+  labs(title= "Week1",
+       x= "Day",
+       y = "Counts of logged activity inside exclusion zone")
+
+
+
+
+
+##################################################################################################################################
+#########################       create incursion events ##########################################################################
+
+head(Inclusion_week1_positive)
+
+Inclusion_week1_positive <- Inclusion_week1 %>% 
+  filter(value >=0 )
+
+summary(Inclusion_week1_positive)
+
+
+
+
+cattle_incursion_events <- mutate(Inclusion_week1_positive,
+                                  event_1 = case_when(
+                                    between(value, 0, 0.5) ~ 1,
+                                    TRUE ~ 2))
+
+
+
+        
+head(cattle_incursion_events)  
+  
+library(lubridate)
+summary(cattle_incursion_events)  
+ 
+
+cattle_incursion_events_20_Q46 <- filter(cattle_incursion_events, date == "2019-05-20" & animal_ID == "Q46")  
+summary(cattle_incursion_events_20_Q46) 
+ggplot(cattle_incursion_events_20_Q46, aes(time, value))+
+  geom_point()
+  
+ggplot(cattle_incursion_events_20_Q46, aes(time, event_1))+
+  geom_point()
+  
+###looks like 4 events occured on this day for this animal
+
+
+
+
+##########################################################################################################################
+################               This is the counting of occurances example              ###################################
+##########################################################################################################################
+new_test <- cattle_incursion_events_20_Q46 %>% 
+  group_by(event_1) %>% 
+  mutate(Index=1:n())
+print(new_test)
+
+
+#####################################################################################################################################
+##### match function in action

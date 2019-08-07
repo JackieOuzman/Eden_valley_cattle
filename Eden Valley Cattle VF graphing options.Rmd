@@ -118,40 +118,31 @@ Inclusion_week1 <- filter(df_VF_week1_2_3_InclusionBord_c_animalID,
                                                   between(time, as_datetime('2019-05-20 12:30:01', tz="GMT"),
                                                          as_datetime('2019-05-27 24:00:00', tz="GMT")))
                                                  
-head(Inclusion_week1)
+#head(Inclusion_week1)
 Inclusion_week1_positive <- Inclusion_week1 %>% 
-  filter(value >0 )
-head(Inclusion_week1_positive)  
+  filter(value >=0 )
+ 
 
 Inclusion_week1_positive1 <- group_by(Inclusion_week1_positive,
                              day, animal_ID) %>%   
                     summarise(count = n())
                     
-head(Inclusion_week1_positive1)
-#change the day to factor
-Inclusion_week1_positive1$day <- as.factor(Inclusion_week1_positive1$day)
 
-ggplot(Inclusion_week1_positive1, aes(x = day, y = count))+
-  geom_point()+
+#change the day to factor
+Inclusion_week1_positive1$day_factor <- as.factor(Inclusion_week1_positive1$day)
+
+
+ggplot(Inclusion_week1_positive1, aes(x = day_factor, y = count))+
   geom_boxplot(alpha = 0.2)+
+  geom_point()+
   theme_bw()+
   #facet_wrap(.~animal_ID)+
-  geom_vline(xintercept = 20)+
-  theme(axis.text.x=element_text(angle=90,hjust=1),
-        legend.position = "none")+
+  geom_vline(xintercept = c(1,4),color = "blue", size=0.5)+ #this is the order which it appears on the axis can add 1.3 values too!
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+        #,legend.position = "none")+
   labs(title= "Week1",
        x= "Day",
-       y = "Counts of events inside exclusion zone")
-
-
-
-
-
-
-
-
-
-
+       y = "Counts of logged activity inside exclusion zone")
 
 
 ```
