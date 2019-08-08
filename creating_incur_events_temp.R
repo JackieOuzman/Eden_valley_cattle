@@ -71,44 +71,48 @@ table(temp1$event)
 #this makes a new df with new clm called Index that index the start and end values using no fill clm
 str(temp1)
 
-temp_3333 <- temp1 %>% 
-  group_by(start_end_no_fill) %>% 
-  mutate(Index=1:n())
 
-temp_3 <- mutate(temp1,
-                   group_by(start_end_no_fill) %>% 
-                   mutate(Index=1:n()) %>% 
-                   ungroup())
-                 
-                 
+temp1 <-  group_by(temp1, start_end_no_fill) %>% 
+           mutate(Index=1:n())  
+           
 
-#something i wrong with the fill function I think its the data type???
-temp_3 <- mutate(temp_3, index_ch = as.character(Index))
-
-head(temp_3)
-str(temp_3)
-#now we add another clm called index start which just has index start values and rest is na
-temp_4 <- mutate(temp_3,
-                index_start = case_when(
-                  start_end_no_fill == "start" ~ index_ch,
-                  TRUE ~ start_end_no_fill))
+temp1 <- mutate(temp1,
+                 index_start = case_when(
+                   start_end_no_fill == "start" ~ as.character(Index)))
+temp1 <- data.frame(ungroup(temp1) )
+temp1 <- fill(temp1, index_start, .direction = "down")
 
 
-
-
-
-#na_if(val1, 999))
-str(temp_4)
-table(temp_4$index_start)
-temp4 <- mutate(temp4,
-                 index_start = na_if(index_start, 0))
-#fill the missing values in this new clm umm its not working??
-temp_5 <- fill(temp_4, index_start, .direction = "down")
-
-
-temp_3 <- mutate(temp_3,
+temp1 <- mutate(temp1,
                          event_number = case_when(
-                           event == "grazing_zone"  ~ event, 
-                           event ==  "exclusion_zone" & start_end_no_fill == "start"  ~ paste0("exclusion_zone_" , index_start)))
-#This won't work!!'  
+                           start_end == "temp"  ~ "-999", 
+                           start_end ==  "end"  ~ "-999",
+                           start_end ==  "start"  ~ index_start))
+#### remove the working out clms
+temp1 <- select(temp1, -index_start, -Index, -start_end_no_fill, -start_end)
 
+temp1$event_number <- na_if(temp1$event_number, "-999")
+
+
+##############################################################################################################################################
+#####################         Happy with this ! #############################################################################################
+#############################################################################################################################################
+######    summary stats ###################################################################################################################
+
+
+#what is the max distance in an event
+
+#this should be ok to have per animal??
+dist_event <- group_by(temp1,event_number) %>% 
+    summarise(max_dist = max(value), 
+              mean_dis = mean(value))
+print(dist_event)
+
+#what is the start and end time for the event
+
+time_event <- group_by(temp1,event_number) %>% 
+  summarise(max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            time_in_exlusion_zone = max_time - min_time)
+
+print(time_event)
