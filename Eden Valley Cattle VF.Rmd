@@ -321,9 +321,9 @@ df_VF_week1_2_3_InclusionBord_c <- filter(df_VF_week1_2_3_InclusionBord_c, time 
 
 ```
 
-# Create new data column for animal number and iceqube
+# Create new data column for animal number and iceqube (havent done this iceqube data yet)
 The same animals were used for the lenghth of the trial, but at times the collars were changed.
-I need to assign animal number to correct collars.
+I need to assign animal number to correct collars.- done
 This log was made by Jim and Damian.
 
 "\\FSSA2-ADL\clw-share1\Microlab\VF\Eden_Valley\logged_VF_data\collar log record complete.xlsx"
@@ -332,9 +332,9 @@ Now to find them!
 
 ```{r animal_ID}
 
-test <- filter(df_VF_week1_2_3_InclusionBord_c,collar_ID == "ac220" ) 
-min(as_datetime(test$time, tz="GMT")) 
-max(as_datetime(test$time, tz="GMT"))
+#test <- filter(df_VF_week1_2_3_InclusionBord_c,collar_ID == "ac220" ) 
+#min(as_datetime(test$time, tz="GMT")) 
+#max(as_datetime(test$time, tz="GMT"))
 
 df_VF_week1_2_3_InclusionBord_c_animalID <- mutate(df_VF_week1_2_3_InclusionBord_c,
                                              animal_ID = case_when(
@@ -405,9 +405,16 @@ Check_df_VF_week1_2_3_InclusionBord_c_animalID <- filter(df_VF_week1_2_3_Inclusi
 
 
 
+More jobs for this dataset.
+Bring in the audio and stimulation data.
+This should have a date/time clm and collar number the value is coded as TRUE I think?
+should also have a GPS point.
+This should just be appened to the bottom of my data set.
 
+the below animation code should be moved the the graphing options markdown document.
 
-
+I alos need to bring in the last weeks of data 
+work out if this will run faster on peracry and how I go about doing that.
 
 
 Make an annimation
