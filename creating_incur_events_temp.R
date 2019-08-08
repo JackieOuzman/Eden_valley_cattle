@@ -10,11 +10,17 @@ Check_df_VF_week1_2_3_InclusionBord_c_animalID
 #clipped to paddock boundar and then distance values of -500 to 500 retained.
 summary(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
 head(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
+table(Check_df_VF_week1_2_3_InclusionBord_c_animalID$animal_ID)
 #create a subset of data to play with - just one animal
 animal_IDQ46 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
   filter(animal_ID == "Q46")
 head(animal_IDQ46)
 
+animal_IDQ46_Q10 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(animal_ID == "Q46"|
+         animal_ID == "Q10")
+head(animal_IDQ46_Q10)
+table(animal_IDQ46_Q10$animal_ID)
 ####################################################################################################################################
 ################                          TRy something a bit different                 ############################################
 ####################################################################################################################################
@@ -116,3 +122,54 @@ time_event <- group_by(temp1,event_number) %>%
             time_in_exlusion_zone = max_time - min_time)
 
 print(time_event)
+
+
+###############################################################################################################################################
+###############################################################################################################################################
+############################ will this work with multiple animal? 
+##############################################################################################################################################
+
+#1) arrange function 
+# this is two animal ID data for first 3 weeks, 
+#clipped to paddock boundar and then distance values of -500 to 500 retained.
+
+
+#starting point for this work = animal_IDQ46_Q10
+#arrange by time
+animal_IDQ46_Q10_arrange <- arrange(animal_IDQ46_Q10, animal_ID, time )
+# define a satrt and end time for event
+animal_IDQ46_Q10_test <- mutate(animal_IDQ46_Q10_arrange,
+                         start_end = case_when(
+                           value >=0  & lag(value <=0) ~ "start", 
+                           value <=0  & lag(value >=0) ~ "end"),
+                         start_end_no_fill = case_when(
+                           value >=0  & lag(value <=0) ~ "start", 
+                           value <=0  & lag(value >=0) ~ "end"))
+
+#############################################################################################################################################
+#########################       UP TO HERE
+
+
+#subset data to work out fill function all good
+dim(animal_IDQ46_Q10_test)
+temp_2animals <- animal_IDQ46_Q10_test[c(1905:3000),,] &
+                  animal_IDQ46_Q10_test[6000:6500,]
+
+temp1 <- fill(temp, start_end, .direction = "down")
+head(temp1)
+
+table(temp1$start_end_no_fill)
+table(temp1$start_end)
+
+
+#need to code my na as other I need as na for the fill function above
+temp1$start_end <- replace_na(temp1$start_end, "temp")
+
+temp1 <- mutate(temp1,
+                event = case_when(
+                  start_end == "start" ~ "exclusion_zone",
+                  start_end == "temp" ~ "grazing_zone",
+                  start_end == "end" ~ "grazing_zone"
+                  
+                ))
+table(temp1$event)
