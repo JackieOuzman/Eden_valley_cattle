@@ -33,8 +33,33 @@ I have done this using the filter function and then check out the distance from 
 
 Day 1 20/5/2019
 Fence 1 and 2
+Bring in the data from the data import and cleaning R markdown file
+```{r read in data file}
 
-```{r inspect data to view quaility day1}
+
+Check_df_VF_week1_2_3_InclusionBord_c_animalID <- read_rds("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds")
+
+eden_valley <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/EdenValley_site1GDA_a.shp")
+
+fence1 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence1.shx")
+fence2 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence2.shx")
+fence3 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence3.shx")
+fence4 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence4a.shx")
+fence5 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence_hotwire_rd_side_clipped.shx")
+
+ 
+```
+
+
+```{r inspect data to view quaility day1, echo=FALSE}
+
+
 dim(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
 head(Check_df_VF_week1_2_3_InclusionBord_c_animalID,3)
 
@@ -69,7 +94,7 @@ x_yInclusion_Dist20_05
 ggsave(filename = "x_yInclusion_Dist20_05.png", device = "png" ,dpi=600)
   
 ```
-```{r inspect data to view quaility day2}
+```{r inspect data to view quaility day2, echo=FALSE}
 
 
 Inclusion_21_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
@@ -107,14 +132,18 @@ ggsave(filename = "x_yInclusion_Dist21_05.png", device = "png" ,dpi=600)
 
 
 Other options with the inclusion data
-```{r filter postive values and summaries with plots}
+```{r filter postive values and summaries with plots1}
+
+
+#Check_df_VF_week1_2_3_InclusionBord_c_animalID
+
 
 Inclusion_20_21_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
   filter(date == "2019-05-21" | date == "2019-05-20" )
 #head(Inclusion_20_21_05_2019)
-summary(df_VF_week1_2_3_InclusionBord_c_animalID$time)
+summary(Inclusion_20_21_05_2019$time)
 
-Inclusion_week1 <- filter(df_VF_week1_2_3_InclusionBord_c_animalID, 
+Inclusion_week1 <- filter(Check_df_VF_week1_2_3_InclusionBord_c_animalID, 
                                                   between(time, as_datetime('2019-05-20 12:30:01', tz="GMT"),
                                                          as_datetime('2019-05-27 24:00:00', tz="GMT")))
                                                  

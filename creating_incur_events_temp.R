@@ -126,7 +126,7 @@ print(time_event)
 
 ###############################################################################################################################################
 ###############################################################################################################################################
-############################ will this work with multiple animal? 
+############################ will this work with multiple animal? YES It will
 ##############################################################################################################################################
 
 #1) arrange function 
@@ -146,30 +146,81 @@ animal_IDQ46_Q10_test <- mutate(animal_IDQ46_Q10_arrange,
                            value >=0  & lag(value <=0) ~ "start", 
                            value <=0  & lag(value >=0) ~ "end"))
 
-#############################################################################################################################################
-#########################       UP TO HERE
-
+#
 
 #subset data to work out fill function all good
 dim(animal_IDQ46_Q10_test)
-temp_2animals <- animal_IDQ46_Q10_test[c(1905:3000),,] &
-                  animal_IDQ46_Q10_test[6000:6500,]
+temp_2animals <- animal_IDQ46_Q10_test[c(300:6000,300000:335000),] 
 
-temp1 <- fill(temp, start_end, .direction = "down")
-head(temp1)
+temp_2animals_arrange <- arrange(temp_2animals, animal_ID, time )
 
-table(temp1$start_end_no_fill)
-table(temp1$start_end)
+temp_2animals <- fill(temp_2animals_arrange, start_end, .direction = "down")
+head(temp_2animals)
+
+table(temp_2animals$start_end_no_fill)
+table(temp_2animals$start_end)
 
 
 #need to code my na as other I need as na for the fill function above
-temp1$start_end <- replace_na(temp1$start_end, "temp")
+temp_2animals$start_end <- replace_na(temp_2animals$start_end, "temp")
 
-temp1 <- mutate(temp1,
+temp_2animals <- mutate(temp_2animals,
                 event = case_when(
                   start_end == "start" ~ "exclusion_zone",
                   start_end == "temp" ~ "grazing_zone",
                   start_end == "end" ~ "grazing_zone"
                   
                 ))
-table(temp1$event)
+table(temp_2animals$event)
+##########################################################################################################################
+################              Create a new clm caled event number             ###################################
+##########################################################################################################################
+#this makes a new df with new clm called Index that index the start and end values using no fill clm
+str(temp_2animals)
+
+#This is indexing all animal and then the event start - not sure if I need to add day here too?
+#should I add arrange here?
+temp_2animals_group_animal <-  group_by(temp_2animals, animal_ID, start_end_no_fill) %>% 
+  mutate(Index=1:n())  
+
+
+temp_2animals_group_animal <- mutate(temp_2animals_group_animal,
+                index_start = case_when(
+                  start_end_no_fill == "start" ~ as.character(Index)))
+
+temp_2animals_group_animal <- data.frame(ungroup(temp_2animals_group_animal) )
+
+temp_2animals_group_animal_arr <- arrange(temp_2animals_group_animal, animal_ID, time )
+
+temp_2animals_group_animal_1 <- fill(temp_2animals_group_animal_arr, index_start, .direction = "down")
+
+
+temp_2animals_group_animal_1 <- mutate(temp_2animals_group_animal_1,
+                event_number = case_when(
+                  start_end == "temp"  ~ "-999", 
+                  start_end ==  "end"  ~ "-999",
+                  start_end ==  "start"  ~ index_start))
+#### remove the working out clms
+temp_2animals_group_animal_1 <- select(temp_2animals_group_animal_1, -index_start, -Index, -start_end_no_fill, -start_end)
+
+temp_2animals_group_animal_1$event_number <- na_if(temp_2animals_group_animal_1$event_number, "-999")
+
+
+#####    summary stats ###################################################################################################################
+
+
+#what is the max distance in an event
+
+#temp_2animals_group_animal_1
+
+head(temp_2animals_group_animal_1)
+
+
+event_sum <- group_by(temp_2animals_group_animal_1, day, animal_ID, event_number) %>% 
+  summarise(max_dist = max(value), 
+            mean_dis = mean(value),
+            max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+            
+print(event_sum)
