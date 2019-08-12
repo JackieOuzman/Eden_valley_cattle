@@ -405,62 +405,9 @@ Check_df_VF_week1_2_3_InclusionBord_c_animalID <- filter(df_VF_week1_2_3_Inclusi
 
 
 
-More jobs for this dataset.
-Bring in the audio and stimulation data.
-This should have a date/time clm and collar number the value is coded as TRUE I think?
-should also have a GPS point.
-This should just be appened to the bottom of my data set.
-
-the below animation code should be moved the the graphing options markdown document.
-
-I alos need to bring in the last weeks of data 
-work out if this will run faster on peracry and how I go about doing that.
 
 
-Make an annimation
 
-```{r annimation}
-###can split this up a bit and add in larger data set
-##subset data to messing about
-
-head(df_VF_week1_2_3_InclusionBord_clip ,3)
-
-animmation_data <- df_VF_week1_2_3_InclusionBord_clip %>% 
-  filter(date == "2019-05-20") 
-#write.csv(animmation_data, "animmation_data.csv")
-
-head(animmation_data,3)
-
-p4a <- ggplot() +
-  geom_sf(data = eden_valley, color = "black", fill = NA) +
-  geom_sf(data = fence1, color = "grey") +
-  geom_sf(data = fence2, color = "grey") +
-  geom_sf(data = fence3, color = "grey") +
-  geom_sf(data = fence4, color = "grey") +
-  geom_sf(data = fence5, color = "grey") +
-  geom_point(data = animmation_data, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
-  #facet_wrap(.~collar)+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.text.x=element_text(angle=90,hjust=1))
-
-  
-p4a  
- 
-p4b <- p4a +
-  labs( #title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
-        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
-       caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
-  transition_time(time) +
-  shadow_wake(0.3)
-
-animation_20th <- animate(p4b, duration = 30) 
-
-anim_save(animation_20th, animation_20th)
-  
-  
-```
-Create a new colum for the animal number and work out when to change it over
 
 
 

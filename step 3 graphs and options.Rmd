@@ -1,0 +1,197 @@
+---
+title: "Step 3 graphs and options"
+author: "Jackie Ouzman"
+date: "12 August 2019"
+output: html_document
+---
+
+```{r setup and install load packages, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(readxl)
+
+library(ggplot2)
+library(readr)
+library(sp)
+library(biogeo)
+library(stringr)
+library(rgdal)
+library(sf)
+
+library(gganimate)
+library(png)
+library(gifski)
+```
+
+#I need to view specfic days 
+I have done this using the filter function and then check out the distance from fence.
+
+Day 1 20/5/2019
+Fence 1 and 2
+Bring in the data from the data import and cleaning R markdown file
+
+```{r load in the data, echo=FALSE, message=FALSE, warning=FALSE}
+Check_df_VF_week1_2_3_InclusionBord_c_animalID <- read_rds("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds")
+
+eden_valley <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/EdenValley_site1GDA_a.shp")
+
+fence1 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence1.shx")
+fence2 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence2.shx")
+fence3 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence3.shx")
+fence4 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence4a.shx")
+fence5 <- st_read(
+  "W:/VF/Eden_Valley/VF_Boundary/Fence_hotwire_rd_side_clipped.shx")
+
+head(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
+```
+
+
+
+```{r inspect data to view quaility day1}
+dim(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
+head(Check_df_VF_week1_2_3_InclusionBord_c_animalID,3)
+
+Inclusion_20_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(date == "2019-05-20") 
+
+Inclusion_Dist20_05 <-  ggplot(Inclusion_20_05_2019, aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~animal_ID)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "Week1 2019-05-20",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+Inclusion_Dist20_05
+#ggsave(filename = "Inclusion_Dist20_05.png", device = "png" )
+
+x_yInclusion_Dist20_05 <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_20_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())+
+  labs(title= "Fence 1 and 2 with data from 2019-05-20")
+
+x_yInclusion_Dist20_05
+
+#ggsave(filename = "x_yInclusion_Dist20_05.png", device = "png" ,dpi=600)
+```
+
+
+
+```{r inspect data to view quaility day2, echo=FALSE, message=FALSE, warning=FALSE}
+Inclusion_21_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(date == "2019-05-21") 
+
+Inclusion_Dist21_05 <-  ggplot(Inclusion_21_05_2019, aes(x = hms, y = value, colour = collar))+
+  geom_point()+
+  facet_wrap(.~animal_ID)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "Week1 2019-05-21",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+Inclusion_Dist20_05
+#ggsave(filename = "Inclusion_Dist21_05.png", device = "png" )
+
+x_yInclusion_Dist21_05 <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_21_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())+
+  labs(title= "Fence 1 and 2 with data from 2019-05-20")
+x_yInclusion_Dist21_05
+
+#ggsave(filename = "x_yInclusion_Dist21_05.png", device = "png" ,dpi=600)
+```
+
+Animation giff day 1 
+
+```{r animation for day 1}
+p4a <- ggplot() +
+  #ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_20_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
+  #facet_wrap(.~collar)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())
+
+
+p4a  
+
+p4b <- p4a +
+  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  transition_time(time) +
+  shadow_wake(0.3)
+
+animation_20th <- animate(p4b, duration = 60) 
+animation_20th
+
+#anim_save(animation = animation_20th , filename = "animation_20th.gif")
+```
+
+Animation giff day 2
+
+
+```{r animation for day 2}
+p4a <- ggplot() +
+  #ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = fence2, color = "grey") +
+  geom_point(data = Inclusion_21_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
+  #facet_wrap(.~collar)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())
+
+
+p4a  
+
+p4b <- p4a +
+  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  transition_time(time) +
+  shadow_wake(0.3)
+
+animation_20th <- animate(p4b, duration = 60) 
+animation_20th
+
+#anim_save(animation = animation_21th , filename = "animation_21th.gif")
+```
+
+
+Other option here would be to run this analysis for days that the VF was shifted
+assign colour to the  'trouble cows' and the rest are grey and see how the 'trouble cows' behaved at certain times.
+
+
+
