@@ -193,5 +193,97 @@ animation_20th
 Other option here would be to run this analysis for days that the VF was shifted
 assign colour to the  'trouble cows' and the rest are grey and see how the 'trouble cows' behaved at certain times.
 
+#plot VF boundaries
+```{r plot VF}
+ggplot()+
+  geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
+  geom_sf(data = fence1, size = 1 , colour = "black")+
+  geom_sf(data = fence2, size = 1 , colour = "grey")+
+  geom_sf(data = fence3, size = 1 , colour = "blue")+
+  geom_sf(data = fence4, size = 1 , colour = "red")+
+  geom_sf(data = fence5, size = 1 , colour = "pink")+
+  coord_sf()
+
+```
+
+#plot of audio and pulse data
+
+
+```{r bring in the audio and pulse data}
+VF_week1_2_3_InclusionBord_Audio_pulse <- read_rds("download2_R_output/VF_week1_2_3_InclusionBord_Audio_pulse.rds")
+```
+
+Plot the aduio data
+
+```{r plot the audio data}
+table(VF_week1_2_3_InclusionBord_Audio_pulse$event)
+
+VF_week1_2_3_Audio_pulse <- filter(VF_week1_2_3_InclusionBord_Audio_pulse, event != "InclusionBorder_m" )
+table(VF_week1_2_3_Audio_pulse$event)
+
+VF_week1_2_3_Audio_pulse <- mutate(VF_week1_2_3_Audio_pulse,
+                                   audio_pulse = case_when(
+                                     event == "Audio started" ~ "Audio",
+                                     event == "Audio started (short)" ~ "Audio",
+                                     event == "Audio started (short) [simulated]" ~ "Audio",
+                                     event == "Audio started [simulated]" ~ "Audio",
+                                     event == "Pulse started" ~ "Pulse",
+                                     event == "Pulse started [simulated]" ~ "Pulse"))
+
+Aduio_sum1 <- group_by(VF_week1_2_3_Audio_pulse, date, animal_ID, audio_pulse) %>% 
+  summarise(count = n())
+
+print(Aduio_sum1)
+#Aduio_sum1$day_factor <- as.factor(Aduio_sum1$day)
+
+
+VF_dates=data.frame(date=as.Date(c("2019-05-20", "2019-05-23", "2019-05-28", "2019-06-03")), 
+             event=c("VF1&2", "VF3", "VF4", "VF5"))
+filter(Aduio_sum1, count <50) %>% 
+ggplot( aes(x = date, y = count, colour = audio_pulse))+
+  #geom_boxplot(alpha = 0.2)+
+  geom_point()+
+  theme_bw()+
+  facet_wrap(. ~ animal_ID)+
+  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "Week1 to 3",
+       x= "Date",
+       y = "Counts of cues")
+
+### Audio
+filter(Aduio_sum1, count <50 & audio_pulse == "Audio") %>% 
+  ggplot( aes(x = date, y = count))+
+  #geom_boxplot(alpha = 0.2)+
+  geom_point()+
+  theme_bw()+
+  facet_wrap(. ~ animal_ID)+
+  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "Week1 to 3",
+       x= "Date",
+       y = "Counts of aduio cues")
+```
+
+
+Pulse cues
+```{r}
+### pulse
+filter(Aduio_sum1, count <50 & audio_pulse == "Pulse") %>% 
+  ggplot( aes(x = date, y = count))+
+  #geom_boxplot(alpha = 0.2)+
+  geom_point()+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "Week1 to 3",
+       x= "Date",
+       y = "Counts of pulse cues")
+
+```
 
 
