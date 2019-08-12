@@ -1,7 +1,7 @@
 ---
-title: "Eden Valley Cattle VF importing and cleaning data"
+title: "Step1 import files and clean data"
 author: "Jackie Ouzman"
-date: "18 July 2019"
+date: "12 August 2019"
 output: html_document
 ---
 
@@ -160,34 +160,37 @@ Note that there is an important step that might need to be revisted.
 
 I am just using InclusionBorder_m data and setting values to number.
 If I need to look at the other data types I might need to revist this step.
-```{r import merged week1 - 3 files}
 
-#VF_week1 <- read_csv("//172.20.104.21/OSM_Mel_ces_spatiotemp_scratch/Users/Jackie/VF_week1.csv")
-#VF_week2 <- read_csv("//172.20.104.21/OSM_Mel_ces_spatiotemp_scratch/Users/Jackie/VF_week2.csv")
-#VF_week3 <- read_csv("//172.20.104.21/OSM_Mel_ces_spatiotemp_scratch/Users/Jackie/VF_week3.csv")
+```{r import merged week1 - 3 files}
+#file://Fssa2-adl/clw-share1/Microlab/VF/Eden_Valley/logged_VF_data/download2_R_output/VF_week1.csv
+#VF_week1 <- read_csv("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/VF_week1.csv")
+#VF_week2 <- read_csv("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/VF_week2.csv")
+#VF_week3 <- read_csv("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/VF_week3.csv")
 
 ##########       Merge this all togther   ##########       
 #VF_week1_2_3 <- rbind(VF_week1, VF_week2, VF_week3)
-##########       ensure the column value is a number - double    ##########
-#VF_week1_2_3_InclusionBord <- filter(VF_week1_2_3, event == "InclusionBorder_m") %>%   
-#  mutate( value = as.double(value))
 
+#saveRDS(VF_week1_2_3,  paste0("download2_R_output/","VF_week1_2_3.rds"))
+
+VF_week1_2_3 <- read_rds("download2_R_output/VF_week1_2_3.rds")
 
  #########    Remove the NA   ##########
+VF_week1_2_3 <- VF_week1_2_3 %>% filter(!is.na(lat) | !is.na(lon))
 
-#VF_week1_2_3_InclusionBord <- VF_week1_2_3_InclusionBord %>% filter(!is.na(lat) | !is.na(lon))
+summary(VF_week1_2_3$lat)
+summary(VF_week1_2_3$lon)
 
-#summary(VF_week1_2_3_InclusionBord$lat)
-#summary(VF_week1_2_3_InclusionBord$lon)
 
-#write_csv(VF_week1_2_3_InclusionBord, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", #"VF_week1_2_3_InclusionBord.csv"))
 
-saveRDS(VF_week1_2_3_InclusionBord,  paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/","VF_week1_2_3_InclusionBord.rds"))
+##########       ensure the column value is a number - double    ##########
+VF_week1_2_3_InclusionBord <- filter(VF_week1_2_3, event == "InclusionBorder_m") %>%   
+  mutate( value = as.double(value))
+saveRDS(VF_week1_2_3_InclusionBord,  "download2_R_output/VF_week1_2_3_InclusionBord.rds")
 
-VF_week1_2_3_InclusionBord <- read_csv("//172.20.104.21/OSM_Mel_ces_spatiotemp_scratch/Users/Jackie/VF_week1_2_3_InclusionBord.csv")
+
+
 
 ```
-
 
 #3.Do projections
  
@@ -195,8 +198,8 @@ VF_week1_2_3_InclusionBord <- read_csv("//172.20.104.21/OSM_Mel_ces_spatiotemp_s
 #https://spatialreference.org/ref/epsg/gda94-mga-zone-56/
 #epsg projection 28356
 
-```{r project data}
 
+```{r projetion for inclusion week 1 -3}
 mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 
@@ -211,9 +214,7 @@ VF_week1_2_3_InclusionBord = as.data.frame(VF_week1_2_3_InclusionBord_1) #this h
 #make new df with point x and point y
 VF_week1_2_3_InclusionBord <- mutate(VF_week1_2_3_InclusionBord,POINT_X = lon,  POINT_Y = lat )
 head(VF_week1_2_3_InclusionBord)
-
 ```
-
 
 
 # Time to fix up the data 
@@ -224,8 +225,8 @@ The first task with this is to remove the data points that are not in the paddoc
 I can use the clip(from sf) function but I need to convert it into an sf object 
 1) turn df data into sf object to do spatial analysis on.
 
-```{r convert df to sf object}
 
+```{r VF_week1_2_3_InclusionBord_spatial}
 ### turn my data into 'shapefile' format - not sure i need this step 
 
 mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
@@ -233,51 +234,16 @@ mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
 VF_week1_2_3_InclusionBord_spatial <- st_as_sf(VF_week1_2_3_InclusionBord, coords = c("POINT_X", "POINT_Y"), crs = mapCRS)
 glimpse(VF_week1_2_3_InclusionBord_spatial)
 
-
-
-
 ```
 
+3) use the st intersection function to clip the data to the paddock boundaries.
 
-2)Bring in the paddock and VF boundaries and plot it
-
-```{r bring in the paddock boundaries and VF}
-###bring in the polygon file
-eden_valley <- st_read(
-  "W:/VF/Eden_Valley/VF_Boundary/EdenValley_site1GDA_a.shp")
-
-fence1 <- st_read(
-  "W:/VF/Eden_Valley/VF_Boundary/Fence1.shx")
-fence2 <- st_read(
-  "W:/VF/Eden_Valley/VF_Boundary/Fence2.shx")
-fence3 <- st_read(
-  "W:/VF/Eden_Valley/VF_Boundary/Fence3.shx")
-fence4 <- st_read(
-  "W:/VF/Eden_Valley/VF_Boundary/Fence4a.shx")
-fence5 <- st_read(
-  "W:/VF/Eden_Valley/VF_Boundary/Fence_hotwire_rd_side_clipped.shx")
-
-
-ggplot()+
-  geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
-  geom_sf(data = fence1, size = 1 , colour = "black")+
-  geom_sf(data = fence2, size = 1 , colour = "grey")+
-  geom_sf(data = fence3, size = 1 , colour = "blue")+
-  geom_sf(data = fence4, size = 1 , colour = "red")+
-  geom_sf(data = fence5, size = 1 , colour = "pink")+
-  coord_sf()
-
-```
-
-
- 3) use the st intersection function to clip the data to the paddock boundaries.
 
 ```{r clip_a }
 VF_week1_2_3_InclusionBord_clip <- st_intersection(VF_week1_2_3_InclusionBord_spatial, eden_valley)
 head(VF_week1_2_3_InclusionBord_clip, 3)
 ```
 
-Get my 'clipped spatial data' back to df
 
 ```{r back to df}
 
@@ -307,8 +273,8 @@ df_VF_week1_2_3_InclusionBord_c <- select(df_VF_week1_2_3_InclusionBord_clip,
                                              -lat)
 
 head(df_VF_week1_2_3_InclusionBord_c ,3)
-
 ```
+
 # Time to fix up the start date of trial 
 The first task with this is to remove the data points that are pre trial.
 
@@ -376,8 +342,10 @@ df_VF_week1_2_3_InclusionBord_c_animalID <- mutate(df_VF_week1_2_3_InclusionBord
 
 ```
 
+
+
 ```{r saving week1 to 3 df}
-saveRDS(df_VF_week1_2_3_InclusionBord_c_animalID,  paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/","df_VF_week1_2_3_InclusionBord_c_animalID.rds"))
+saveRDS(df_VF_week1_2_3_InclusionBord_c_animalID,  "download2_R_output/df_VF_week1_2_3_InclusionBord_c_animalID.rds")
 ```
 
 
@@ -396,16 +364,15 @@ Check_df_VF_week1_2_3_InclusionBord_c_animalID <- filter(df_VF_week1_2_3_Inclusi
 
 #summary(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
 
- saveRDS(Check_df_VF_week1_2_3_InclusionBord_c_animalID,  paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/","df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds"))                                             
+ saveRDS(Check_df_VF_week1_2_3_InclusionBord_c_animalID,  "download2_R_output/df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds")                                             
 
 ```
 
 
 
-
-
-
-
+This is the final product.
+It is the inclusion data that has X and Y coords,clipped to paddock bounadries, has animal id an distance values greater/ less than -500 and 500 removed
+df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds
 
 
 
