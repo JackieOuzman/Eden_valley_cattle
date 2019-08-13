@@ -83,13 +83,14 @@ x_yInclusion_Dist20_05 <- ggplot() +
   facet_wrap(.~animal_ID)+
   theme_bw()+
   theme(legend.position = "none",
-        axis.text.x=element_blank(),
-        axis.text.y=element_blank())+
-  labs(title= "Fence 1 and 2 with data from 2019-05-20")
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-20")+
+  xlab("") +
+  ylab("") 
 
 x_yInclusion_Dist20_05
 
-#ggsave(filename = "x_yInclusion_Dist20_05.png", device = "png" ,dpi=600)
+ggsave(filename = "x_yInclusion_Dist20_05.png", device = "png" ,dpi=600)
 ```
 
 
@@ -118,12 +119,14 @@ x_yInclusion_Dist21_05 <- ggplot() +
   facet_wrap(.~animal_ID)+
   theme_bw()+
   theme(legend.position = "none",
-        axis.text.x=element_blank(),
-        axis.text.y=element_blank())+
-  labs(title= "Fence 1 and 2 with data from 2019-05-20")
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-21")+
+  xlab("") +
+  ylab("") 
+
 x_yInclusion_Dist21_05
 
-#ggsave(filename = "x_yInclusion_Dist21_05.png", device = "png" ,dpi=600)
+ggsave(filename = "x_yInclusion_Dist21_05.png", device = "png" ,dpi=600)
 ```
 
 Animation giff day 1 
@@ -190,6 +193,95 @@ animation_20th
 ```
 
 
+Other days 
+
+```{r inspect data to view quaility Vf 3, echo=FALSE, message=FALSE, warning=FALSE}
+Inclusion_23_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(date == "2019-05-23") 
+
+
+x_yInclusion_Dist23_05 <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence3, color = "grey") +
+  geom_point(data = Inclusion_23_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-23")+
+  xlab("") +
+  ylab("") 
+
+x_yInclusion_Dist23_05
+
+ggsave(filename = "x_yInclusion_Dist23_05.png", device = "png" ,dpi=600)
+
+Inclusion_24_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(date == "2019-05-24") 
+x_yInclusion_Dist24_05 <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence3, color = "grey") +
+  geom_point(data = Inclusion_24_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-24")+
+  xlab("") +
+  ylab("") 
+
+x_yInclusion_Dist24_05
+
+ggsave(filename = "x_yInclusion_Dist24_05.png", device = "png" ,dpi=600)
+
+```
+
+fence 4
+
+
+```{r inspect data to view quaility Vf 4, echo=FALSE, message=FALSE, warning=FALSE}
+Inclusion_28_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(date == "2019-05-28" & animal_ID != "NA") 
+
+
+x_yInclusion_Dist28_05 <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence4, color = "grey") +
+  geom_point(data = Inclusion_28_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-28")+
+  xlab("") +
+  ylab("") 
+
+x_yInclusion_Dist28_05
+
+ggsave(filename = "x_yInclusion_Dist28_05.png", device = "png" ,dpi=600)
+
+Inclusion_29_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+  filter(date == "2019-05-29"& animal_ID != "NA") 
+x_yInclusion_Dist29_05 <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence4, color = "grey") +
+  geom_point(data = Inclusion_29_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-29")+
+  xlab("") +
+  ylab("") 
+
+x_yInclusion_Dist29_05
+
+ggsave(filename = "x_yInclusion_Dist29_05.png", device = "png" ,dpi=600)
+
+```
+
+
+
 Other option here would be to run this analysis for days that the VF was shifted
 assign colour to the  'trouble cows' and the rest are grey and see how the 'trouble cows' behaved at certain times.
 
@@ -219,7 +311,8 @@ Plot the aduio data
 table(VF_week1_2_3_InclusionBord_Audio_pulse$event)
 
 VF_week1_2_3_Audio_pulse <- filter(VF_week1_2_3_InclusionBord_Audio_pulse, event != "InclusionBorder_m" )
-table(VF_week1_2_3_Audio_pulse$event)
+with(VF_week1_2_3_Audio_pulse, table(event, animal_ID))
+with(VF_week1_2_3_Audio_pulse, table(event, date))
 
 VF_week1_2_3_Audio_pulse <- mutate(VF_week1_2_3_Audio_pulse,
                                    audio_pulse = case_when(
@@ -244,7 +337,7 @@ ggplot( aes(x = date, y = count, colour = audio_pulse))+
   #geom_boxplot(alpha = 0.2)+
   geom_point()+
   theme_bw()+
-  facet_wrap(. ~ animal_ID)+
+  #facet_wrap(. ~ animal_ID)+
   geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
   theme(axis.text.x=element_text(angle=90,hjust=1))+
   #,legend.position = "none")+
@@ -252,17 +345,23 @@ ggplot( aes(x = date, y = count, colour = audio_pulse))+
        x= "Date",
        y = "Counts of cues")
 
+#can I change the date to a factor and then create a box plot?
+Aduio_sum1$date_factor <- factor(Aduio_sum1$date)
+table(Aduio_sum1$date_factor)
 ### Audio
 filter(Aduio_sum1, count <50 & audio_pulse == "Audio") %>% 
-  ggplot( aes(x = date, y = count))+
-  #geom_boxplot(alpha = 0.2)+
+#filter(Aduio_sum1, animal_ID == "Q36" & date_factor != "2019-06-06" & audio_pulse == "Audio") %>% 
+#filter(Aduio_sum1, audio_pulse == "Audio") %>% 
+  ggplot( aes(x = date_factor, y = count))+
+  geom_boxplot(alpha = 0.2)+
   geom_point()+
   theme_bw()+
-  facet_wrap(. ~ animal_ID)+
-  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
+  #facet_wrap(. ~ animal_ID)+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
   theme(axis.text.x=element_text(angle=90,hjust=1))+
   #,legend.position = "none")+
-  labs(title= "Week1 to 3",
+  labs(title= "",
        x= "Date",
        y = "Counts of aduio cues")
 ```
@@ -271,19 +370,173 @@ filter(Aduio_sum1, count <50 & audio_pulse == "Audio") %>%
 Pulse cues
 ```{r}
 ### pulse
-filter(Aduio_sum1, count <50 & audio_pulse == "Pulse") %>% 
-  ggplot( aes(x = date, y = count))+
-  #geom_boxplot(alpha = 0.2)+
+#filter(Aduio_sum1, count <50 & audio_pulse == "Pulse") %>% 
+filter(Aduio_sum1, audio_pulse == "Pulse") %>% 
+  ggplot( aes(x = date_factor, y = count))+
+  geom_boxplot(alpha = 0.2)+
   geom_point()+
   theme_bw()+
   #facet_wrap(. ~ animal_ID)+
-  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
   theme(axis.text.x=element_text(angle=90,hjust=1))+
   #,legend.position = "none")+
-  labs(title= "Week1 to 3",
+  labs(title= "",
        x= "Date",
        y = "Counts of pulse cues")
 
 ```
+
+
+#Map out the exclusion data.
+I have created a new varaible which is the when the animal is in the exclusion zone (ie in non grazing area)
+
+```{r bring in the exclusion data}
+VF_week1_2_3_exclusion <- read_rds("download2_R_output/VF_week1_2_3_InclusionBord_c_animalID_fill_2.rds")
+```
+
+Summaries the data based on animal and day
+
+```{r summaries exclusion data}
+
+event_sum <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_2, day, animal_ID, event_number) %>% 
+  summarise(max_dist = max(value), 
+            mean_dis = mean(value),
+            max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+            
+print(event_sum)
+```
+Plot the exclusion data
+
+Check out the data first
+seems that a few animals did not get assigned to animal ID
+ac220 on the 25th around 11:00
+ad3396 on the 27th around 16:19
+ac213 on the 28th 06:44
+
+I think I will need to revist step 1 
+
+```{r inspect the exclusion data}
+head(VF_week1_2_3_InclusionBord_c_animalID_fill_2)
+table(VF_week1_2_3_InclusionBord_c_animalID_fill_2$animal_ID)
+check_out_NA <- filter(VF_week1_2_3_InclusionBord_c_animalID_fill_2, animal_ID == "NA")
+head(check_out_NA)
+table(check_out_NA$collar_ID)
+with(check_out_NA, table(day, collar_ID))
+
+
+```
+For now let just exclude the animal ID that has NA and see what we have...
+
+```{r plot exc data}
+#filter out all the data that does not have animal ID ie na and only retain exclsuion events
+VF_week1_2_3_InclusionBord_c_animalID_fill_3 <- filter(VF_week1_2_3_InclusionBord_c_animalID_fill_2, animal_ID != "NA" &
+                                                       event == "exclusion_zone")
+
+head(VF_week1_2_3_InclusionBord_c_animalID_fill_2)
+
+with(VF_week1_2_3_InclusionBord_c_animalID_fill_3, table(day, animal_ID))
+#still have missing animal ID for certain days
+head(VF_week1_2_3_InclusionBord_c_animalID_fill_3)
+# the below is a grouping of individual animals per day per event number
+event_sum_3 <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_3, date, animal_ID, event_number) %>% 
+  summarise(max_dist = max(value), 
+            mean_dis = mean(value),
+            max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+head(event_sum_3)
+
+#can I change the date to a factor and then create a box plot?
+event_sum_3$date_factor <- factor(event_sum_3$date)
+
+VF_dates=data.frame(date=as.Date(c("2019-05-20", "2019-05-23", "2019-05-28", "2019-06-03")), 
+             event=c("VF1&2", "VF3", "VF4", "VF5"))
+       
+filter(event_sum_3, max_dist < 30) %>% 
+#event_sum_3 %>% 
+    ggplot(aes(x = date_factor, y = max_dist))+
+  geom_point()+
+  geom_boxplot(alpha=0.2)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "Max distance")
+```
+
+
+mean_dis 
+
+```{r exl mean_dis}
+
+  ggplot(event_sum_3, aes(x = date_factor, y = mean_dis))+
+  geom_point()+
+  #geom_boxplot()+
+  theme_bw()+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "Week1 to 3",
+       x= "date",
+       y = "mean distance")
+```
+
+
+
+period_time 
+
+```{r exl period of time}
+
+  ggplot(event_sum_3, aes(x = date_factor, y = period_time))+
+  geom_boxplot()+
+  theme_bw()+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "Week1 to 3",
+       x= "date",
+       y = "period of time")
+```
+
+What about number of events per day per cow?
+```{r number of events}
+head(VF_week1_2_3_InclusionBord_c_animalID_fill_3)
+event_sum_4 <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_3, date, animal_ID) %>% 
+  summarise(max_number_events = max(event_number))
+
+#the number of events increment so at the end of day 06/06 we will have a total
+#so what about making a new clm with animalID, Day and event number and then only retaining the unquie ones so we can count?
+
+VF_week1_2_3_InclusionBord_c_animalID_fill_4 <- mutate(VF_week1_2_3_InclusionBord_c_animalID_fill_3,
+                                                       ID_clm = paste0(animal_ID,"_", date, "_", event_number))
+
+head(VF_week1_2_3_InclusionBord_c_animalID_fill_4)
+VF_week1_2_3_InclusionBord_c_animalID_fill_4_dis <- distinct(VF_week1_2_3_InclusionBord_c_animalID_fill_4, ID_clm, .keep_all = TRUE)
+
+event_sum_5 <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_4_dis, date, animal_ID) %>% 
+  summarise(count = n())
+
+head(event_sum_5)
+event_sum_5$date_factor <- factor(event_sum_5$date)
+
+ ggplot(event_sum_5, aes(x = date_factor, y = count))+
+  geom_point()+
+  geom_boxplot(alpha = 0.2)+
+  theme_bw()+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "count of events")
+```
+
 
 

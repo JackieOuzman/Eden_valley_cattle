@@ -375,4 +375,10 @@ It is the inclusion data that has X and Y coords,clipped to paddock bounadries, 
 df_VF_week1_2_3_InclusionBord_c_animalID_clean.rds
 
 
+This indicated that we are missing some animal ID values...
+```{r check of final}
+head(Check_df_VF_week1_2_3_InclusionBord_c_animalID)
+with(Check_df_VF_week1_2_3_InclusionBord_c_animalID, table(date, animal_ID))
+```
+
 
