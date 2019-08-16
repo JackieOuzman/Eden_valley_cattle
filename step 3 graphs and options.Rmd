@@ -91,6 +91,22 @@ x_yInclusion_Dist20_05 <- ggplot() +
 x_yInclusion_Dist20_05
 
 ggsave(filename = "x_yInclusion_Dist20_05.png", device = "png" ,dpi=600)
+
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "blue") +
+  geom_sf(data = fence2, color = "blue") +
+  geom_point(data = Inclusion_20_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  #facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-20")+
+  xlab("") +
+  ylab("") 
+
+
+
 ```
 
 
@@ -127,6 +143,20 @@ x_yInclusion_Dist21_05 <- ggplot() +
 x_yInclusion_Dist21_05
 
 ggsave(filename = "x_yInclusion_Dist21_05.png", device = "png" ,dpi=600)
+
+
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "blue") +
+  geom_sf(data = fence2, color = "blue") +
+  geom_point(data = Inclusion_21_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  #facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-21")+
+  xlab("") +
+  ylab("") 
 ```
 
 Animation giff day 1 
@@ -213,6 +243,19 @@ x_yInclusion_Dist23_05 <- ggplot() +
   ylab("") 
 
 x_yInclusion_Dist23_05
+#######################           No facet wrap #######################  
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence3, color = "blue") +
+  geom_point(data = Inclusion_23_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-23")+
+  xlab("") +
+  ylab("") 
+
+
 
 ggsave(filename = "x_yInclusion_Dist23_05.png", device = "png" ,dpi=600)
 
@@ -233,6 +276,18 @@ x_yInclusion_Dist24_05 <- ggplot() +
 x_yInclusion_Dist24_05
 
 ggsave(filename = "x_yInclusion_Dist24_05.png", device = "png" ,dpi=600)
+
+#######################           No facet wrap #######################
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence3, color = "blue") +
+  geom_point(data = Inclusion_24_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-24")+
+  xlab("") +
+  ylab("") 
 
 ```
 
@@ -260,6 +315,20 @@ x_yInclusion_Dist28_05
 
 ggsave(filename = "x_yInclusion_Dist28_05.png", device = "png" ,dpi=600)
 
+
+#######################           No facet wrap #######################
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence4, color = "blue") +
+  geom_point(data = Inclusion_28_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-28")+
+  xlab("") +
+  ylab("") 
+
+
 Inclusion_29_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
   filter(date == "2019-05-29"& animal_ID != "NA") 
 x_yInclusion_Dist29_05 <- ggplot() +
@@ -277,6 +346,23 @@ x_yInclusion_Dist29_05 <- ggplot() +
 x_yInclusion_Dist29_05
 
 ggsave(filename = "x_yInclusion_Dist29_05.png", device = "png" ,dpi=600)
+
+
+#######################           No facet wrap #######################
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence4, color = "blue") +
+  geom_sf(data = fence5, color = "blue") +
+  geom_sf(data = fence1, color = "blue") +
+  geom_sf(data = fence2, color = "blue") +
+  geom_sf(data = fence3, color = "blue") +
+  geom_point(data = Inclusion_29_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-29")+
+  xlab("") +
+  ylab("") 
 
 ```
 
@@ -469,6 +555,49 @@ filter(event_sum_3, max_dist < 30) %>%
   labs(title= "",
        x= "date",
        y = "Max distance")
+
+################   more summary #####################
+head(event_sum_3)
+event_sum_3a <- group_by(event_sum_3, date, animal_ID) %>% 
+  summarise(max_dist_per_animal_per_day = max(max_dist), 
+            mean_dis_per_animal_per_day = mean(max_dist))
+head(event_sum_3a)
+
+
+event_sum_3a$date_factor <- factor(event_sum_3a$date)
+event_sum_3a_subset <- filter(event_sum_3a, date < as_datetime('2019-06-01', tz="GMT"))
+
+
+filter(event_sum_3a_subset, max_dist_per_animal_per_day < 20) %>% 
+#event_sum_3a %>% 
+    ggplot(aes(x = date_factor, y = max_dist_per_animal_per_day))+
+  #geom_point()+
+  geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "Max distance per animal per day")
+head(event_sum_3a)
+filter(event_sum_3a_subset, mean_dis_per_animal_per_day < 20) %>% 
+#event_sum_3a %>% 
+    ggplot(aes(x = date_factor, y = mean_dis_per_animal_per_day))+
+  #geom_point()+
+  geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "Mean distance per animal per day")
+
 ```
 
 
