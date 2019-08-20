@@ -43,14 +43,14 @@ library(readxl)
 library(ggplot2)
 library(readr)
 library(sp)
-library(biogeo)
+#library(biogeo)
 library(stringr)
 library(rgdal)
 library(sf)
 
-library(gganimate)
-library(png)
-library(gifski)
+#library(gganimate)
+#library(png)
+#library(gifski)
 
 knitr::opts_chunk$set(include = FALSE)
 ```
@@ -70,6 +70,9 @@ W:/VF/Eden_Valley/logged_VF_data/collar logs_download2/
 This function attaches the collar name to the file
 creates a sensiable time column and writes the files out to another directory.
 Note this could be changes if you are working on a vitrual machine.
+
+I have no idea why this won't run on Pearcey in the Rmarkdown enviroment - it works as a stand alone script
+I have messed around with the setting the working directory etc...
 
 ```{r setting up functions to import the data, eval=FALSE, include=FALSE}
 read_csv_FUN <- function(file ){
@@ -104,7 +107,7 @@ import_function <- function(mydir){
            date= date(time),
            month = month(time),
            day = day(time))
-  write_csv(VF, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_", mydir, ".csv")) 
+  #write_csv(VF, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_", mydir, ".csv")) 
 }
 
 
@@ -116,6 +119,9 @@ It would be better if this was a loop.
 
 ```{r use function bring n data, eval=FALSE, include=FALSE}
 ##### Use the function to bring in data for one day that is specified ######
+getwd()
+setwd("collar logs_download2/")
+
 VF_20190607 <- import_function("20190607")
 VF_20190606 <- import_function("20190606")
 VF_20190605 <- import_function("20190605")
@@ -147,9 +153,9 @@ VF_week3 <- rbind(VF_20190531, VF_20190601,
                   VF_20190602, #not written ? not sure why
                   VF_20190603, VF_20190604, VF_20190605, VF_20190606)
 
-write_csv(VF_week1, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week1.csv"))
-write_csv(VF_week2, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week2.csv"))
-write_csv(VF_week3, path = paste0("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/", "VF_week3.csv"))
+write_csv(VF_week1, path = paste0("VF_week1.csv"))
+write_csv(VF_week2, path = paste0("VF_week2.csv"))
+write_csv(VF_week3, path = paste0("VF_week3.csv"))
 glimpse(VF_20190607)
 
 ```
@@ -168,7 +174,7 @@ If I need to look at the other data types I might need to revist this step.
 #VF_week3 <- read_csv("W:/VF/Eden_Valley/logged_VF_data/download2_R_output/VF_week3.csv")
 
 ##########       Merge this all togther   ##########       
-#VF_week1_2_3 <- rbind(VF_week1, VF_week2, VF_week3)
+VF_week1_2_3 <- rbind(VF_week1, VF_week2, VF_week3)
 
 #saveRDS(VF_week1_2_3,  paste0("download2_R_output/","VF_week1_2_3.rds"))
 
@@ -185,7 +191,8 @@ summary(VF_week1_2_3$lon)
 ##########       ensure the column value is a number - double    ##########
 VF_week1_2_3_InclusionBord <- filter(VF_week1_2_3, event == "InclusionBorder_m") %>%   
   mutate( value = as.double(value))
-saveRDS(VF_week1_2_3_InclusionBord,  "download2_R_output/VF_week1_2_3_InclusionBord.rds")
+
+saveRDS(VF_week1_2_3_InclusionBord,  "VF_week1_2_3_InclusionBord.rds")
 
 
 
@@ -199,7 +206,7 @@ saveRDS(VF_week1_2_3_InclusionBord,  "download2_R_output/VF_week1_2_3_InclusionB
 #epsg projection 28356
 
 
-```{r projetion for inclusion week 1 -3}
+```{r projetion for inclusion week 1 -3 using sp}
 mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
 wgs84CRS <- CRS("+init=epsg:4326")   # 4326 WGS 84 - assumed for input lats and longs
 
@@ -216,7 +223,14 @@ VF_week1_2_3_InclusionBord <- mutate(VF_week1_2_3_InclusionBord,POINT_X = lon,  
 head(VF_week1_2_3_InclusionBord)
 ```
 
+```{r projetion for inclusion week 1 -3 using sf}
+head(VF_week1_2_3_InclusionBord)
+VF_week1_2_3_InclusionBord_1 <- st_as_sf(VF_week1_2_3_InclusionBord, coords = c("lat", "lon"), crs = 4326)
+head(VF_week1_2_3_InclusionBord_1)
+st_transform(VF_week1_2_3_InclusionBord_1, 28355 )
 
+saveRDS(VF_week1_2_3_InclusionBord_1,  "VF_week1_2_3_InclusionBord_1.rds")
+```
 # Time to fix up the data 
 The first task with this is to remove the data points that are not in the paddock.
 
@@ -226,26 +240,27 @@ I can use the clip(from sf) function but I need to convert it into an sf object
 1) turn df data into sf object to do spatial analysis on.
 
 
-```{r VF_week1_2_3_InclusionBord_spatial}
-### turn my data into 'shapefile' format - not sure i need this step 
 
-mapCRS <- CRS("+init=epsg:28354")     # 28355 = GDA_1994_MGA_Zone_54
-
-VF_week1_2_3_InclusionBord_spatial <- st_as_sf(VF_week1_2_3_InclusionBord, coords = c("POINT_X", "POINT_Y"), crs = mapCRS)
-glimpse(VF_week1_2_3_InclusionBord_spatial)
-
-```
 
 3) use the st intersection function to clip the data to the paddock boundaries.
 
 
 ```{r clip_a }
-VF_week1_2_3_InclusionBord_clip <- st_intersection(VF_week1_2_3_InclusionBord_spatial, eden_valley)
-head(VF_week1_2_3_InclusionBord_clip, 3)
+eden_valley <- st_transform(eden_valley, 28355 )
+head(eden_valley)
+head(VF_week1_2_3_InclusionBord_1)
+geo <- st_geometry(VF_week1_2_3_InclusionBord_1)
+head(geo)
+plot(geo)
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+   geom_sf(data = VF_week1_2_3_InclusionBord_1_geo)
+  
+VF_week1_2_3_InclusionBord_clip <- st_intersection(VF_week1_2_3_InclusionBord_1, eden_valley)
 ```
+Dont think I need this step
 
-
-```{r back to df}
+```{r back to df, eval=FALSE, include=FALSE}
 
 
 
@@ -281,7 +296,7 @@ The first task with this is to remove the data points that are pre trial.
 ```{r remove pre trial values}
 #############  Remove Pre trial readings ##############
 
-df_VF_week1_2_3_InclusionBord_c <- filter(df_VF_week1_2_3_InclusionBord_c, time > as_datetime('2019-05-20 12:30:00', tz="GMT"))
+df_VF_week1_2_3_InclusionBord_c <- filter(VF_week1_2_3_InclusionBord_clip, time > as_datetime('2019-05-20 12:30:00', tz="GMT"))
 
 ```
 
