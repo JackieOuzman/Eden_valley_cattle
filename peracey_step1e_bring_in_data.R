@@ -90,7 +90,7 @@ plot(st_geometry(sp_VF4_InclusionBord_clip))
 #############    Recal the distance from VF line ########################################################
 
 #bring in the VF 
-fence4 <- st_read("Fence4.shp")
+fence4 <- st_read("Fence4a.shp")
 st_crs(fence4) <- 28354
 st_crs(fence4)
 plot(st_geometry(fence4))
@@ -169,7 +169,7 @@ sp_VF4_InclusionBord_animalID <- mutate(sp_VF4_InclusionBord_clip,
 #check we are assignining all the collar ID to animal names
 head(sp_VF4_InclusionBord_animalID)
 with(sp_VF4_InclusionBord_animalID, table(date, animal_ID))
-
+with(sp_VF4_InclusionBord_animalID, table(date, collar_ID))
 #the location of the NA
 #NA_sp_VF4_InclusionBord_animalID <- filter(sp_VF4_InclusionBord_animalID,
 #                                           animal_ID == "NA")
