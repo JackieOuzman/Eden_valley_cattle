@@ -126,6 +126,10 @@ class(sp_VF3_InclusionBord_clip$dist)
 
 
 ### changed the start time for could of renames
+max_time_df <- as_datetime(max(sp_VF3_InclusionBord_animalID$time), tz="GMT") 
+print(max_time_df)
+min_time_df <- as_datetime(min(sp_VF3_InclusionBord_animalID$time), tz="GMT") 
+print(min_time_df)
 
 sp_VF3_InclusionBord_animalID <- mutate(sp_VF3_InclusionBord_clip,
                                                    animal_ID = case_when(
@@ -136,7 +140,7 @@ sp_VF3_InclusionBord_animalID <- mutate(sp_VF3_InclusionBord_clip,
                                                      collar_ID == "ac212" ~ "Q29",
                                                      collar_ID == "ac213" &
                                                        between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
-                                                               as_datetime('2019-05-28 06:44:00', tz="GMT")) ~ "Q47",
+                                                               as_datetime('2019-05-28 07:00:00', tz="GMT")) ~ "Q47",
                                                      collar_ID == "ac320" &
                                                        between(time, as_datetime('2019-05-28 11:01:00', tz="GMT"),
                                                                as_datetime('2019-06-06 17:27:00', tz="GMT")) ~ "Q47" ,
@@ -144,9 +148,9 @@ sp_VF3_InclusionBord_animalID <- mutate(sp_VF3_InclusionBord_clip,
                                                      collar_ID == "ac218" ~ "Q2",
                                                      collar_ID == "ac219" &
                                                        between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
-                                                               as_datetime('2019-05-25 11:10:00', tz="GMT"))~ "Q10",
+                                                               as_datetime('2019-05-25 11:20:00', tz="GMT"))~ "Q10",
                                                      collar_ID == "ac220" &
-                                                       between(time, as_datetime('2019-05-25 11:01:00', tz="GMT"),
+                                                       between(time, as_datetime('2019-05-25 10:55:00', tz="GMT"),
                                                                as_datetime('2019-06-06 17:27:18', tz="GMT"))~ "Q10",
                                                      collar_ID == "ac325" ~ "Q9",
                                                      collar_ID == "ac328" ~ "Q109",
@@ -157,7 +161,7 @@ sp_VF3_InclusionBord_animalID <- mutate(sp_VF3_InclusionBord_clip,
                                                      collar_ID == "ad3374" ~ "Q11",
                                                      collar_ID == "ad3396"  &
                                                        between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
-                                                               as_datetime('2019-05-27 16:19:00', tz="GMT"))~ "Q45",
+                                                               as_datetime('2019-05-27 16:25:00', tz="GMT"))~ "Q45",
                                                      collar_ID == "ac209"  &
                                                        between(time, as_datetime('2019-05-28 11:11:00', tz="GMT"),
                                                                as_datetime('2019-06-06 17:00:00', tz="GMT"))~ "Q45",
