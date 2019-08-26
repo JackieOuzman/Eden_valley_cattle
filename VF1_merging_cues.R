@@ -573,3 +573,4 @@ VF_1_Audio_Pulse <- rbind(sp_VF1_Audio_clip_animalID,
 
 ##########       Final output here is  VF_1_Audio_Pulse                        ####################
 st_write(VF_1_Audio_Pulse, "VF_1_Audio_Pulse.csv", layer_options = "GEOMETRY=AS_XY")
+st_write(VF_1_Audio_Pulse, "VF_1_Audio_Pulse.shp")
