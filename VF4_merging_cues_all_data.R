@@ -14,7 +14,7 @@ library(sf)
 library(gganimate)
 library(png)
 library(gifski)
-
+###                 This uses the fence line that was implemented rather that the one that should have been used ####
 
 head(VF_week1_2_3)
 ###########################################################################################################################################################
