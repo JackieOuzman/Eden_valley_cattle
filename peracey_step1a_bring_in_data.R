@@ -113,7 +113,16 @@ VF_week3 <- rbind(VF_20190531, VF_20190601,
 
 
 VF_week1_2_3 <- rbind(VF_week1, VF_week2, VF_week3)
-#saveRDS(VF_week1_2_3,  paste0("download2_R_output/","VF_week1_2_3.rds"))
+head(VF_week1_2_3)
+getwd()
+saveRDS(VF_week1_2_3,  "VF_week1_2_3.rds")
+write_csv(VF_week1_2_3, "VF_week1_2_3.csv")
+#just for checking
+#Fence 1 called training fence eden valley
+VF1_check_data <- filter(VF_week1_2_3, 
+                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                    as_datetime('2019-05-20 14:40:00', tz="GMT")))
+write_csv(VF1_check_data, "VF1_check_data.csv")
 ################################################################################################################
 #########    Remove the NA   ##########
 VF_week1_2_3 <- VF_week1_2_3 %>% filter(!is.na(lat) | !is.na(lon))
