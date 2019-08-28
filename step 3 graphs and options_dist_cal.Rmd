@@ -37,7 +37,7 @@ Fence 1 and 2
 Bring in the data from the data import and cleaning R markdown file
 August work and recalulations was done on Pearcey so get the data from here.
 
-```{r load in the data, echo=FALSE, message=FALSE, warning=FALSE}
+```{r load in the bounadry data, echo=FALSE, message=FALSE, warning=FALSE}
 
 
 #the boundary file and the VF files
@@ -71,6 +71,13 @@ st_crs(fence4) <- the_crs
 st_crs(fence4_actual) <- the_crs
 st_crs(fence5) <- the_crs
 
+
+```
+```{r load in the VF data, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+
+
 ##################             VF1         ###################################################################
 VF1_InclusionBord_animalID <- read.csv(
   "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/sp_VF1_InclusionBord_animalID.csv")
@@ -101,7 +108,23 @@ VF2_InclusionBord_animalID <- mutate(VF2_InclusionBord_animalID,
 sp_VF2_InclusionBord_animalID <- st_as_sf(VF2_InclusionBord_animalID, 
                                           coords = c("X", "Y"), 
                                           crs = the_crs)
+
+##################             VF3         ###################################################################
+VF3_InclusionBord_animalID <- read.csv(
+  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/sp_VF3_InclusionBord_animalID.csv")
+#head(VF3_InclusionBord_animalID)
+
+#assign WGS EPSG for coords for each of the VF dataframes
+VF3_InclusionBord_animalID$date <- as_date(VF3_InclusionBord_animalID$date)
+VF3_InclusionBord_animalID$time <- as_datetime(VF3_InclusionBord_animalID$time, tz="GMT")
+VF3_InclusionBord_animalID <- mutate(VF3_InclusionBord_animalID,
+                                     hms = hms::as.hms(time, tz="GMT"))
+#assign coords for each of the VF dataframes
+sp_VF3_InclusionBord_animalID <- st_as_sf(VF3_InclusionBord_animalID, 
+                                          coords = c("X", "Y"), 
+                                          crs = the_crs)
 ```
+
 
 Fence 1 on the 20/5/2019
 
@@ -258,7 +281,6 @@ Animation giff day 1
 #having trouble getting this going - could try the df not spatial object data??
 #getting close
 p4a <- ggplot() +
-  #ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
   geom_sf(data = fence1, color = "grey") +
   geom_sf(data = sp_VF1_InclusionBord_animalID_20, aes(colour = animal_ID))+
@@ -268,8 +290,6 @@ p4a <- ggplot() +
   theme(legend.position = "none",
         axis.text.x=element_blank(),
         axis.text.y=element_blank())
-
-
 p4a  
 
 p4b <- p4a +
@@ -288,27 +308,22 @@ anim_save(animation = animation_20thVf1 , filename = "animation_20thVf1.gif")
 # help with some errors - https://github.com/thomasp85/transformr
 ```
 
-Animation giff day 2
+Animation giff day 1 VF 2
 
 
-```{r animation for day 2}
+```{r animation for day 1 vf 2}
 p4a <- ggplot() +
-  #ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
-  #geom_sf(data = fence1, color = "grey") +
   geom_sf(data = fence2, color = "grey") +
-  geom_point(data = Inclusion_21_05_2019, aes(POINT_X, POINT_Y,colour = collar), inherit.aes = FALSE) +
-  #facet_wrap(.~collar)+
+  geom_sf(data = sp_VF2_InclusionBord_animalID_20, aes(colour = animal_ID))+
   theme_bw()+
   theme(legend.position = "none",
         axis.text.x=element_blank(),
         axis.text.y=element_blank())
-
-
 p4a  
 
 p4b <- p4a +
-  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+  labs( title =   'Date:  {format(as_datetime(frame_time), tz="GMT")}',
         #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
         caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
   transition_time(time) +
@@ -317,21 +332,60 @@ p4b <- p4a +
 animation_20thVf2 <- animate(p4b, duration = 60) 
 animation_20thVf2
 
-#anim_save(animation = animation_20thVf2 , filename = "animation_20thVf2.gif")
+anim_save(animation = animation_20thVf2 , filename = "animation_20thVf2.gif")
+```
+
+Animation giff day 2 VF 2
+
+```{r animation for day 2 vf 2}
+p4a <- ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence2, color = "grey") +
+  geom_sf(data = sp_VF2_InclusionBord_animalID_21, aes(colour = animal_ID))+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())
+p4a  
+
+p4b <- p4a +
+  labs( title =   'Date:  {format(as_datetime(frame_time), tz="GMT")}',
+        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  transition_time(time) +
+  shadow_wake(0.3)
+
+animation_21thVf2 <- animate(p4b, duration = 60) 
+animation_21thVf2
+
+anim_save(animation = animation_21thVf2 , filename = "animation_21thVf2.gif")
 ```
 
 
-Other days 
 
-```{r inspect data to view quaility Vf 3, echo=FALSE, message=FALSE, warning=FALSE}
-Inclusion_23_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+Other days Vf 3 23rd
+
+```{r inspect data to view quaility VF3 23/5/2019, echo=FALSE, message=FALSE, warning=FALSE}
+sp_VF3_InclusionBord_animalID_21 <- sp_VF3_InclusionBord_animalID %>% 
   filter(date == "2019-05-23") 
+  
 
+Inclusion_Dist23_05vf3 <-  ggplot(sp_VF3_InclusionBord_animalID_23, aes(x = hms, y = distance_VF, colour = collar))+
+  geom_point()+
+  facet_wrap(.~animal_ID)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "Week1 2019-05-23",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+Inclusion_Dist23_05vf3
+#ggsave(filename = "Inclusion_Dist23_05vf3.png", device = "png" )
 
-x_yInclusion_Dist23_05 <- ggplot() +
+x_yInclusion_Dist23_05vf3 <- ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
   geom_sf(data = fence3, color = "grey") +
-  geom_point(data = Inclusion_23_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  geom_sf(data = sp_VF3_InclusionBord_animalID_23, aes(colour = animal_ID))+
   facet_wrap(.~animal_ID)+
   theme_bw()+
   theme(legend.position = "none",
@@ -340,12 +394,14 @@ x_yInclusion_Dist23_05 <- ggplot() +
   xlab("") +
   ylab("") 
 
-x_yInclusion_Dist23_05
-#######################           No facet wrap #######################  
+x_yInclusion_Dist23_05_vf3
+
+ggsave(filename = "x_yInclusion_Dist23_05_Vf3.png", device = "png" ,dpi=600)
+
 ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
   geom_sf(data = fence3, color = "blue") +
-  geom_point(data = Inclusion_23_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  geom_sf(data = sp_VF3_InclusionBord_animalID_23, alpha = 0.01)+
   theme_bw()+
   theme(legend.position = "none",
         axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
@@ -353,9 +409,8 @@ ggplot() +
   xlab("") +
   ylab("") 
 
+```
 
-
-ggsave(filename = "x_yInclusion_Dist23_05.png", device = "png" ,dpi=600)
 
 Inclusion_24_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
   filter(date == "2019-05-24") 
