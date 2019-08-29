@@ -366,7 +366,7 @@ anim_save(animation = animation_21thVf2 , filename = "animation_21thVf2.gif")
 Other days Vf 3 23rd
 
 ```{r inspect data to view quaility VF3 23/5/2019, echo=FALSE, message=FALSE, warning=FALSE}
-sp_VF3_InclusionBord_animalID_21 <- sp_VF3_InclusionBord_animalID %>% 
+sp_VF3_InclusionBord_animalID_23 <- sp_VF3_InclusionBord_animalID %>% 
   filter(date == "2019-05-23") 
   
 
@@ -394,7 +394,7 @@ x_yInclusion_Dist23_05vf3 <- ggplot() +
   xlab("") +
   ylab("") 
 
-x_yInclusion_Dist23_05_vf3
+x_yInclusion_Dist23_05vf3
 
 ggsave(filename = "x_yInclusion_Dist23_05_Vf3.png", device = "png" ,dpi=600)
 
@@ -412,12 +412,30 @@ ggplot() +
 ```
 
 
-Inclusion_24_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
+
+Other days Vf 3 24rd
+
+```{r inspect data to view quaility VF3 24/5/2019, echo=FALSE, message=FALSE, warning=FALSE}
+sp_VF3_InclusionBord_animalID_24 <- sp_VF3_InclusionBord_animalID %>% 
   filter(date == "2019-05-24") 
-x_yInclusion_Dist24_05 <- ggplot() +
+  
+
+Inclusion_Dist24_05vf3 <-  ggplot(sp_VF3_InclusionBord_animalID_24, aes(x = hms, y = distance_VF, colour = collar))+
+  geom_point()+
+  facet_wrap(.~animal_ID)+
+  geom_hline(yintercept = 0)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "none")+
+  labs(title= "Week1 2019-05-24",
+       x= "Time of day",
+       y = "Distance (m) from VF")
+Inclusion_Dist24_05vf3
+#ggsave(filename = "Inclusion_Dist24_05vf3.png", device = "png" )
+
+x_yInclusion_Dist24_05vf3 <- ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
   geom_sf(data = fence3, color = "grey") +
-  geom_point(data = Inclusion_24_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
+  geom_sf(data = sp_VF3_InclusionBord_animalID_24, aes(colour = animal_ID))+
   facet_wrap(.~animal_ID)+
   theme_bw()+
   theme(legend.position = "none",
@@ -426,15 +444,14 @@ x_yInclusion_Dist24_05 <- ggplot() +
   xlab("") +
   ylab("") 
 
-x_yInclusion_Dist24_05
+x_yInclusion_Dist24_05vf3
 
-ggsave(filename = "x_yInclusion_Dist24_05.png", device = "png" ,dpi=600)
+ggsave(filename = "x_yInclusion_Dist24_05_Vf3.png", device = "png" ,dpi=600)
 
-#######################           No facet wrap #######################
 ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
   geom_sf(data = fence3, color = "blue") +
-  geom_point(data = Inclusion_24_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
+  geom_sf(data = sp_VF3_InclusionBord_animalID_24, alpha = 0.01)+
   theme_bw()+
   theme(legend.position = "none",
         axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
@@ -444,98 +461,14 @@ ggplot() +
 
 ```
 
-fence 4
-
-
-```{r inspect data to view quaility Vf 4, echo=FALSE, message=FALSE, warning=FALSE}
-Inclusion_28_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
-  filter(date == "2019-05-28" & animal_ID != "NA") 
-
-
-x_yInclusion_Dist28_05 <- ggplot() +
-  geom_sf(data = eden_valley, color = "black", fill = NA) +
-  geom_sf(data = fence4, color = "grey") +
-  geom_point(data = Inclusion_28_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
-  facet_wrap(.~animal_ID)+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
-  labs(title= "2019-05-28")+
-  xlab("") +
-  ylab("") 
-
-x_yInclusion_Dist28_05
-
-ggsave(filename = "x_yInclusion_Dist28_05.png", device = "png" ,dpi=600)
-
-
-#######################           No facet wrap #######################
-ggplot() +
-  geom_sf(data = eden_valley, color = "black", fill = NA) +
-  geom_sf(data = fence4, color = "blue") +
-  geom_point(data = Inclusion_28_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
-  labs(title= "2019-05-28")+
-  xlab("") +
-  ylab("") 
-
-
-Inclusion_29_05_2019 <- Check_df_VF_week1_2_3_InclusionBord_c_animalID %>% 
-  filter(date == "2019-05-29"& animal_ID != "NA") 
-x_yInclusion_Dist29_05 <- ggplot() +
-  geom_sf(data = eden_valley, color = "black", fill = NA) +
-  geom_sf(data = fence4, color = "grey") +
-  geom_point(data = Inclusion_29_05_2019, aes(POINT_X, POINT_Y,colour = animal_ID), inherit.aes = FALSE, alpha = 0.01) +
-  facet_wrap(.~animal_ID)+
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
-  labs(title= "2019-05-29")+
-  xlab("") +
-  ylab("") 
-
-x_yInclusion_Dist29_05
-
-ggsave(filename = "x_yInclusion_Dist29_05.png", device = "png" ,dpi=600)
-
-
-#######################           No facet wrap #######################
-ggplot() +
-  geom_sf(data = eden_valley, color = "black", fill = NA) +
-  geom_sf(data = fence4, color = "blue") +
-  geom_sf(data = fence5, color = "blue") +
-  geom_sf(data = fence1, color = "blue") +
-  geom_sf(data = fence2, color = "blue") +
-  geom_sf(data = fence3, color = "blue") +
-  geom_point(data = Inclusion_29_05_2019, aes(POINT_X, POINT_Y), inherit.aes = FALSE, alpha = 0.01) +
-  theme_bw()+
-  theme(legend.position = "none",
-        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
-  labs(title= "2019-05-29")+
-  xlab("") +
-  ylab("") 
-
-```
 
 
 
-Other option here would be to run this analysis for days that the VF was shifted
-assign colour to the  'trouble cows' and the rest are grey and see how the 'trouble cows' behaved at certain times.
 
-#plot VF boundaries
-```{r plot VF}
-ggplot()+
-  geom_sf(data = eden_valley, size = 2 , colour = "black", fill=NA)+
-  geom_sf(data = fence1, size = 1 , colour = "black")+
-  geom_sf(data = fence2, size = 1 , colour = "grey")+
-  geom_sf(data = fence3, size = 1 , colour = "blue")+
-  geom_sf(data = fence4, size = 1 , colour = "red")+
-  geom_sf(data = fence5, size = 1 , colour = "pink")+
-  coord_sf()
 
-```
+
+
+
 
 #plot of audio and pulse data
 
