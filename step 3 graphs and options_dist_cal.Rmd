@@ -715,7 +715,7 @@ ggsave(filename = "Aduio_pulse_sum1_per_dayvf1Day20.png", device = "png" ,dpi=60
 
 What about merging the cue data together?
 
-```{r plot the audio data merge data per animal per day}
+```{r plot the audio and pulse data merge data per animal per day}
 table(VF1_2_3_4buff_cue_animalID$event)
 
 
@@ -737,27 +737,105 @@ VF1_2_3_4buff_cue_animalID_per_animal_per_day <-st_set_geometry(VF1_2_3_4buff_cu
 #put it in a data table                            
 datatable(VF1_2_3_4buff_cue_animalID_per_animal_per_day)
 
-#as a dots for animals per day
+#as a dots for animals per day with VF buffer data
 VF_dates=data.frame(date=as.Date(c("2019-05-20", "2019-05-23", "2019-05-28", "2019-06-03")), 
              event=c("VF1&2", "VF3", "VF4", "VF5"))
 head(VF1_2_3_4buff_cue_animalID_per_animal_per_day)
-###as dots
+###as dots with VF buffer data
 filter(VF1_2_3_4buff_cue_animalID_per_animal_per_day, audio_pulse_started != "NA") %>% 
 ggplot( aes(x = date, y = count, colour = audio_pulse_started))+
   geom_point()+
   theme_bw()+
   facet_wrap(. ~ animal_ID)+
   geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.title=element_blank())+
   labs(title= "Week1 to 3",
        x= "Date",
-       y = "Counts of cues")
+       y = "Counts of cues",
+       caption = "VF 4 buffer data used")
+        
+
+###as dots with VF no buffer data
+filter(VF1_2_3_4_cue_animalID_per_animal_per_day, audio_pulse_started != "NA") %>% 
+ggplot( aes(x = date, y = count, colour = audio_pulse_started))+
+  geom_point()+
+  theme_bw()+
+  facet_wrap(. ~ animal_ID)+
+  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.title=element_blank())+
+  labs(title= "Week1 to 3",
+       x= "Date",
+       y = "Counts of cues",
+       caption = "VF 4 non buffer data used")
 
 #can I change the date to a factor and then create a box plot yes!
 VF1_2_3_4buff_cue_animalID_per_animal_per_day$date_factor <- factor(VF1_2_3_4buff_cue_animalID_per_animal_per_day$date)
 #table(VF1_2_3_4_cue_animalID_per_animal_per_day$date_factor)
 
+
+
+
+```
+
+```{r suss out the VF4 buffer cue data}
+###VF non buff
+VF4_cue_animalID <- mutate(VF4_cue_animalID,
+                                   audio_pulse_started = case_when(
+                                     event == "Audio started" ~ "Audio",
+                                     event == "Audio started (short)" ~ "Audio",
+                                     event == "Pulse started" ~ "Pulse"))
+#explore the data per animal per day in a table
+VF4_cue_animalID_per_animal_per_day <- group_by(VF4_cue_animalID, date, animal_ID, audio_pulse_started) %>% 
+  summarise(count = n()) 
+
+#plot non buff
+filter(VF4_cue_animalID_per_animal_per_day, audio_pulse_started != "NA") %>% 
+ggplot( aes(x = date, y = count, colour = audio_pulse_started))+
+  geom_point()+
+  theme_bw()+
+  facet_wrap(. ~ animal_ID)+
+  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.title=element_blank())+
+  labs(title= "Vf 4 only",
+       x= "Date",
+       y = "Counts of cues",
+       caption = "VF 4 non buffer data used")
+
+
+###VF  buff
+VF4buff_cue_animalID <- mutate(VF4buff_cue_animalID,
+                                   audio_pulse_started = case_when(
+                                     event == "Audio started" ~ "Audio",
+                                     event == "Audio started (short)" ~ "Audio",
+                                     event == "Pulse started" ~ "Pulse"))
+#explore the data per animal per day in a table
+VF4buff_cue_animalID_per_animal_per_day <- group_by(VF4buff_cue_animalID, date, animal_ID, audio_pulse_started) %>% 
+  summarise(count = n()) 
+
+#plot buff
+filter(VF4buff_cue_animalID_per_animal_per_day, audio_pulse_started != "NA") %>% 
+ggplot( aes(x = date, y = count, colour = audio_pulse_started))+
+  geom_point()+
+  theme_bw()+
+  facet_wrap(. ~ animal_ID)+
+  geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.title=element_blank())+
+  labs(title= "Week1 to 3",
+       x= "Date",
+       y = "Counts of cues",
+       caption = "VF 4 buffer data used")
+
+
+````
+
+
+
+
+```{r plot the audio data merge data per animal per day}
 
 ### Audio 
 filter(VF1_2_3_4buff_cue_animalID_per_animal_per_day, audio_pulse_started == "Audio") %>% 
@@ -770,10 +848,14 @@ filter(VF1_2_3_4buff_cue_animalID_per_animal_per_day, audio_pulse_started == "Au
   theme(axis.text.x=element_text(angle=90,hjust=1))+
   labs(title= "",
        x= "Date",
-       y = "Counts of aduio cues")
+       y = "Counts of aduio cues",
+       fill = "started signals only")
 
 
 ```
+
+
+
 
 
 ```{r plot the audio data merge data explore data per day}
