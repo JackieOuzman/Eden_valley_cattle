@@ -830,16 +830,29 @@ ggplot( aes(x = date, y = count, colour = audio_pulse_started))+
        caption = "VF 4 buffer data used")
 
 
-````
+```
 
 
 
 
-```{r plot the audio data merge data per animal per day}
+```{r plot the audio data merge data per animal per day other options}
+
+head(VF1_2_3_4buff_cue_animalID)
+
+VF1_2_3_4buff_cue_animalID_by_cue_animal_date <- group_by(VF1_2_3_4buff_cue_animalID, date, animal_ID, audio_pulse_started) %>% 
+    summarise(count = n()) 
+head(VF1_2_3_4buff_cue_animalID_by_cue_animal_date)
+
+#can I change the date to a factor and then create a box plot?
+VF1_2_3_4buff_cue_animalID_by_cue_animal_date$date_factor <- factor(VF1_2_3_4buff_cue_animalID_by_cue_animal_date$date)
+
+VF1_2_3_4buff_cue_animalID_by_cue_animal_date_aduio <- filter(VF1_2_3_4buff_cue_animalID_by_cue_animal_date, audio_pulse_started == "Audio") 
+
+with(VF1_2_3_4buff_cue_animalID_by_cue_animal_date_aduio, table(date_factor, animal_ID))
 
 ### Audio 
-filter(VF1_2_3_4buff_cue_animalID_per_animal_per_day, audio_pulse_started == "Audio") %>% 
-  ggplot( aes(x = date_factor, y = count))+
+
+  ggplot(VF1_2_3_4buff_cue_animalID_by_cue_animal_date_aduio, aes(x = date_factor, y = count))+
   geom_boxplot(alpha = 0.2)+
   geom_point()+
   theme_bw()+
@@ -857,32 +870,145 @@ filter(VF1_2_3_4buff_cue_animalID_per_animal_per_day, audio_pulse_started == "Au
 
 
 
+```{r plot the pulse data merge data per animal per day other options}
+
+head(VF1_2_3_4buff_cue_animalID)
+
+VF1_2_3_4buff_cue_animalID_by_cue_animal_date <- group_by(VF1_2_3_4buff_cue_animalID, date, animal_ID, audio_pulse_started) %>% 
+    summarise(count = n()) 
+head(VF1_2_3_4buff_cue_animalID_by_cue_animal_date)
+
+#can I change the date to a factor and then create a box plot?
+VF1_2_3_4buff_cue_animalID_by_cue_animal_date$date_factor <- factor(VF1_2_3_4buff_cue_animalID_by_cue_animal_date$date)
+
+VF1_2_3_4buff_cue_animalID_by_cue_animal_date_pulse <- filter(VF1_2_3_4buff_cue_animalID_by_cue_animal_date, audio_pulse_started == "Pulse") 
+
+with(VF1_2_3_4buff_cue_animalID_by_cue_animal_date_pulse, table(date_factor, animal_ID))
+
+### Pulse 
+
+  ggplot(VF1_2_3_4buff_cue_animalID_by_cue_animal_date_pulse, aes(x = date_factor, y = count))+
+  geom_boxplot(alpha = 0.2)+
+  geom_point()+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  labs(title= "",
+       x= "Date",
+       y = "Counts of pulse cues",
+       fill = "started signals only")
+
+
+```
+
 
 ```{r plot the audio data merge data explore data per day}
 #explore the data per  day ....
 
-VF1_2_3_4_cue_animalID_per_day <- group_by(VF1_2_3_4_cue_animalID, date,  audio_pulse_started) %>% 
-  summarise(count = n()) 
 
+VF1_2_3_4buff_cue_animalID_by_cue_date <- group_by(VF1_2_3_4buff_cue_animalID, date, audio_pulse_started) %>% 
+    summarise(count = n()) 
+head(VF1_2_3_4buff_cue_animalID_by_cue_date)
 
-##as bar per animal per day
-ggplot(VF1_2_3_4_cue_animalID_per_day, aes(x = date, y = count))+
+#can I change the date to a factor and then create a box plot?
+VF1_2_3_4buff_cue_animalID_by_cue_date$date_factor <- factor(VF1_2_3_4buff_cue_animalID_by_cue_date$date)
+
+##as bar per animal per day for audio only
+VF1_2_3_4buff_cue_animalID_by_cue_date_audio <- filter(VF1_2_3_4buff_cue_animalID_by_cue_date, audio_pulse_started == "Audio") 
+
+##as bar per animal per day for audio only
+ggplot(VF1_2_3_4buff_cue_animalID_by_cue_date_audio, aes(x = date_factor, y = count))+
   geom_col()+
-  #facet_wrap(date ~ animal_ID)+
   theme_bw()+
-  geom_text(aes(label = count), vjust = -1.0, hjust = 0.5)+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  #geom_text(aes(label = count), vjust = -1.0, hjust = 0.5)+
     theme_classic()+
-    labs(x= "Type of cue",
+    labs(x= "Dates",
          y = "counts",
-         title = "Counts of cues per day per animal",
-         subtitle = "VF 1 Day 1",
-         caption = "VF 1 day 1 20/5/2019, per animal per day. Started data only")+
+         title = "Counts of aduio cues per day",
+         subtitle = "",
+         caption = "Started data only. VF 4 buffer data only")+
     theme(axis.text.x=element_text(angle=45,hjust=1),
           plot.caption = element_text(size = 8, hjust = 0))+
-    scale_y_continuous( limits=c(0, 30))
-VF1_2_3_4_cue_animalID
+    scale_y_continuous( limits=c(0, 400))
+##as bar per animal per day for audio only
+VF1_2_3_4buff_cue_animalID_by_cue_date_audio <- filter(VF1_2_3_4buff_cue_animalID_by_cue_date, audio_pulse_started == "Audio") 
 
-````
+##as bar per animal per day for pulse only
+VF1_2_3_4buff_cue_animalID_by_cue_date_pulse <- filter(VF1_2_3_4buff_cue_animalID_by_cue_date, audio_pulse_started == "Pulse") 
+##as bar per animal per day for pulse only
+ggplot(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse, aes(x = date_factor, y = count))+
+  geom_col()+
+  theme_bw()+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  #geom_text(aes(label = count), vjust = -1.0, hjust = 0.5)+
+    theme_classic()+
+    labs(x= "Dates",
+         y = "counts",
+         title = "Counts of pulse cues per day",
+         subtitle = "",
+         caption = "Started data only. VF 4 buffer data only")+
+    theme(axis.text.x=element_text(angle=45,hjust=1),
+          plot.caption = element_text(size = 8, hjust = 0))+
+    scale_y_continuous( limits=c(0, 100))
+
+
+
+
+
+##as bar per animal per day for both only
+filter(VF1_2_3_4buff_cue_animalID_by_cue_date, audio_pulse_started != "NA") %>% 
+ggplot( aes(x = date_factor, y = count, fill = audio_pulse_started ))+
+  geom_col()+
+  theme_bw()+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  #geom_text(aes(label = count), vjust = -1.0, hjust = 0.5)+
+    theme_classic()+
+    labs(x= "Dates",
+         y = "counts",
+         title = "Counts of aduio and pulse cues per day",
+         subtitle = "",
+         caption = "Started data only. VF 4 buffer data only")+
+    theme(axis.text.x=element_text(angle=45,hjust=1),
+          plot.caption = element_text(size = 8, hjust = 0),
+          legend.title=element_blank())+
+    scale_y_continuous( limits=c(0, 500))
+
+
+```
+
+
+
+Now is we need to create a ratio of pulse to cue data.
+We want a new column that has the number of cues not followed by a pulse.
+
+could do cues - pulse for each day for each animal
+or could do a ratio pulse/ cues for each day per animal.
+
+```{r plot the audio data merge data explore data per day}
+head(VF1_2_3_4buff_cue_animalID_by_cue_date_audio)
+head(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse)
+
+VF1_2_3_4buff_cue_animalID_by_cue_date_audio_temp <- mutate(VF1_2_3_4buff_cue_animalID_by_cue_date_audio,
+                                                            audio = count,
+                                                            pulse = "NA")
+
+head(VF1_2_3_4buff_cue_animalID_by_cue_date_audio_temp)
+VF1_2_3_4buff_cue_animalID_by_cue_date_pulse_temp <- mutate(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse,
+                                                            audio = "NA",
+                                                            pulse = count)
+head(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse_temp)
+
+VF1_2_3_4buff_cue_animalID_by_cue_date_audioPulse_temp <- rbind(VF1_2_3_4buff_cue_animalID_by_cue_date_audio_temp,
+                                                                VF1_2_3_4buff_cue_animalID_by_cue_date_pulse_temp)
+head(VF1_2_3_4buff_cue_animalID_by_cue_date_audioPulse_temp)
+
+
+
+
+```
+
 more graph options...
 
 
