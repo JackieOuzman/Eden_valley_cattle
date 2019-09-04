@@ -118,18 +118,23 @@ check2 <- filter(sp_VF1_InclusionBord_animalID, event_number != "-999") #no na h
 sp_VF1_InclusionBord_animalID_sub <- select(sp_VF1_InclusionBord_animalID, 
                                             -index_start, -Index, -start_end_no_fill, -start_end)
 
-VF1_InclusionBord_animalID_sub$event_number <- na_if(VF1_InclusionBord_animalID_sub$event_number, "-999") #changed all these values to na
+sp_VF1_InclusionBord_animalID_sub$event_number <- na_if(sp_VF1_InclusionBord_animalID_sub$event_number, "-999") #changed all these values to na
 #add in the hms
-VF1_InclusionBord_animalID_sub <- mutate(VF1_InclusionBord_animalID_sub,
+sp_VF1_InclusionBord_animalID_sub <- mutate(sp_VF1_InclusionBord_animalID_sub,
                            hms = hms::as.hms(time, tz="GMT"))
-head(VF1_InclusionBord_animalID_sub)
+head(sp_VF1_InclusionBord_animalID_sub)
 ###############################################################################################################
 ############ End data set ####################################################################################
 
 #VF1
 #write.csv(VF1_InclusionBord_animalID_sub,"VF1_incur_events.csv" )
-write.csv(VF1_InclusionBord_animalID_sub, 
-  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF1_incur_events.csv")
+#write.csv(VF1_InclusionBord_animalID_sub, 
+#  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF1_incur_events.csv")
+
+
+st_write(sp_VF1_InclusionBord_animalID_sub,
+         "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF1_incur_events.csv",
+         layer_options = "GEOMETRY=AS_XY")
 
 
 #####    summary stats ###################################################################################################################

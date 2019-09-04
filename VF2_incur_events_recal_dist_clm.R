@@ -133,9 +133,9 @@ write.csv(sp_VF2_InclusionBord_animalID_sub,
 
 
 
-st_write(sp_VF2_InclusionBord_animalID_sub,
-         "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF2_incur_events.csv",
-         layer_options = "GEOMETRY=AS_XY")
+#st_write(sp_VF2_InclusionBord_animalID_sub,
+#         "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF2_incur_events.csv",
+#         layer_options = "GEOMETRY=AS_XY")
 
 #####    summary stats ###################################################################################################################
 

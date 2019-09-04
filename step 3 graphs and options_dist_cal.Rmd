@@ -1042,74 +1042,133 @@ ggplot(VF1_2_3_4buff_cue_animalID_by_cue_date_temp,  aes(x = date_factor, y = au
 I have created a new varaible which is the when the animal is in the exclusion zone (ie in non grazing area)
 
 ```{r bring in the exclusion data}
-VF_week1_2_3_exclusion <- read_rds("download2_R_output/VF_week1_2_3_InclusionBord_c_animalID_fill_2.rds")
+
+
+
+VF1_incur_event <- read.csv(
+  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF1_incur_events.csv")
+#head(VF1_incur_event)
+VF1_incur_event$date <- as_date(VF1_incur_event$date)
+VF1_incur_event$time <- as_datetime(VF1_incur_event$time, tz="GMT")
+VF1_incur_event <- mutate(VF1_incur_event,
+                                     hms = hms::as.hms(time, tz="GMT"))
+#assign  coords for each of the VF dataframes
+sp_VF1_incur_event <- st_as_sf(VF1_incur_event, 
+                                          coords = c("X", "Y"), 
+                                          crs = the_crs)
+#check
+#ggplot() +
+#geom_sf(data = eden_valley, color = "black", fill = NA) +
+#  geom_sf(data = st_geometry(sp_VF1_InclusionBord_animalID))
+
 ```
 
 Summaries the data based on animal and day
 
 ```{r summaries exclusion data}
 
-event_sum <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_2, day, animal_ID, event_number) %>% 
-  summarise(max_dist = max(value), 
-            mean_dis = mean(value),
+event_sum_VF1 <- filter(sp_VF1_incur_event, event_number != "NA") %>% 
+  group_by( date, animal_ID, event_number) %>% 
+  summarise(max_dist = max(distance_VF ), 
+            mean_dis = mean(distance_VF ),
             max_time = max(as_datetime(time, tz="GMT")), 
             min_time = min(as_datetime(time, tz="GMT")),
             period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+
+
             
-print(event_sum)
+print(event_sum_VF1)
 ```
-Plot the exclusion data
+Plot the incursion data
 
-Check out the data first
-seems that a few animals did not get assigned to animal ID
-ac220 on the 25th around 11:00
-ad3396 on the 27th around 16:19
-ac213 on the 28th 06:44
+```{r import data for incur events}
+########################################################################################################################
+##############################               VF 1                      #################################################
+########################################################################################################################
+VF1_incur_event <- read.csv(
+  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF1_incur_events.csv")
+#head(VF1_incur_event)
+VF1_incur_event$date <- as_date(VF1_incur_event$date)
+VF1_incur_event$time <- as_datetime(VF1_incur_event$time, tz="GMT")
+VF1_incur_event <- mutate(VF1_incur_event,
+                                     hms = hms::as.hms(time, tz="GMT"))
+#assign  coords for each of the VF dataframes
+sp_VF1_incur_event <- st_as_sf(VF1_incur_event, 
+                                          coords = c("X", "Y"), 
+                                          crs = the_crs)
 
-I think I will need to revist step 1 
+########################################################################################################################
+##############################               VF 2                      #################################################
+########################################################################################################################
+VF2_incur_event <- read.csv(
+  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF2_incur_events.csv")
+head(VF2_incur_event)
+VF2_incur_event$date <- as_date(VF2_incur_event$date)
+VF2_incur_event$time <- as_datetime(VF2_incur_event$time, tz="GMT")
+VF2_incur_event <- mutate(VF1_incur_event,
+                                     hms = hms::as.hms(time, tz="GMT"))
+#assign  coords for each of the VF dataframes
+sp_VF2_incur_event <- st_as_sf(VF2_incur_event, 
+                                          coords = c("X", "Y"), 
+                                          crs = the_crs)
+
+########################################################################################################################
+##############################               VF 3                      #################################################
+########################################################################################################################
+
+VF3_incur_event <- read.csv(
+  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF3_incur_events.csv")
+#head(VF3_incur_event)
+VF3_incur_event$date <- as_date(VF3_incur_event$date)
+VF3_incur_event$time <- as_datetime(VF3_incur_event$time, tz="GMT")
+VF3_incur_event <- mutate(VF3_incur_event,
+                                     hms = hms::as.hms(time, tz="GMT"))
+#assign  coords for each of the VF dataframes
+sp_VF3_incur_event <- st_as_sf(VF3_incur_event, 
+                                          coords = c("X", "Y"), 
+                                          crs = the_crs)
+
+########################################################################################################################
+##############################               VF 4                      #################################################
+########################################################################################################################
+
+VF4_incur_event <- read.csv(
+  "//pearceyhome.csiro.au/HOME_INTEL/ouz001/VF_cattle/catlle_pearcey_recal_dist/Re_cal/VF4_incur_events.csv")
+#head(VF4_incur_event)
+VF4_incur_event$date <- as_date(VF4_incur_event$date)
+VF4_incur_event$time <- as_datetime(VF4_incur_event$time, tz="GMT")
+VF4_incur_event <- mutate(VF4_incur_event,
+                                     hms = hms::as.hms(time, tz="GMT"))
+#assign  coords for each of the VF dataframes
+sp_VF4_incur_event <- st_as_sf(VF4_incur_event, 
+                                          coords = c("X", "Y"), 
+                                          crs = the_crs)
+
+########################################################################################################################
+##############################               merge VF1,2,3 4                      #################################################
+########################################################################################################################
+
+sp_VF1_2_3_4_incur_event <- r
+
+```
 
 ```{r inspect the exclusion data}
-head(VF_week1_2_3_InclusionBord_c_animalID_fill_2)
-table(VF_week1_2_3_InclusionBord_c_animalID_fill_2$animal_ID)
-check_out_NA <- filter(VF_week1_2_3_InclusionBord_c_animalID_fill_2, animal_ID == "NA")
-head(check_out_NA)
-table(check_out_NA$collar_ID)
-with(check_out_NA, table(day, collar_ID))
+#head(sp_VF1_incur_event)
+#table(sp_VF1_incur_event$animal_ID)
+#check_out_NA <- filter(sp_VF1_incur_event, animal_ID == "NA")
+#head(check_out_NA)
+#table(check_out_NA$collar_ID)
+#with(check_out_NA, table(day, collar_ID))
 
-
-```
-For now let just exclude the animal ID that has NA and see what we have...
-
-```{r plot exc data}
-#filter out all the data that does not have animal ID ie na and only retain exclsuion events
-VF_week1_2_3_InclusionBord_c_animalID_fill_3 <- filter(VF_week1_2_3_InclusionBord_c_animalID_fill_2, animal_ID != "NA" &
-                                                       event == "exclusion_zone")
-
-head(VF_week1_2_3_InclusionBord_c_animalID_fill_2)
-
-with(VF_week1_2_3_InclusionBord_c_animalID_fill_3, table(day, animal_ID))
-#still have missing animal ID for certain days
-head(VF_week1_2_3_InclusionBord_c_animalID_fill_3)
-# the below is a grouping of individual animals per day per event number
-event_sum_3 <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_3, date, animal_ID, event_number) %>% 
-  summarise(max_dist = max(value), 
-            mean_dis = mean(value),
-            max_time = max(as_datetime(time, tz="GMT")), 
-            min_time = min(as_datetime(time, tz="GMT")),
-            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
-head(event_sum_3)
-
+head(event_sum_VF1)
 #can I change the date to a factor and then create a box plot?
-event_sum_3$date_factor <- factor(event_sum_3$date)
+event_sum_VF1$date_factor <- factor(event_sum_VF1$date)
 
-VF_dates=data.frame(date=as.Date(c("2019-05-20", "2019-05-23", "2019-05-28", "2019-06-03")), 
-             event=c("VF1&2", "VF3", "VF4", "VF5"))
-       
-filter(event_sum_3, max_dist < 30) %>% 
-#event_sum_3 %>% 
-    ggplot(aes(x = date_factor, y = max_dist))+
-  geom_point()+
-  geom_boxplot(alpha=0.2)+
+
+  ggplot(event_sum_VF1, aes(x = date_factor, y = max_dist))+
+  #geom_point()+
+  #geom_boxplot(alpha=0.2)+
+  geom_boxplot(outlier.shape=NA)+
   theme_bw()+
   #facet_wrap(. ~ animal_ID)+
   #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
@@ -1120,47 +1179,15 @@ filter(event_sum_3, max_dist < 30) %>%
        x= "date",
        y = "Max distance")
 
-################   more summary #####################
-head(event_sum_3)
-event_sum_3a <- group_by(event_sum_3, date, animal_ID) %>% 
-  summarise(max_dist_per_animal_per_day = max(max_dist), 
-            mean_dis_per_animal_per_day = mean(max_dist))
-head(event_sum_3a)
+```
 
 
-event_sum_3a$date_factor <- factor(event_sum_3a$date)
-event_sum_3a_subset <- filter(event_sum_3a, date < as_datetime('2019-06-01', tz="GMT"))
+Lets bring in all the data for incur events
 
 
-filter(event_sum_3a_subset, max_dist_per_animal_per_day < 20) %>% 
-#event_sum_3a %>% 
-    ggplot(aes(x = date_factor, y = max_dist_per_animal_per_day))+
-  #geom_point()+
-  geom_boxplot(outlier.shape=NA)+
-  theme_bw()+
-  #facet_wrap(. ~ animal_ID)+
-  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "",
-       x= "date",
-       y = "Max distance per animal per day")
-head(event_sum_3a)
-filter(event_sum_3a_subset, mean_dis_per_animal_per_day < 20) %>% 
-#event_sum_3a %>% 
-    ggplot(aes(x = date_factor, y = mean_dis_per_animal_per_day))+
-  #geom_point()+
-  geom_boxplot(outlier.shape=NA)+
-  theme_bw()+
-  #facet_wrap(. ~ animal_ID)+
-  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "",
-       x= "date",
-       y = "Mean distance per animal per day")
+```{r plot exc data}
+#filter out all the data that does not have animal ID ie na and only retain exclsuion events
+
 
 ```
 
@@ -1169,16 +1196,7 @@ mean_dis
 
 ```{r exl mean_dis}
 
-  ggplot(event_sum_3, aes(x = date_factor, y = mean_dis))+
-  geom_point()+
-  #geom_boxplot()+
-  theme_bw()+
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "Week1 to 3",
-       x= "date",
-       y = "mean distance")
+
 ```
 
 
@@ -1187,48 +1205,11 @@ period_time
 
 ```{r exl period of time}
 
-  ggplot(event_sum_3, aes(x = date_factor, y = period_time))+
-  geom_boxplot()+
-  theme_bw()+
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "Week1 to 3",
-       x= "date",
-       y = "period of time")
 ```
 
 What about number of events per day per cow?
 ```{r number of events}
-head(VF_week1_2_3_InclusionBord_c_animalID_fill_3)
-event_sum_4 <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_3, date, animal_ID) %>% 
-  summarise(max_number_events = max(event_number))
 
-#the number of events increment so at the end of day 06/06 we will have a total
-#so what about making a new clm with animalID, Day and event number and then only retaining the unquie ones so we can count?
-
-VF_week1_2_3_InclusionBord_c_animalID_fill_4 <- mutate(VF_week1_2_3_InclusionBord_c_animalID_fill_3,
-                                                       ID_clm = paste0(animal_ID,"_", date, "_", event_number))
-
-head(VF_week1_2_3_InclusionBord_c_animalID_fill_4)
-VF_week1_2_3_InclusionBord_c_animalID_fill_4_dis <- distinct(VF_week1_2_3_InclusionBord_c_animalID_fill_4, ID_clm, .keep_all = TRUE)
-
-event_sum_5 <- group_by(VF_week1_2_3_InclusionBord_c_animalID_fill_4_dis, date, animal_ID) %>% 
-  summarise(count = n())
-
-head(event_sum_5)
-event_sum_5$date_factor <- factor(event_sum_5$date)
-
- ggplot(event_sum_5, aes(x = date_factor, y = count))+
-  geom_point()+
-  geom_boxplot(alpha = 0.2)+
-  theme_bw()+
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "",
-       x= "date",
-       y = "count of events")
 ```
 
 
