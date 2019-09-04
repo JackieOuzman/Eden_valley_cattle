@@ -987,58 +987,55 @@ could do cues - pulse for each day for each animal
 or could do a ratio pulse/ cues for each day per animal.
 
 ```{r plot the audio data merge data explore data per day}
-head(VF1_2_3_4buff_cue_animalID_by_cue_date_audio)
-head(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse)
 
-VF1_2_3_4buff_cue_animalID_by_cue_date_audio_temp <- mutate(VF1_2_3_4buff_cue_animalID_by_cue_date_audio,
-                                                            audio = count,
-                                                            pulse = "NA")
+VF1_2_3_4buff_cue_animalID_by_cue_date <-st_set_geometry(VF1_2_3_4buff_cue_animalID_by_cue_date, NULL)
+#reshape the data to get audio and pulse into clms
+head(VF1_2_3_4buff_cue_animalID_by_cue_date)
+VF1_2_3_4buff_cue_animalID_by_cue_date_temp <- filter(VF1_2_3_4buff_cue_animalID_by_cue_date, audio_pulse_started != "NA") %>% spread(audio_pulse_started, count) 
+#if we have NA value replace with 0
+VF1_2_3_4buff_cue_animalID_by_cue_date_temp$Pulse[is.na(VF1_2_3_4buff_cue_animalID_by_cue_date_temp$Pulse)] = 0
 
-head(VF1_2_3_4buff_cue_animalID_by_cue_date_audio_temp)
-VF1_2_3_4buff_cue_animalID_by_cue_date_pulse_temp <- mutate(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse,
-                                                            audio = "NA",
-                                                            pulse = count)
-head(VF1_2_3_4buff_cue_animalID_by_cue_date_pulse_temp)
+#head(VF1_2_3_4buff_cue_animalID_by_cue_date_temp)
 
-VF1_2_3_4buff_cue_animalID_by_cue_date_audioPulse_temp <- rbind(VF1_2_3_4buff_cue_animalID_by_cue_date_audio_temp,
-                                                                VF1_2_3_4buff_cue_animalID_by_cue_date_pulse_temp)
-head(VF1_2_3_4buff_cue_animalID_by_cue_date_audioPulse_temp)
-
-
-
-
-```
-
-more graph options...
-
-
-```{r other graph options}
-
-#not working atm
-
-
-
-
-  
-#can I change the date to a factor and then create a box plot?
-Aduio_pulse_sum1$date_factor <- factor(Aduio_pulse_sum1$date)
-table(Aduio_pulse_sum1$date_factor)
-
-
-### Audio This is not working atm
-filter(Aduio_pulse_sum1, count <50 & audio_pulse_started == "Audio") %>% 
-  geom_boxplot(alpha = 0.2)+
-  geom_point()+
+VF1_2_3_4buff_cue_animalID_by_cue_date_temp <- mutate(VF1_2_3_4buff_cue_animalID_by_cue_date_temp,
+                                                      pulse_audio_ratio = Pulse / Audio,
+                                                      audio_sub_pulse = Audio - Pulse)
+#head(VF1_2_3_4buff_cue_animalID_by_cue_date_temp)
+#graph it
+##as bar per animal per day for both only
+ 
+ggplot(VF1_2_3_4buff_cue_animalID_by_cue_date_temp,  aes(x = date_factor, y = pulse_audio_ratio))+
+  geom_col()+
   theme_bw()+
-  #facet_wrap(. ~ animal_ID)+
   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
-  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "",
-       x= "Date",
-       y = "Counts of aduio cues")
+  #geom_text(aes(label = count), vjust = -1.0, hjust = 0.5)+
+    theme_classic()+
+    labs(x= "Dates",
+         y = "ratio",
+         title = "Ratio of pulse to aduio cues per day",
+         subtitle = "",
+         caption = "Started data only. VF 4 buffer data only")+
+    theme(axis.text.x=element_text(angle=45,hjust=1),
+          plot.caption = element_text(size = 8, hjust = 0),
+          legend.title=element_blank())
+
+ggplot(VF1_2_3_4buff_cue_animalID_by_cue_date_temp,  aes(x = date_factor, y = audio_sub_pulse))+
+  geom_col()+
+  theme_bw()+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.5) +
+  #geom_text(aes(label = count), vjust = -1.0, hjust = 0.5)+
+    theme_classic()+
+    labs(x= "Dates",
+         y = "counts",
+         title = "Cue data expressed as; Audio - Pulse per day",
+         subtitle = "",
+         caption = "Started data only. VF 4 buffer data only")+
+    theme(axis.text.x=element_text(angle=45,hjust=1),
+          plot.caption = element_text(size = 8, hjust = 0),
+          legend.title=element_blank())
 ```
+
+
 
 
 #Map out the exclusion data.
