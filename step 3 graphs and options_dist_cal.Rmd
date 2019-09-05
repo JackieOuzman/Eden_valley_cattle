@@ -1105,7 +1105,7 @@ VF2_incur_event <- read.csv(
 head(VF2_incur_event)
 VF2_incur_event$date <- as_date(VF2_incur_event$date)
 VF2_incur_event$time <- as_datetime(VF2_incur_event$time, tz="GMT")
-VF2_incur_event <- mutate(VF1_incur_event,
+VF2_incur_event <- mutate(VF2_incur_event,
                                      hms = hms::as.hms(time, tz="GMT"))
 #assign  coords for each of the VF dataframes
 sp_VF2_incur_event <- st_as_sf(VF2_incur_event, 
@@ -1148,27 +1148,67 @@ sp_VF4_incur_event <- st_as_sf(VF4_incur_event,
 ##############################               merge VF1,2,3 4                      #################################################
 ########################################################################################################################
 
-sp_VF1_2_3_4_incur_event <- r
+sp_VF1_2_3_4_incur_event <- rbind(sp_VF1_incur_event,
+                                  sp_VF2_incur_event,
+                                  sp_VF3_incur_event,
+                                  sp_VF4_incur_event)
 
 ```
 
-```{r inspect the exclusion data}
-#head(sp_VF1_incur_event)
-#table(sp_VF1_incur_event$animal_ID)
-#check_out_NA <- filter(sp_VF1_incur_event, animal_ID == "NA")
-#head(check_out_NA)
-#table(check_out_NA$collar_ID)
-#with(check_out_NA, table(day, collar_ID))
+```{r inspect the exclusion data and manipulate it}
 
-head(event_sum_VF1)
+
+head(sp_VF1_2_3_4_incur_event)
 #can I change the date to a factor and then create a box plot?
-event_sum_VF1$date_factor <- factor(event_sum_VF1$date)
+sp_VF1_2_3_4_incur_event$date_factor <- factor(sp_VF1_2_3_4_incur_event$date)
+with(sp_VF1_2_3_4_incur_event, table(date_factor, event_number))
+
+#event_sum <- filter(sp_VF1_2_3_4_incur_event, event_number != "NA") %>% 
+  event_sum1 <-group_by(sp_VF1_2_3_4_incur_event, date, animal_ID, event_number) %>% 
+  summarise(max_dist = max(distance_VF ), 
+            mean_dis = mean(distance_VF ),
+            max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+#can I change the date to a factor and then create a box plot?
+event_sum1$date_factor <- factor(event_sum1$date)
+#drop the geometry clm
+event_sum1 <-st_set_geometry(event_sum1, NULL)
+ 
+with(event_sum1, table(date_factor, animal_ID))
+head(event_sum1)
+#replace the NA event number with NA for the other cals
+event_sum2 <- mutate(event_sum1,
+                       max_dist = case_when(
+                                  event_number != "NA" ~ max_dist), 
+                       mean_dis = case_when(
+                                  event_number != "NA" ~ mean_dis),
+                       max_time = case_when(
+                                  event_number != "NA" ~ max_time),
+                       min_time = case_when(
+                                  event_number != "NA" ~ min_time),
+                       period_time = case_when(
+                                  event_number != "NA" ~ period_time))
+
+#if I have an NA value replace it with 0
+event_sum2$max_dist[is.na(event_sum2$max_dist)] <- 0
+event_sum2$mean_dis[is.na(event_sum2$mean_dis)] <- 0
+event_sum2$max_time[is.na(event_sum2$max_time)] <- 0 #didnt work
+event_sum2$min_time[is.na(event_sum2$min_time)] <- 0 #didnt work
+event_sum2$period_time[is.na(event_sum2$period_time)] <- 0
+
+ 
+
+```
 
 
-  ggplot(event_sum_VF1, aes(x = date_factor, y = max_dist))+
+```{r plot the exclusion data max distance }
+
+#max distance
+ ggplot(event_sum2, aes(x = date_factor, y = max_dist))+
   #geom_point()+
-  #geom_boxplot(alpha=0.2)+
-  geom_boxplot(outlier.shape=NA)+
+  geom_boxplot()+
+  #geom_boxplot(outlier.shape=NA)+
   theme_bw()+
   #facet_wrap(. ~ animal_ID)+
   #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
@@ -1179,22 +1219,48 @@ event_sum_VF1$date_factor <- factor(event_sum_VF1$date)
        x= "date",
        y = "Max distance")
 
+hist(event_sum2$max_dist)
+
+#max distance for all animals 
+ ggplot(event_sum2, aes(max_dist))+
+   geom_histogram(binwidth = 2, bins = 20)+
+    theme_bw()+
+     labs(title= "",
+       x= "Max distance from VF (m)",
+       y = "nunber of events",
+       caption = "events occur when animal enters the non grazing zone")
+
+ #max distance for per animals 
+ ggplot(event_sum2, aes(max_dist))+
+   geom_histogram(binwidth = 2, bins = 20)+
+    theme_bw()+
+   facet_wrap(.~ animal_ID)+
+   labs(title= "",
+       x= "Max distance from VF (m)",
+       y = "number of events",
+       caption = "events occur when animal enters the non grazing zone")
+
 ```
 
-
-Lets bring in all the data for incur events
-
-
-```{r plot exc data}
-#filter out all the data that does not have animal ID ie na and only retain exclsuion events
-
-
-```
 
 
 mean_dis 
 
 ```{r exl mean_dis}
+#mean distance
+ ggplot(event_sum2, aes(x = date_factor, y = mean_dis))+
+  #geom_point()+
+  geom_boxplot()+
+  #geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "Mean distance")
 
 
 ```
@@ -1205,11 +1271,56 @@ period_time
 
 ```{r exl period of time}
 
+
+#period_time seconds
+ ggplot(event_sum2, aes(x = date_factor, y = period_time))+
+  #geom_point()+
+  geom_boxplot()+
+  #geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "time period seconds")
 ```
 
-What about number of events per day per cow?
-```{r number of events}
 
+```{r number of events}
+str(sp_VF1_2_3_4_incur_event)
+VF1_2_3_4_incur_event <-st_set_geometry(sp_VF1_2_3_4_incur_event, NULL)
+str(VF1_2_3_4_incur_event)
+
+VF1_2_3_4_incur_event$event_number <- as.double(VF1_2_3_4_incur_event$event_number)
+table(VF1_2_3_4_incur_event$event_number)
+max(VF1_2_3_4_incur_event$event_number, na.rm=TRUE) 
+
+ event_max <-group_by(VF1_2_3_4_incur_event, date, animal_ID) %>% 
+  summarise(max_event = max(event_number,  na.rm=TRUE))
+str(event_max)
+
+
+event_max$date_factor <- factor(event_max$date)
+
+
+
+#number of events
+ ggplot(event_max, aes(x = date_factor, y = max_event))+
+  #geom_point()+
+  geom_boxplot()+
+  #geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "max event")
 ```
 
 
