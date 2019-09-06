@@ -75,7 +75,14 @@ import_function <- function(mydir){
 
 ##### Use the function to bring in data for one day that is specified ######
 getwd()
-#setwd("updated collar logs/")
+setwd("updated collar logs/")
+getwd()
+#Week 3
+VF_20190603 <- import_function("20190603")
+VF_20190604 <- import_function("20190604")
+VF_20190605 <- import_function("20190605")
+VF_20190606 <- import_function("20190606")
+
 VF_20190607 <- import_function("20190607")
 VF_20190608 <- import_function("20190608")
 VF_20190609 <- import_function("20190609")
@@ -103,6 +110,10 @@ VF_20190630 <- import_function("20190630")
 VF_20190701 <- import_function("20190701")
 VF_20190702 <- import_function("20190702")
 
+
+VF_week3 <-rbind(VF_20190603, VF_20190604, VF_20190605,
+                 VF_20190606)
+
 VF_week4 <- rbind(VF_20190607, VF_20190608, VF_20190609, VF_20190610,VF_20190611,
                   VF_20190612,VF_20190613)
                   
@@ -110,48 +121,50 @@ VF_week5 <- rbind(VF_20190614, VF_20190615, VF_20190616, VF_20190617,
                   VF_20190618, VF_20190619, VF_20190620)
 VF_week6 <- rbind(VF_20190621, VF_20190622, VF_20190623, VF_20190624, 
                   VF_20190625, VF_20190626, VF_20190627)
-VF_week7 <- rbind(VF_20190628, VF_20190629, VF_20190630, VF_20190631, 
+VF_week7 <- rbind(VF_20190628, VF_20190629, VF_20190630,  
                   VF_20190701, VF_20190702)
 
 ################################################################################################################
 ##########       Merge this all togther   ##########       
 
 
-VF_week4_5_6_7 <- rbind(VF_week4, VF_week5, VF_week6, VF_week7)
-head(VF_week4_5_6_7)
+VF_week3_4_5_6_7 <- rbind(VF_week3, VF_week4, VF_week5, VF_week6, VF_week7)
+head(VF_week3_4_5_6_7)
 getwd()
-saveRDS(VF_week4_5_6_7,  "VF_week4_5_6_7.rds")
-write_csv(VF_week4_5_6_7, "VF_week4_5_6_7.csv")
+saveRDS(VF_week3_4_5_6_7,  "VF_week3_4_5_6_7.rds")
+write_csv(VF_week3_4_5_6_7, "VF_week3_4_5_6_7.csv")
 #just for checking
 
 ################################################################################################################
 #########    Remove the NA   ##########
-VF_week4_5_6_7 <- VF_week4_5_6_7 %>% filter(!is.na(lat) | !is.na(lon))
+VF_week3_4_5_6_7 <- VF_week3_4_5_6_7 %>% filter(!is.na(lat) | !is.na(lon))
 
-summary(VF_week4_5_6_7$lat)
-summary(VF_week4_5_6_7$lon)
+summary(VF_week3_4_5_6_7$lat)
+summary(VF_week3_4_5_6_7$lon)
 
 ##########       ensure the column value is a number - double    ##########
-VF_week4_5_6_7_InclusionBord <- filter(VF_week4_5_6_7, event == "InclusionBorder_m") %>%   
+VF_week3_4_5_6_7_InclusionBord <- filter(VF_week3_4_5_6_7, event == "InclusionBorder_m") %>%   
   mutate( value = as.double(value))
-saveRDS(VF_week4_5_6_7_InclusionBord,  "download2_R_output/VF_week4_5_6_7_InclusionBord.rds")
+str(VF_week3_4_5_6_7_InclusionBord)
+saveRDS(VF_week3_4_5_6_7_InclusionBord,  "VF_week3_4_5_6_7_InclusionBord.rds")
 
 ################################################################################################################
 ##################           Divide up the data into VF chuncks                               ##################    
 ################################################################################################################
 #What is the max time?
-max_time_df <- as_datetime(max(VF_week4_5_6_7_InclusionBord$time), tz="GMT") 
+max_time_df <- as_datetime(max(VF_week3_4_5_6_7_InclusionBord$time), tz="GMT") 
+min_time_df <- as_datetime(min(VF_week3_4_5_6_7_InclusionBord$time), tz = "GMT")
 print(max_time_df)
-
+print(min_time_df)
 
 
 #Fence 5 called bron next traing fence Cant do this yet without the full data set
-#VF5_InclusionBord <- filter(VF_week4_5_6_7_InclusionBord, 
-#                            between(time, as_datetime('2019-06-03 09:31:00', tz="GMT"),
-#                                    as_datetime('2019-07-02 06:11:00', tz="GMT")))
+VF5_InclusionBord <- filter(VF_week3_4_5_6_7_InclusionBord, 
+                            between(time, as_datetime('2019-06-03 09:31:00', tz="GMT"),
+                                    as_datetime('2019-07-02 06:11:00', tz="GMT")))
 
-
-
+saveRDS(VF5_InclusionBord, "VF5_InclusionBord.rds")
+write_csv(VF5_InclusionBord, "VF5_InlusionBord.csv")
 
 
 
