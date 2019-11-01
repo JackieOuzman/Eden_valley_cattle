@@ -39,8 +39,18 @@ read_csv_FUN <- function(file ){
   the_data <- read_csv(file, col_types = cols(value = col_character()))
 }
 
+#location_raw_data <- "//FSSA2-ADL/clw-share1/Microlab/VF/Eden_Valley/logged_VF_data/collar logs_download2"
+#check <- paste0(location_raw_data)
+#check
+#setwd(check)
+#getwd()
+
 ####Function 2 import the data with correct names ####
-import_function <- function(mydir){
+import_function <- function(location_raw_data, mydir){
+  
+  #enter the correct path for where raw data sits
+  
+  setwd(paste0(location_raw_data)) #check that this works
   
   myfiles = list.files(path=mydir, pattern="*.csv", full.names=TRUE)
   #1a########### Get file names
@@ -117,36 +127,8 @@ getwd()
 #setwd("collar logs_download2/")
 setwd("//FSSA2-ADL/clw-share1/Microlab/VF/Eden_Valley/logged_VF_data/collar logs_download2")
 
-VF_20190607 <- import_function("20190607")
-VF_20190606 <- import_function("20190606")
-VF_20190605 <- import_function("20190605")
-VF_20190604 <- import_function("20190604")
-VF_20190603 <- import_function("20190603")
-VF_20190602 <- import_function("20190602") #not written r bind - is now
-VF_20190601 <- import_function("20190601")
-VF_20190531 <- import_function("20190531")
-VF_20190530 <- import_function("20190530")
-VF_20190529 <- import_function("20190529")
-VF_20190528 <- import_function("20190528")
-VF_20190527 <- import_function("20190527")
-VF_20190526 <- import_function("20190526")
-VF_20190525 <- import_function("20190525")
-VF_20190524 <- import_function("20190524")
-VF_20190523 <- import_function("20190523")
-VF_20190522 <- import_function("20190522")
-VF_20190521 <- import_function("20190521")
-VF_20190520 <- import_function("20190520")
-VF_20190519 <- import_function("20190519")
-VF_20190518 <- import_function("20190518")
-VF_20190517 <- import_function("20190517")
 
-VF_week1 <- rbind(VF_20190517, VF_20190518, VF_20190519,
-                  VF_20190520, VF_20190521, VF_20190522, VF_20190523)
-VF_week2 <- rbind(VF_20190524, VF_20190525, VF_20190526,
-                  VF_20190527, VF_20190528, VF_20190529, VF_20190530)
-VF_week3 <- rbind(VF_20190531, VF_20190601, 
-                  VF_20190602, 
-                  VF_20190603, VF_20190604, VF_20190605, VF_20190606)
+
 
 ################################################################################################################
 ##########       Merge this all togther   ##########       
