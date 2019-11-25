@@ -244,47 +244,383 @@ Fence1_time <- filter(Fence1_import,
                         mutate(VF = "VF1")
 
 #Fence 2 called training mk1
-Fence2_time <- filter(Fence2,
+Fence2_time <- filter(Fence2_import,
                       between(
                         time,
                         as_datetime('2019-05-20 14:50:00', tz = "GMT"),
-                        as_datetime('2019-05-23 08:30:00', tz =
-                                      "GMT")
-                      ) %>%
-                        mutate(VF = "VF2"))
+                        as_datetime('2019-05-23 08:30:00', tz = "GMT")
+                      )) %>%
+                        mutate(VF = "VF2")
 
 #Fence 3 called bron next traing fence
-Fence3_time <- filter(Fence3,
+Fence3_time <- filter(Fence3_import,
                       between(
                         time,
                         as_datetime('2019-05-23 08:30:00', tz = "GMT"),
-                        as_datetime('2019-05-28 11:00:00', tz =
-                                      "GMT")
-                      ) %>%
-                        mutate(VF = "VF3"))
+                        as_datetime('2019-05-28 11:00:00', tz = "GMT")
+                      )) %>%
+                        mutate(VF = "VF3")
 
 #Fence 4 called bron next traing fence check that the time range is working
-Fence4_time <- filter(Fence4,
+Fence4_time <- filter(Fence4_import,
                       between(
                         time,
                         as_datetime('2019-05-28 11:15:00', tz = "GMT"),
-                        as_datetime('2019-06-03 09:30:00', tz =
-                                      "GMT")
-                      ) %>%
-                        mutate(VF = "VF4"))
+                        as_datetime('2019-06-03 09:30:00', tz = "GMT")
+                      )) %>%
+                        mutate(VF = "VF4")
 
 #Fence 5 called bron next traing fence Cant don this yet without the full data set
-Fence4_time <- filter(Fence5,
+Fence5_time <- filter(Fence5_import,
                       between(
                         time,
                         as_datetime('2019-06-03 09:31:00', tz = "GMT"),
-                        as_datetime('2019-07-02 06:11:00', tz =
-                                      "GMT")
-                      ) %>%
-                        mutate(VF = "VF5"))
+                        as_datetime('2019-07-02 06:11:00', tz = "GMT")
+                      )) %>%
+                        mutate(VF = "VF5")
+
+
+
+#################################################################################################
+# 5. recode the collar ID to animal ID
+# 5a. VF 1
+Fence1_Incl_animalID <- mutate(Fence1_time,
+                                        animal_ID = case_when(
+                                          collar_ID == "ac138" ~ "Q46",
+                                          collar_ID == "ac187" ~ "Q36",
+                                          collar_ID == "ac204" ~ "Q108",
+                                          collar_ID == "ac207" ~ "Q42",
+                                          collar_ID == "ac212" ~ "Q29",
+                                          collar_ID == "ac213" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-28 06:44:00', tz="GMT")) ~ "Q47",
+                                          collar_ID == "ac320" &
+                                            between(time, as_datetime('2019-05-28 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:00', tz="GMT")) ~ "Q47" ,
+                                          collar_ID == "ac217" ~ "Q27",
+                                          collar_ID == "ac218" ~ "Q2",
+                                          collar_ID == "ac219" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-25 11:10:00', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac220" &
+                                            between(time, as_datetime('2019-05-25 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:18', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac325" ~ "Q9",
+                                          collar_ID == "ac328" ~ "Q109",
+                                          collar_ID == "ac331" ~ "Q51",
+                                          collar_ID == "ad1945" ~ "Q28",
+                                          collar_ID == "ad2042" ~ "Q26",
+                                          collar_ID == "ad2043" ~ "Q75",
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          collar_ID == "ad3396"  &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-27 16:19:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ac209"  &
+                                            between(time, as_datetime('2019-05-28 11:11:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:00:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ad3471" ~ "Q15",
+                                          collar_ID == "ad3502" ~ "Q8",
+                                          collar_ID == "ad3925" ~ "Q110",
+                                          TRUE ~ "NA"))
+
+# 5b. VF 2
+Fence2_Incl_animalID <- mutate(Fence2_time,
+                                        animal_ID = case_when(
+                                          collar_ID == "ac138" ~ "Q46",
+                                          collar_ID == "ac187" ~ "Q36",
+                                          collar_ID == "ac204" ~ "Q108",
+                                          collar_ID == "ac207" ~ "Q42",
+                                          collar_ID == "ac212" ~ "Q29",
+                                          collar_ID == "ac213" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-28 06:44:00', tz="GMT")) ~ "Q47",
+                                          collar_ID == "ac320" &
+                                            between(time, as_datetime('2019-05-28 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:00', tz="GMT")) ~ "Q47" ,
+                                          collar_ID == "ac217" ~ "Q27",
+                                          collar_ID == "ac218" ~ "Q2",
+                                          collar_ID == "ac219" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-25 11:10:00', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac220" &
+                                            between(time, as_datetime('2019-05-25 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:18', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac325" ~ "Q9",
+                                          collar_ID == "ac328" ~ "Q109",
+                                          collar_ID == "ac331" ~ "Q51",
+                                          collar_ID == "ad1945" ~ "Q28",
+                                          collar_ID == "ad2042" ~ "Q26",
+                                          collar_ID == "ad2043" ~ "Q75",
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          collar_ID == "ad3396"  &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-27 16:19:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ac209"  &
+                                            between(time, as_datetime('2019-05-28 11:11:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:00:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ad3471" ~ "Q15",
+                                          collar_ID == "ad3502" ~ "Q8",
+                                          collar_ID == "ad3925" ~ "Q110",
+                                          TRUE ~ "NA"))
+
+# 5c. VF 3
+Fence3_Inc_animalID <- mutate(Fence3_time,
+                                        animal_ID = case_when(
+                                          collar_ID == "ac138" ~ "Q46",
+                                          collar_ID == "ac187" ~ "Q36",
+                                          collar_ID == "ac204" ~ "Q108",
+                                          collar_ID == "ac207" ~ "Q42",
+                                          collar_ID == "ac212" ~ "Q29",
+                                          collar_ID == "ac213" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-28 07:00:00', tz="GMT")) ~ "Q47",
+                                          collar_ID == "ac320" &
+                                            between(time, as_datetime('2019-05-28 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:00', tz="GMT")) ~ "Q47" ,
+                                          collar_ID == "ac217" ~ "Q27",
+                                          collar_ID == "ac218" ~ "Q2",
+                                          collar_ID == "ac219" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-25 11:20:00', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac220" &
+                                            between(time, as_datetime('2019-05-25 10:55:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:18', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac325" ~ "Q9",
+                                          collar_ID == "ac328" ~ "Q109",
+                                          collar_ID == "ac331" ~ "Q51",
+                                          collar_ID == "ad1945" ~ "Q28",
+                                          collar_ID == "ad2042" ~ "Q26",
+                                          collar_ID == "ad2043" ~ "Q75",
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          collar_ID == "ad3396"  &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-27 16:25:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ac209"  &
+                                            between(time, as_datetime('2019-05-28 11:11:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:00:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ad3471" ~ "Q15",
+                                          collar_ID == "ad3502" ~ "Q8",
+                                          collar_ID == "ad3925" ~ "Q110",
+                                          TRUE ~ "NA"))
+
+# 5d. VF 4
+Fence4_Inc_animalID <- mutate(Fence4_time,
+                                        animal_ID = case_when(
+                                          collar_ID == "ac138"
+                                          ~ "Q46",
+                                          collar_ID == "ac187" ~ "Q36",
+                                          collar_ID == "ac204" ~ "Q108",
+                                          collar_ID == "ac207" ~ "Q42",
+                                          collar_ID == "ac212" ~ "Q29",
+                                          collar_ID == "ac213" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-28 06:44:00', tz="GMT")) ~ "Q47",
+                                          collar_ID == "ac320" &
+                                            between(time, as_datetime('2019-05-28 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:00', tz="GMT")) ~ "Q47" ,
+                                          collar_ID == "ac217" ~ "Q27",
+                                          collar_ID == "ac218" ~ "Q2",
+                                          collar_ID == "ac219" &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-25 11:10:00', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac220" &
+                                            between(time, as_datetime('2019-05-25 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:18', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac325" ~ "Q9",
+                                          collar_ID == "ac328" ~ "Q109",
+                                          collar_ID == "ac331" ~ "Q51",
+                                          collar_ID == "ad1945" ~ "Q28",
+                                          collar_ID == "ad2042" ~ "Q26",
+                                          collar_ID == "ad2043" ~ "Q75",
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          collar_ID == "ad3396"  &
+                                            between(time, as_datetime('2019-05-20 10:15:00', tz="GMT"),
+                                                    as_datetime('2019-05-27 16:19:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ac209"  &
+                                            between(time, as_datetime('2019-05-28 11:11:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:00:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ad3471" ~ "Q15",
+                                          collar_ID == "ad3502" ~ "Q8",
+                                          collar_ID == "ad3925" ~ "Q110",
+                                          TRUE ~ "NA"))
+
+# 5e. VF 5
+# 5e.i The collar were changed over on the 7/6/2019 at 15:34, before they were changed over the collar were deactivated
+# This means the logging events that occured between 6/6/2019 16:35 and 7/6/2019 15:35 should be removed
+
+Fence5_time_test <- filter(Fence5_time,  !between(
+  time,as_datetime('2019-06-06 16:35:00', tz = "GMT"),as_datetime('2019-06-07 16:35:00', tz =
+                                                                      "GMT")
+))
+# # other data that needs removing according to notes
+
+Fence5_Inc_animalID <- mutate(Fence5_time_test,
+                                        animal_ID = case_when(
+                                          collar_ID == "ac138" ~ "Q46",
+                                          collar_ID == "ac187" ~ "Q36",
+                                          collar_ID == "ac207" &
+                                            between(time, as_datetime('2019-06-03 09:30:00', tz="GMT"),
+                                                    as_datetime('2019-06-07 16:30:00', tz="GMT")) ~ "Q42" ,
+                                          
+                                          collar_ID == "ac209"  &
+                                            between(time, as_datetime('2019-05-28 11:11:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:00:00', tz="GMT"))~ "Q45",
+                                          collar_ID == "ac212" ~ "Q29",
+                                          collar_ID == "ac217" ~ "Q27",
+                                          collar_ID == "ac218" ~ "Q2",
+                                          collar_ID == "ac220" &
+                                            between(time, as_datetime('2019-05-25 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:18', tz="GMT"))~ "Q10",
+                                          collar_ID == "ac320" &
+                                            between(time, as_datetime('2019-05-28 11:01:00', tz="GMT"),
+                                                    as_datetime('2019-06-06 17:27:00', tz="GMT")) ~ "Q47" ,
+                                          collar_ID == "ac325" &
+                                            between(time, as_datetime('2019-06-03 09:30:00', tz="GMT"),
+                                                    as_datetime('2019-06-07 16:30:00', tz="GMT")) ~ "Q9" ,
+                                          
+                                          collar_ID == "ac328" ~ "Q109",
+                                          collar_ID == "ac331" ~ "Q51",
+                                          collar_ID == "ad1945" ~ "Q28",
+                                          collar_ID == "ad2042" ~ "Q26",
+                                          collar_ID == "ad2043" &
+                                            between(time, as_datetime('2019-06-03 09:34:00', tz="GMT"),
+                                                    as_datetime('2019-06-07 16:30:00', tz="GMT")) ~ "Q75" ,
+                                          collar_ID == "ad2633" ~ "Q8",
+                                          collar_ID == "ad2634" ~ "Q11",
+                                          collar_ID == "ad2635" ~ "Q47",
+                                          collar_ID == "ad2637" ~ "Q108",
+                                          collar_ID == "ad2638" ~ "Q27",
+                                          collar_ID == "ad2639" ~ "Q51",
+                                          
+                                          #collar_ID == "ad2640" ~ "Q36",
+                                          collar_ID == "ad2640" &
+                                            between(time, as_datetime('2019-06-07 19:07:00', tz="GMT"),
+                                                    as_datetime('2019-06-21 10:00:00', tz="GMT")) ~ "Q36" ,
+                                          collar_ID == "ad2640" &
+                                            between(time, as_datetime('2019-06-21 14:05:00', tz="GMT"),
+                                                    as_datetime('2019-06-24 16:06:00', tz="GMT")) ~ "Q36" ,
+                                          
+                                          collar_ID == "ad2643" ~ "Q36",
+                                          collar_ID == "ad2644" ~ "Q46",
+                                          collar_ID == "ad2645" ~ "Q42",
+                                          collar_ID == "ad2646" ~ "Q9",
+                                          collar_ID == "ad2647" ~ "Q10",
+                                          collar_ID == "ad2648" ~ "Q109",
+                                          collar_ID == "ad2649" ~ "Q29",
+                                          collar_ID == "ad2650" ~ "Q26",
+                                          collar_ID == "ad2651" ~ "Q15",
+                                          collar_ID == "ad2653" ~ "Q75",
+                                          collar_ID == "ad2654" ~ "Q45",
+                                          collar_ID == "ad2655" &
+                                            between(time, as_datetime('2019-06-07 16:35:00', tz="GMT"),
+                                                    as_datetime('2019-06-24 14:04:00', tz="GMT")) ~ "Q26" ,
+                                          collar_ID == "ad2656" ~ "Q28",
+                                          collar_ID == "ad2657" ~ "Q110",
+                                          collar_ID == "ad2658" ~ "Q2",
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          collar_ID == "ad3471" ~ "Q15",
+                                          collar_ID == "ad3502" ~ "Q8",
+                                          collar_ID == "ad3925" ~ "Q110",
+                                          collar_ID == "ad3502" ~ "Q8",
+                                          
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          collar_ID == "ad3374" ~ "Q11",
+                                          
+                                           
+                                         
+                                          
+                                          TRUE ~ "NA"))
+
+
+###########################################################################################################
+# 6. add a colm for day of exp
+# 6a. write a function to do this
+
+date_of_trial <- function(df){
+  mutate(df, 
+         day_since_start = case_when(
+           date == "2019-05-20" ~ 1,
+           date == "2019-05-21" ~ 2,
+           date == "2019-05-22" ~ 3,
+           date == "2019-05-23" ~ 4,
+           date == "2019-05-24" ~ 5,
+           date == "2019-05-25" ~ 6,
+           date == "2019-05-26" ~ 7,
+           date == "2019-05-27" ~ 8,
+           date == "2019-05-28" ~ 9,
+           date == "2019-05-29" ~ 10,
+           date == "2019-05-30" ~ 11,
+           date == "2019-05-31" ~ 12,
+           date == "2019-06-01" ~ 13,
+           date == "2019-06-02" ~ 14,
+           date == "2019-06-03" ~ 15,
+           date == "2019-06-04" ~ 16,
+           date == "2019-06-05" ~ 17,
+           date == "2019-06-06" ~ 18,
+           date == "2019-06-07" ~ 19,
+           date == "2019-06-08" ~ 20,
+           date == "2019-06-09" ~ 21,
+           date == "2019-06-10" ~ 22,
+           date == "2019-06-11" ~ 23,
+           date == "2019-06-12" ~ 24,
+           date == "2019-06-13" ~ 25,
+           date == "2019-06-14" ~ 26,
+           date == "2019-06-15" ~ 27,
+           date == "2019-06-16" ~ 28,
+           date == "2019-06-17" ~ 29,
+           date == "2019-06-18" ~ 30,
+           date == "2019-06-19" ~ 31,
+           date == "2019-06-20" ~ 32,
+           date == "2019-06-21" ~ 33,
+           date == "2019-06-22" ~ 34,
+           date == "2019-06-23" ~ 35,
+           date == "2019-06-24" ~ 36,
+           date == "2019-06-25" ~ 37,
+           date == "2019-06-26" ~ 38,
+           date == "2019-06-27" ~ 39,
+           date == "2019-06-28" ~ 40,
+           date == "2019-06-29" ~ 41,
+           date == "2019-06-30" ~ 42,
+           date == "2019-07-01" ~ 43,
+           date == "2019-07-02" ~ 44
+         ))
+}
+
+# 6b. call function to add day of trial
+Fence1_Incl_animalID <- date_of_trial(Fence1_Incl_animalID)
+Fence2_Incl_animalID <- date_of_trial(Fence2_Incl_animalID)
+Fence3_Incl_animalID <- date_of_trial(Fence3_Inc_animalID)
+Fence4_Incl_animalID <- date_of_trial(Fence4_Inc_animalID)
+Fence5_Incl_animalID <- date_of_trial(Fence5_Inc_animalID)
 
 #########################################################################################
-#### 5. Remove the NA in the data AND keep only data with "InclusionBorder_m" and set as double
+#### 7. add in a clm for week of trial
+
+week_of_trial <- function(df) {
+  mutate(
+    df,
+    week_number = case_when(
+      day_since_start  < 7 ~ 1,
+      day_since_start  < 14 ~ 2,
+      day_since_start   < 21 ~ 3,
+      day_since_start   < 28 ~ 4,
+      day_since_start   < 35 ~ 5,
+      day_since_start    < 42 ~ 6,
+      day_since_start   < 45 ~ 7
+    )
+  )
+}
+
+Fence1_Incl_animalID <- week_of_trial(Fence1_Incl_animalID)
+Fence2_Incl_animalID <- week_of_trial(Fence2_Incl_animalID)
+Fence3_Incl_animalID <- week_of_trial(Fence3_Incl_animalID)
+Fence4_Incl_animalID <- week_of_trial(Fence4_Incl_animalID)
+Fence5_Incl_animalID <- week_of_trial(Fence5_Incl_animalID)
+
+tail(Fence5_Incl_animalID)
+
+#########################################################################################
+#### 8. Remove the NA in the data AND keep only data with "InclusionBorder_m" and set as double
 
 #list of data
 list_data <- c(Fence1_time,
@@ -299,23 +635,22 @@ remove_na_InclusionBorad_m <- function(list_data){
     mutate( value = as.double(value))
 }
 
-#apply function without lapply
-Fence1_Incl_board_m <- remove_na_InclusionBorad_m(Fence1_time)
+Fence1_Incl <- remove_na_InclusionBorad_m(Fence1_time)
+Fence2_Incl <- remove_na_InclusionBorad_m(Fence2_time)
+Fence3_Incl <- remove_na_InclusionBorad_m(Fence3_time)
+Fence4_Incl <- remove_na_InclusionBorad_m(Fence4_time)
+Fence5_Incl <- remove_na_InclusionBorad_m(Fence5_time)
 
+#write out files
+output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
+Fence1 <- paste0(output_folder,"/Fence1_incl.rds")
+Fence2 <- paste0(output_folder,"/Fence2_incl.rds")
+Fence3 <- paste0(output_folder,"/Fence3_incl.rds")
+Fence4 <- paste0(output_folder,"/Fence4_incl.rds")
+Fence5 <- paste0(output_folder,"/Fence5_incl.rds")
 
-#lapply to apply function to elements in my list
-lapply(list_data, remove_na_InclusionBorad_m)
-#if this works change it to parallel
-#not sure the returned outout is what I want...??
-list_data <- data.frame(unlist(parLapply(cl, list_data, remove_na_InclusionBorad_m)))
-
-# VF_week1_2_3 <- VF_week1_2_3 %>% filter(!is.na(lat) | !is.na(lon))
-# 
-# summary(VF_week1_2_3$lat)
-# summary(VF_week1_2_3$lon)
-
-
-
-
-
-
+write_rds(Fence1_Incl, Fence1)
+write_rds(Fence2_Incl, Fence2)
+write_rds(Fence3_Incl, Fence3)
+write_rds(Fence4_Incl, Fence4)
+write_rds(Fence5_Incl, Fence5)
