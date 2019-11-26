@@ -532,10 +532,7 @@ Fence5_Inc_animalID <- mutate(Fence5_time_test,
                                           collar_ID == "ad3374" ~ "Q11",
                                           collar_ID == "ad3374" ~ "Q11",
                                           
-                                           
-                                         
-                                          
-                                          TRUE ~ "NA"))
+                                           TRUE ~ "NA"))
 
 
 ###########################################################################################################
@@ -623,40 +620,275 @@ Fence3_Incl_animalID <- week_of_trial(Fence3_Incl_animalID)
 Fence4_Incl_animalID <- week_of_trial(Fence4_Incl_animalID)
 Fence5_Incl_animalID <- week_of_trial(Fence5_Incl_animalID)
 
-tail(Fence5_Incl_animalID)
+#tail(Fence5_Incl_animalID)
+
+
+##############################################################################
+#write out files
+output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
+Fence1 <- paste0(output_folder,"/Fence1_data_clean.rds")
+Fence2 <- paste0(output_folder,"/Fence2_data_clean.rds")
+Fence3 <- paste0(output_folder,"/Fence3_data_clean.rds")
+Fence4 <- paste0(output_folder,"/Fence4_data_clean.rds")
+Fence5 <- paste0(output_folder,"/Fence5_data_clean.rds")
+
+write_rds(Fence1_Incl_animalID, Fence1)
+write_rds(Fence2_Incl_animalID, Fence2)
+write_rds(Fence3_Incl_animalID, Fence3)
+write_rds(Fence4_Incl_animalID, Fence4)
+write_rds(Fence5_Incl_animalID, Fence5)
+
+
+
+
 
 #########################################################################################
 #### 8. Remove the NA in the data AND keep only data with "InclusionBorder_m" and set as double
 
-#list of data
-list_data <- c(Fence1_time,
-               Fence2_time,
-               Fence3_time,
-               Fence4_time,
-               Fence5_time)
+
 #function
-remove_na_InclusionBorad_m <- function(list_data){
-  list_data %>% filter(!is.na(lat) | !is.na(lon)) %>% 
+remove_na_InclusionBorad_m <- function(data){
+  data %>% filter(!is.na(lat) | !is.na(lon)) %>% 
     filter( event == "InclusionBorder_m") %>%   
     mutate( value = as.double(value))
 }
 
-Fence1_Incl <- remove_na_InclusionBorad_m(Fence1_time)
-Fence2_Incl <- remove_na_InclusionBorad_m(Fence2_time)
-Fence3_Incl <- remove_na_InclusionBorad_m(Fence3_time)
-Fence4_Incl <- remove_na_InclusionBorad_m(Fence4_time)
-Fence5_Incl <- remove_na_InclusionBorad_m(Fence5_time)
+Fence1_Incl <- remove_na_InclusionBorad_m(Fence1_Incl_animalID)
+Fence2_Incl <- remove_na_InclusionBorad_m(Fence2_Incl_animalID)
+Fence3_Incl <- remove_na_InclusionBorad_m(Fence3_Incl_animalID)
+Fence4_Incl <- remove_na_InclusionBorad_m(Fence4_Incl_animalID)
+Fence5_Incl <- remove_na_InclusionBorad_m(Fence5_Incl_animalID)
 
+
+######################################################################################
+#### 9. Bring in spatial data bounadries and VF with sf package
+
+### 9a. paddock bounadry
+eden_valley <- st_read("W:/VF/Eden_Valley/VF_Boundary/EdenValley_site1GDA_a.shp")
+#assign a coord ref epsg
+st_crs(eden_valley) <- 28354
+
+#make this the epsg that will be used for all data
+the_crs <- st_crs(eden_valley, asText = TRUE)
+
+### 9b. VF lines
+
+fence1 <- st_read("W:/VF/Eden_Valley/VF_Boundary/Fence1.shp")
+fence2 <- st_read("W:/VF/Eden_Valley/VF_Boundary/Fence2.shp")
+fence3 <- st_read("W:/VF/Eden_Valley/VF_Boundary/Fence3.shp")
+fence4 <- st_read("W:/VF/Eden_Valley/VF_Boundary/Fence4a.shp")
+fence5 <- st_read("W:/VF/Eden_Valley/VF_Boundary/Fence5.shp")
+
+st_crs(fence1) <- 28354
+st_crs(fence2) <- 28354
+st_crs(fence3) <- 28354
+st_crs(fence4) <- 28354
+st_crs(fence5) <- 28354
+
+
+### 9c. Non Grazing ploygons
+
+VF1_NonGraz <- st_read("W:/VF/Eden_Valley/VF_Boundary/VF1_NonGraz.shp")
+VF2_NonGraz <- st_read("W:/VF/Eden_Valley/VF_Boundary/VF2_NonGraz.shp")
+VF3_NonGraz <- st_read("W:/VF/Eden_Valley/VF_Boundary/VF3_NonGraz.shp")
+VF4_NonGraz <- st_read("W:/VF/Eden_Valley/VF_Boundary/VF4_NonGraz.shp")
+VF5_NonGraz <- st_read("W:/VF/Eden_Valley/VF_Boundary/VF5_NonGraz.shp")
+
+st_crs(VF1_NonGraz) <- 28354
+st_crs(VF2_NonGraz) <- 28354
+st_crs(VF3_NonGraz) <- 28354
+st_crs(VF4_NonGraz) <- 28354
+st_crs(VF5_NonGraz) <- 28354
+
+
+########################################################################################################
+### 10. create Inclusion data
+
+### 10a. Function to recal the distance
+
+Inclusion_recal_function <-
+  function(df, VF_line, VF_nonGraz_polygon) {
+    #assign WGS EPSG for coords for each of the VF dataframes
+    sp_data_InclusionBord <-
+      st_as_sf(df,
+               coords = c("lon", "lat"),
+               crs = 4326,
+               agr = "constant")
+    sp_data_InclusionBord_trans <-
+      st_transform(sp_data_InclusionBord, crs = 28354)
+    sp_data_InclusionBord_clip <-
+      st_intersection(sp_data_InclusionBord_trans, eden_valley)
+    
+    sp_data_InclusionBord_clip <- mutate(sp_data_InclusionBord_clip,
+                                         dist = st_distance(sp_data_InclusionBord_clip, VF_line))
+    sp_data_InclusionBord_clip$dist <-
+      as.double(sp_data_InclusionBord_clip$dist)
+    
+    
+    
+    # which points fall inside a polygon? Create a new clm for this non_graz when true its in the non grazing zone
+    sp_data_InclusionBord_clip <- mutate(sp_data_InclusionBord_clip,
+                                         non_graz = apply((
+                                           st_intersects(sp_data_InclusionBord_clip,
+                                                         VF_nonGraz_polygon, sparse = FALSE)
+                                         ), 1, any))
+    
+    
+    # add extra clm that distance from VF False values become negative and are in the grazing zone
+    sp_data_InclusionBord_clip <- mutate(sp_data_InclusionBord_clip,
+                                         distance_VF =  ifelse(non_graz == FALSE, (dist *
+                                                                                     -1), dist))
+  }
+
+### 10b. use function to recal the distance
+
+VF1_recal <- Inclusion_recal_function(Fence1_Incl, fence1, VF1_NonGraz)
+VF2_recal <- Inclusion_recal_function(Fence2_Incl, fence2, VF2_NonGraz)
+VF3_recal <- Inclusion_recal_function(Fence3_Incl, fence3, VF3_NonGraz)
+VF4_recal <- Inclusion_recal_function(Fence4_Incl, fence4, VF4_NonGraz)
+VF5_recal <- Inclusion_recal_function(Fence5_Incl, fence5, VF5_NonGraz)
+
+### 10c. export output if needed - this is very slow consider if we need this step
 #write out files
-output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
-Fence1 <- paste0(output_folder,"/Fence1_incl.rds")
-Fence2 <- paste0(output_folder,"/Fence2_incl.rds")
-Fence3 <- paste0(output_folder,"/Fence3_incl.rds")
-Fence4 <- paste0(output_folder,"/Fence4_incl.rds")
-Fence5 <- paste0(output_folder,"/Fence5_incl.rds")
 
-write_rds(Fence1_Incl, Fence1)
-write_rds(Fence2_Incl, Fence2)
-write_rds(Fence3_Incl, Fence3)
-write_rds(Fence4_Incl, Fence4)
-write_rds(Fence5_Incl, Fence5)
+output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
+Fence1csv <- paste0(output_folder,"/VF1_recal.csv")
+Fence2csv <- paste0(output_folder,"/VF2_recal.csv")
+Fence3csv <- paste0(output_folder,"/VF3_recal.csv")
+Fence4csv <- paste0(output_folder,"/VF4_recal.csv")
+Fence5csv <- paste0(output_folder,"/VF5_recal.csv")
+
+# st_write(VF1_recal, Fence1csv, layer_options = "GEOMETRY=AS_XY")
+# st_write(VF2_recal, Fence2csv, layer_options = "GEOMETRY=AS_XY")
+# st_write(VF3_recal, Fence3csv, layer_options = "GEOMETRY=AS_XY")
+# st_write(VF4_recal, Fence4csv, layer_options = "GEOMETRY=AS_XY")
+# st_write(VF5_recal, Fence5csv, layer_options = "GEOMETRY=AS_XY")
+
+##################################################################################################################
+### 11a. track the incursion events - function 
+
+# The aim here is create a clm and then maybe a subset of data for an incursion event
+# this is when the animal has moved into the exclusion zone.
+VF1_recal
+
+VF_recal_incursion_function <- function(df){
+  
+  #1. arrange by time
+  VF1_recal_incursion <- arrange(df, animal_ID, time)
+  #2. define a start and end time for event
+  VF1_recal_incursion <- mutate(
+    VF1_recal_incursion,
+    start_end = case_when(
+      distance_VF >= 0  & lag(distance_VF <= 0) ~ "start",
+      distance_VF <= 0  &
+        lag(distance_VF >= 0) ~ "end"
+    ),
+    start_end_no_fill = case_when(
+      distance_VF >= 0  & lag(distance_VF <= 0) ~ "start",
+      distance_VF <= 0  &
+        lag(distance_VF >= 0) ~ "end"
+    )
+  )
+  
+  #3. arrange data on time and animal
+  VF1_recal_incursion <-
+    arrange(VF1_recal_incursion, animal_ID, time)
+  #4. fill in missing values from above
+  VF1_recal_incursion <-
+    fill(VF1_recal_incursion, start_end, .direction = "down")
+  #5. need to code my na as other I need as na for the fill function above
+  VF1_recal_incursion$start_end <-
+    replace_na(VF1_recal_incursion$start_end, "temp")
+  
+  VF1_recal_incursion <- mutate(
+    VF1_recal_incursion,
+    event = case_when(
+      start_end == "start" ~ "exclusion_zone",
+      start_end == "temp" ~ "grazing_zone",
+      start_end == "end" ~ "grazing_zone"
+    )
+  )
+  
+  
+  #6. tidy up
+  VF1_recal_incursion <- select(
+    VF1_recal_incursion,
+    time,
+    event,
+    value,
+    hdop,
+    heading,
+    m.s,
+    collar_ID,
+    collar,
+    date,
+    month,
+    day,
+    dist,
+    animal_ID,
+    non_graz,
+    distance_VF,
+    start_end,
+    start_end_no_fill, geometry)
+  
+  #7. Create a new clm called event number
+  # This makes a new df with new clm called Index - it indexs the start and end values using no fill clm
+  # This is indexing all animal and then the event start - not sure if I need to add day here too?
+  VF1_recal_incursion <-
+    group_by(VF1_recal_incursion, animal_ID, start_end_no_fill) %>%
+    mutate(Index = 1:n())
+  
+  VF1_recal_incursion <- mutate(VF1_recal_incursion,
+                                index_start = case_when(start_end_no_fill == "start" ~ as.character(Index)))
+  
+  VF1_recal_incursion <- data.frame(ungroup(VF1_recal_incursion))
+  
+  VF1_recal_incursion <-
+    arrange(VF1_recal_incursion, animal_ID, time)
+  
+  VF1_recal_incursion <-
+    fill(VF1_recal_incursion, index_start, .direction = "down")
+  
+  
+  VF1_recal_incursion <- mutate(
+    VF1_recal_incursion,
+    event_number = case_when(
+      start_end == "temp"  ~ "-999",
+      start_end == "end"  ~ "-999",
+      start_end ==  "start"  ~ index_start
+    )
+  )
+  
+  #8. remove the working out clms
+  VF1_recal_incursion <- select(VF1_recal_incursion,-index_start,
+                                -Index,
+                                -start_end_no_fill,
+                                -start_end)
+  
+  VF1_recal_incursion$event_number <-
+    na_if(VF1_recal_incursion$event_number, "-999") #changed all these values to na
+  #9. add in the hms
+  VF1_recal_incursion <- mutate(VF1_recal_incursion,
+                                hms = hms::as.hms(time, tz =
+                                                    "GMT"))
+  
+}
+
+### 11b. use function to track the incursion events 
+
+VF1_recal_incl_events <- VF_recal_incursion_function(VF1_recal)
+VF2_recal_incl_events <- VF_recal_incursion_function(VF2_recal) 
+VF3_recal_incl_events <- VF_recal_incursion_function(VF3_recal) 
+VF4_recal_incl_events <- VF_recal_incursion_function(VF4_recal)
+VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
+
+###check and plot??
+
+VF1_inc_events_sum <- filter(VF1_recal_incl_events, event_number != "NA") %>% 
+  group_by( day, animal_ID, event_number) %>% 
+  summarise(max_dist = max(distance_VF ), 
+            mean_dis = mean(distance_VF ),
+            max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+head(VF1_inc_events_sum)
