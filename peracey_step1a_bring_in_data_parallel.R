@@ -769,15 +769,15 @@ Fence5csv <- paste0(output_folder,"/VF5_recal.csv")
 
 # The aim here is create a clm and then maybe a subset of data for an incursion event
 # this is when the animal has moved into the exclusion zone.
-VF1_recal
+#head(VF1_recal)
 
 VF_recal_incursion_function <- function(df){
   
   #1. arrange by time
-  VF1_recal_incursion <- arrange(df, animal_ID, time)
+  VF_recal_incursion <- arrange(df, animal_ID, time)
   #2. define a start and end time for event
-  VF1_recal_incursion <- mutate(
-    VF1_recal_incursion,
+  VF_recal_incursion <- mutate(
+    VF_recal_incursion,
     start_end = case_when(
       distance_VF >= 0  & lag(distance_VF <= 0) ~ "start",
       distance_VF <= 0  &
@@ -791,17 +791,17 @@ VF_recal_incursion_function <- function(df){
   )
   
   #3. arrange data on time and animal
-  VF1_recal_incursion <-
-    arrange(VF1_recal_incursion, animal_ID, time)
+  VF_recal_incursion <-
+    arrange(VF_recal_incursion, animal_ID, time)
   #4. fill in missing values from above
-  VF1_recal_incursion <-
-    fill(VF1_recal_incursion, start_end, .direction = "down")
+  VF_recal_incursion <-
+    fill(VF_recal_incursion, start_end, .direction = "down")
   #5. need to code my na as other I need as na for the fill function above
-  VF1_recal_incursion$start_end <-
-    replace_na(VF1_recal_incursion$start_end, "temp")
+  VF_recal_incursion$start_end <-
+    replace_na(VF_recal_incursion$start_end, "temp")
   
-  VF1_recal_incursion <- mutate(
-    VF1_recal_incursion,
+  VF_recal_incursion <- mutate(
+    VF_recal_incursion,
     event = case_when(
       start_end == "start" ~ "exclusion_zone",
       start_end == "temp" ~ "grazing_zone",
@@ -811,8 +811,8 @@ VF_recal_incursion_function <- function(df){
   
   
   #6. tidy up
-  VF1_recal_incursion <- select(
-    VF1_recal_incursion,
+  VF_recal_incursion <- select(
+    VF_recal_incursion,
     time,
     event,
     value,
@@ -829,29 +829,32 @@ VF_recal_incursion_function <- function(df){
     non_graz,
     distance_VF,
     start_end,
-    start_end_no_fill, geometry)
+    start_end_no_fill, 
+    geometry,
+    animal_ID,
+    day_since_start, week_number)
   
   #7. Create a new clm called event number
   # This makes a new df with new clm called Index - it indexs the start and end values using no fill clm
   # This is indexing all animal and then the event start - not sure if I need to add day here too?
-  VF1_recal_incursion <-
-    group_by(VF1_recal_incursion, animal_ID, start_end_no_fill) %>%
+  VF_recal_incursion <-
+    group_by(VF_recal_incursion, animal_ID, start_end_no_fill) %>%
     mutate(Index = 1:n())
   
-  VF1_recal_incursion <- mutate(VF1_recal_incursion,
+  VF_recal_incursion <- mutate(VF_recal_incursion,
                                 index_start = case_when(start_end_no_fill == "start" ~ as.character(Index)))
   
-  VF1_recal_incursion <- data.frame(ungroup(VF1_recal_incursion))
+  VF_recal_incursion <- data.frame(ungroup(VF_recal_incursion))
   
-  VF1_recal_incursion <-
-    arrange(VF1_recal_incursion, animal_ID, time)
+  VF_recal_incursion <-
+    arrange(VF_recal_incursion, animal_ID, time)
   
-  VF1_recal_incursion <-
-    fill(VF1_recal_incursion, index_start, .direction = "down")
+  VF_recal_incursion <-
+    fill(VF_recal_incursion, index_start, .direction = "down")
   
   
-  VF1_recal_incursion <- mutate(
-    VF1_recal_incursion,
+  VF_recal_incursion <- mutate(
+    VF_recal_incursion,
     event_number = case_when(
       start_end == "temp"  ~ "-999",
       start_end == "end"  ~ "-999",
@@ -860,35 +863,105 @@ VF_recal_incursion_function <- function(df){
   )
   
   #8. remove the working out clms
-  VF1_recal_incursion <- select(VF1_recal_incursion,-index_start,
+  VF_recal_incursion <- select(VF_recal_incursion,-index_start,
                                 -Index,
                                 -start_end_no_fill,
                                 -start_end)
   
-  VF1_recal_incursion$event_number <-
-    na_if(VF1_recal_incursion$event_number, "-999") #changed all these values to na
+  VF_recal_incursion$event_number <-
+    na_if(VF_recal_incursion$event_number, "-999") #changed all these values to na
   #9. add in the hms
-  VF1_recal_incursion <- mutate(VF1_recal_incursion,
+  VF_recal_incursion <- mutate(VF_recal_incursion,
                                 hms = hms::as.hms(time, tz =
                                                     "GMT"))
   
 }
 
 ### 11b. use function to track the incursion events 
-
+#head(VF1_recal)
 VF1_recal_incl_events <- VF_recal_incursion_function(VF1_recal)
 VF2_recal_incl_events <- VF_recal_incursion_function(VF2_recal) 
 VF3_recal_incl_events <- VF_recal_incursion_function(VF3_recal) 
 VF4_recal_incl_events <- VF_recal_incursion_function(VF4_recal)
 VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
 
-###check and plot??
+
+##################################################################################################################
+### 12. Plot incursion events 
+
+### 12a. Summary of data
+head(VF1_recal_incl_events)
 
 VF1_inc_events_sum <- filter(VF1_recal_incl_events, event_number != "NA") %>% 
-  group_by( day, animal_ID, event_number) %>% 
+  group_by( date, animal_ID, event_number) %>% 
   summarise(max_dist = max(distance_VF ), 
             mean_dis = mean(distance_VF ),
             max_time = max(as_datetime(time, tz="GMT")), 
             min_time = min(as_datetime(time, tz="GMT")),
-            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1)#,
+            #max_event = max(event_number,  na.rm=TRUE)
+            )
+
+### 12b. Replace the NA event number with NA for the other cals
+VF1_inc_events_sum <- mutate(VF1_inc_events_sum,
+                     max_dist = case_when(
+                       event_number != "NA" ~ max_dist), 
+                     mean_dis = case_when(
+                       event_number != "NA" ~ mean_dis),
+                     max_time = case_when(
+                       event_number != "NA" ~ max_time),
+                     min_time = case_when(
+                       event_number != "NA" ~ min_time),
+                     period_time = case_when(
+                       event_number != "NA" ~ period_time))
+### 12c. if I have an NA value replace it with 0
+VF1_inc_events_sum$max_dist[is.na(VF1_inc_events_sum$max_dist)] <- 0
+VF1_inc_events_sum$mean_dis[is.na(VF1_inc_events_sum$mean_dis)] <- 0
+VF1_inc_events_sum$max_time[is.na(VF1_inc_events_sum$max_time)] <- 0 #didnt work
+VF1_inc_events_sum$min_time[is.na(VF1_inc_events_sum$min_time)] <- 0 #didnt work
+VF1_inc_events_sum$period_time[is.na(VF1_inc_events_sum$period_time)] <- 0
+
+VF1_inc_events_sum$date_factor <- factor(VF1_inc_events_sum$date)
+
+### 12d.Plot max distance
 head(VF1_inc_events_sum)
+ggplot(VF1_inc_events_sum, aes(x = date_factor, y = max_dist))+
+  #geom_point()+
+  geom_boxplot()+
+  #geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "Max distance")
+
+### 12.Histogram of max distance
+hist(VF1_inc_events_sum$max_dist)
+
+### 12e. Summary of max distance inside VF
+event_max <-group_by(VF1_recal_incl_events, date) %>% 
+  summarise(max_event = max(event_number,  na.rm=TRUE))
+event_max$date_factor <- factor(event_max$date)
+head(event_max)
+
+ggplot(event_max, aes(x = date_factor, y = max_event))+
+  geom_point()+
+  #geom_boxplot()+
+  #geom_boxplot(outlier.shape=NA)+
+  theme_bw()+
+  #facet_wrap(. ~ animal_ID)+
+  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #,legend.position = "none")+
+  labs(title= "",
+       x= "date",
+       y = "max number of events")
+
+#########################################################################################################################
+
+
