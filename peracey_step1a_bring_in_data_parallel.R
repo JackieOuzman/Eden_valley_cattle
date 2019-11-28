@@ -887,81 +887,137 @@ VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
 
 
 ##################################################################################################################
-### 12. Plot incursion events 
+### 12. summaries the incursion events 
 
-### 12a. Summary of data
-head(VF1_recal_incl_events)
+### 12a. summaries the incursion events data as a function
+summary_incursion_data <- function(df){
+  #  summaries the data 
+  VF_inc_events_sum <- filter(df, event_number != "NA") %>% 
+    group_by( date, animal_ID, event_number) %>% 
+    summarise(max_dist = max(distance_VF ), 
+              mean_dis = mean(distance_VF ),
+              max_time = max(as_datetime(time, tz="GMT")), 
+              min_time = min(as_datetime(time, tz="GMT")),
+              period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1)
+    )
+  
+  ###  Replace the NA event number with NA for the other cals
+  VF_inc_events_sum <- mutate(VF_inc_events_sum,
+                              max_dist = case_when(
+                                event_number != "NA" ~ max_dist), 
+                              mean_dis = case_when(
+                                event_number != "NA" ~ mean_dis),
+                              max_time = case_when(
+                                event_number != "NA" ~ max_time),
+                              min_time = case_when(
+                                event_number != "NA" ~ min_time),
+                              period_time = case_when(
+                                event_number != "NA" ~ period_time))
+  ###  if I have an NA value replace it with 0
+  VF_inc_events_sum$max_dist[is.na(VF_inc_events_sum$max_dist)] <- 0
+  VF_inc_events_sum$mean_dis[is.na(VF_inc_events_sum$mean_dis)] <- 0
+  #VF_inc_events_sum$max_time[is.na(VF_inc_events_sum$max_time)] <- 0 #didnt work
+  #VF_inc_events_sum$min_time[is.na(VF_inc_events_sum$min_time)] <- 0 #didnt work
+  VF_inc_events_sum$period_time[is.na(VF_inc_events_sum$period_time)] <- 0
+  
+  VF_inc_events_sum$date_factor <- factor(VF_inc_events_sum$date)
+  
+  return(VF_inc_events_sum)
+}
 
-VF1_inc_events_sum <- filter(VF1_recal_incl_events, event_number != "NA") %>% 
-  group_by( date, animal_ID, event_number) %>% 
-  summarise(max_dist = max(distance_VF ), 
-            mean_dis = mean(distance_VF ),
-            max_time = max(as_datetime(time, tz="GMT")), 
-            min_time = min(as_datetime(time, tz="GMT")),
-            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1)#,
-            #max_event = max(event_number,  na.rm=TRUE)
-            )
+### 12b. use the function (which summaries the incursion events data)
+VF1_summary_incursion_data <- summary_incursion_data(VF1_recal_incl_events)
+# VF2_summary_incursion_data <- summary_incursion_data(VF2_recal_incl_events)
+# VF3_summary_incursion_data <- summary_incursion_data(VF3_recal_incl_events)
+# VF4_summary_incursion_data <- summary_incursion_data(VF4_recal_incl_events)
+# VF5_summary_incursion_data <- summary_incursion_data(VF5_recal_incl_events)
 
-### 12b. Replace the NA event number with NA for the other cals
-VF1_inc_events_sum <- mutate(VF1_inc_events_sum,
-                     max_dist = case_when(
-                       event_number != "NA" ~ max_dist), 
-                     mean_dis = case_when(
-                       event_number != "NA" ~ mean_dis),
-                     max_time = case_when(
-                       event_number != "NA" ~ max_time),
-                     min_time = case_when(
-                       event_number != "NA" ~ min_time),
-                     period_time = case_when(
-                       event_number != "NA" ~ period_time))
-### 12c. if I have an NA value replace it with 0
-VF1_inc_events_sum$max_dist[is.na(VF1_inc_events_sum$max_dist)] <- 0
-VF1_inc_events_sum$mean_dis[is.na(VF1_inc_events_sum$mean_dis)] <- 0
-VF1_inc_events_sum$max_time[is.na(VF1_inc_events_sum$max_time)] <- 0 #didnt work
-VF1_inc_events_sum$min_time[is.na(VF1_inc_events_sum$min_time)] <- 0 #didnt work
-VF1_inc_events_sum$period_time[is.na(VF1_inc_events_sum$period_time)] <- 0
 
-VF1_inc_events_sum$date_factor <- factor(VF1_inc_events_sum$date)
+##############################################################################
+### 13. more alnalysis on incursion events, max distance from VF
 
-### 12d.Plot max distance
-head(VF1_inc_events_sum)
-ggplot(VF1_inc_events_sum, aes(x = date_factor, y = max_dist))+
-  #geom_point()+
-  geom_boxplot()+
-  #geom_boxplot(outlier.shape=NA)+
-  theme_bw()+
-  #facet_wrap(. ~ animal_ID)+
-  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
-  labs(title= "",
-       x= "date",
-       y = "Max distance")
+## The output of 12. can be used as input for these two functions
+## 13a. Cal the max distance per day for each event
+## 13b. Cal the incursion events with defined max distance 
 
-### 12.Histogram of max distance
-hist(VF1_inc_events_sum$max_dist)
+### 13a. Summary of max distance inside VF as a function
+event_max <- function(VFx_summary_incursion_data) {
+  
+  event_max <- group_by(VFx_summary_incursion_data, date) %>%
+    summarise(max_event = max(event_number,  na.rm = TRUE))
+  event_max$date_factor <- factor(event_max$date)
+}
 
-### 12e. Summary of max distance inside VF
-event_max <-group_by(VF1_recal_incl_events, date) %>% 
-  summarise(max_event = max(event_number,  na.rm=TRUE))
-event_max$date_factor <- factor(event_max$date)
-head(event_max)
+VF1_event_max <- event_max(VF1_summary_incursion_data)
+# VF2_event_max <- event_max(VF2_summary_incursion_data)
+# VF3_event_max <- event_max(VF3_summary_incursion_data)
+# VF4_event_max <- event_max(VF4_summary_incursion_data)
+# VF5_event_max <- event_max(VF5_summary_incursion_data)
 
-ggplot(event_max, aes(x = date_factor, y = max_event))+
+
+### 13b. keep values greater than 2m/5m/10m
+
+filter_max_dist_inc <- function(VFx_summary_incursion_data){
+  #create df with only keeping events with a certain distance from VF
+  VF1_filter2m <- filter(VFx_summary_incursion_data,
+                         max_dist > 2)
+  VF1_filter5m <- filter(VFx_summary_incursion_data,
+                         max_dist > 5)
+  VF1_filter10m <- filter(VFx_summary_incursion_data,
+                          max_dist > 10)
+  VF1_filter20m <- filter(VFx_summary_incursion_data,
+                          max_dist > 20) 
+  
+  # Cal the avearge time for events 2m/5m/10m/20m
+  
+  VF1_filter2m_ave <-  VF1_filter2m %>%
+    group_by(date) %>%
+    summarise(average_time = mean(period_time),
+              n = n()) %>%
+    mutate(max_dist_filter = 2)
+  VF1_filter5m_ave <-  VF1_filter5m %>%
+    group_by(date) %>%
+    summarise(average_time = mean(period_time),
+              n = n()) %>%
+    mutate(max_dist_filter = 5)
+  VF1_filter10m_ave <-  VF1_filter10m %>%
+    group_by(date) %>%
+    summarise(average_time = mean(period_time),
+              n = n()) %>%
+    mutate(max_dist_filter = 10)
+  VF1_filter20m_ave <-  VF1_filter10m %>%
+    group_by(date) %>%
+    summarise(average_time = mean(period_time) ,
+              n = n()) %>%
+    mutate(max_dist_filter = 20)
+  
+  #merge the output togther
+  VF1_filter_5to20m_ave <- rbind(VF1_filter2m_ave,
+                                 VF1_filter5m_ave,
+                                 VF1_filter10m_ave,
+                                 VF1_filter20m_ave)
+  
+  VF1_filter_5to20m_ave$date_factor <-
+    factor(VF1_filter_5to20m_ave$date)
+  return(VF1_filter_5to20m_ave)
+}
+
+### 13b. use the function (which summaries of max distance inside VF)
+VF1_filter_max_dist_inc <- filter_max_dist_inc(VF1_summary_incursion_data)
+# VF2_filter_max_dist_inc <- filter_max_dist_inc(VF2_summary_incursion_data)
+# VF3_filter_max_dist_inc <- filter_max_dist_inc(VF3_summary_incursion_data)
+# VF4_filter_max_dist_inc <- filter_max_dist_inc(VF4_summary_incursion_data)
+# VF5_filter_max_dist_inc <- filter_max_dist_inc(VF5_summary_incursion_data)
+
+##################################################################################################################
+
+#Plot data??
+
+ggplot(VF1_filter_5to20m_ave, aes(x = max_dist_filter, y = average_time))+
   geom_point()+
-  #geom_boxplot()+
-  #geom_boxplot(outlier.shape=NA)+
   theme_bw()+
-  #facet_wrap(. ~ animal_ID)+
-  #geom_vline(data=VF_dates, mapping=aes(xintercept=date), color="blue", alpha = 0.5) +
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #,legend.position = "none")+
+  scale_x_continuous(breaks =  c(2,5,10,20))+
   labs(title= "",
-       x= "date",
-       y = "max number of events")
-
-#########################################################################################################################
-
-
+       x= "events that animal reached a max distance greater than",
+       y = "average time spent over VF (seconds)")
