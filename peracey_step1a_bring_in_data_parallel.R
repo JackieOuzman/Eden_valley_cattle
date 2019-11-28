@@ -126,7 +126,8 @@ Fence1 <-
     "20190520",
     "20190521")
 Fence2 <-
-  c("20190521",
+  c("20190520",
+    "20190521",
     "20190522",
     "20190523")
 Fence3 <-
@@ -885,7 +886,33 @@ VF3_recal_incl_events <- VF_recal_incursion_function(VF3_recal)
 VF4_recal_incl_events <- VF_recal_incursion_function(VF4_recal)
 VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
 
+### 11c. keep only points that are in the exclusion_zone
+VF1_recal_exclsuion_only <- filter(VF1_recal_incl_events,
+                                   event == "exclusion_zone")
+VF2_recal_exclsuion_only <- filter(VF2_recal_incl_events,
+                                   event == "exclusion_zone")
+VF3_recal_exclsuion_only <- filter(VF3_recal_incl_events,
+                                   event == "exclusion_zone")
+VF4_recal_exclsuion_only <- filter(VF4_recal_incl_events,
+                                   event == "exclusion_zone")
+VF5_recal_exclsuion_only <- filter(VF5_recal_incl_events,
+                                   event == "exclusion_zone")
+#write out files
 
+output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
+Fence1exclsuion_onlycsv <- paste0(output_folder,"/VF1_recal_exclsuion_only.csv")
+Fence2exclsuion_onlycsv <- paste0(output_folder,"/VF2_recal_exclsuion_only.csv")
+Fence3exclsuion_onlycsv <- paste0(output_folder,"/VF3_recal_exclsuion_only.csv")
+Fence4exclsuion_onlycsv <- paste0(output_folder,"/VF4_recal_exclsuion_only.csv")
+Fence5exclsuion_onlycsv <- paste0(output_folder,"/VF5_recal_exclsuion_only.csv")
+
+ st_write(VF1_recal_exclsuion_only, Fence1exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF2_recal_exclsuion_only, Fence2exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF3_recal_exclsuion_only, Fence3exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF4_recal_exclsuion_only, Fence4exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF5_recal_exclsuion_only, Fence5exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
+
+#unique(VF1_recal_exclsuion_only$event)
 ##################################################################################################################
 ### 12. summaries the incursion events 
 
@@ -893,7 +920,7 @@ VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
 summary_incursion_data <- function(df){
   #  summaries the data 
   VF_inc_events_sum <- filter(df, event_number != "NA") %>% 
-    group_by( date, animal_ID, event_number) %>% 
+    group_by( day_since_start, animal_ID, event_number) %>% 
     summarise(max_dist = max(distance_VF ), 
               mean_dis = mean(distance_VF ),
               max_time = max(as_datetime(time, tz="GMT")), 
@@ -920,18 +947,18 @@ summary_incursion_data <- function(df){
   #VF_inc_events_sum$min_time[is.na(VF_inc_events_sum$min_time)] <- 0 #didnt work
   VF_inc_events_sum$period_time[is.na(VF_inc_events_sum$period_time)] <- 0
   
-  VF_inc_events_sum$date_factor <- factor(VF_inc_events_sum$date)
-  
+  #VF_inc_events_sum$date_factor <- factor(VF_inc_events_sum$date)
+  VF_inc_events_sum$day_since_start_factor <- factor(VF_inc_events_sum$day_since_start)
   return(VF_inc_events_sum)
 }
 
 ### 12b. use the function (which summaries the incursion events data)
 VF1_summary_incursion_data <- summary_incursion_data(VF1_recal_incl_events)
-# VF2_summary_incursion_data <- summary_incursion_data(VF2_recal_incl_events)
-# VF3_summary_incursion_data <- summary_incursion_data(VF3_recal_incl_events)
-# VF4_summary_incursion_data <- summary_incursion_data(VF4_recal_incl_events)
-# VF5_summary_incursion_data <- summary_incursion_data(VF5_recal_incl_events)
-
+VF2_summary_incursion_data <- summary_incursion_data(VF2_recal_incl_events)
+VF3_summary_incursion_data <- summary_incursion_data(VF3_recal_incl_events)
+VF4_summary_incursion_data <- summary_incursion_data(VF4_recal_incl_events)
+VF5_summary_incursion_data <- summary_incursion_data(VF5_recal_incl_events)
+#head(VF1_summary_incursion_data)
 
 ##############################################################################
 ### 13. more alnalysis on incursion events, max distance from VF
@@ -943,17 +970,25 @@ VF1_summary_incursion_data <- summary_incursion_data(VF1_recal_incl_events)
 ### 13a. Summary of max distance inside VF as a function
 event_max <- function(VFx_summary_incursion_data) {
   
-  event_max <- group_by(VFx_summary_incursion_data, date) %>%
+  event_max <- group_by(VFx_summary_incursion_data, day_since_start) %>%
     summarise(max_event = max(event_number,  na.rm = TRUE))
-  event_max$date_factor <- factor(event_max$date)
+  event_max$day_since_start_factor <- factor(event_max$day_since_start)
+  return(event_max)
 }
 
 VF1_event_max <- event_max(VF1_summary_incursion_data)
-# VF2_event_max <- event_max(VF2_summary_incursion_data)
-# VF3_event_max <- event_max(VF3_summary_incursion_data)
-# VF4_event_max <- event_max(VF4_summary_incursion_data)
-# VF5_event_max <- event_max(VF5_summary_incursion_data)
+VF2_event_max <- event_max(VF2_summary_incursion_data)
+VF3_event_max <- event_max(VF3_summary_incursion_data)
+VF4_event_max <- event_max(VF4_summary_incursion_data)
+VF5_event_max <- event_max(VF5_summary_incursion_data)
 
+VF1_5_event_max <- rbind(VF1_event_max,
+                         VF2_event_max,
+                         VF3_event_max,
+                         VF4_event_max,
+                         VF5_event_max)
+
+VF1_5_event_max
 
 ### 13b. keep values greater than 2m/5m/10m
 
@@ -966,58 +1001,135 @@ filter_max_dist_inc <- function(VFx_summary_incursion_data){
   VF1_filter10m <- filter(VFx_summary_incursion_data,
                           max_dist > 10)
   VF1_filter20m <- filter(VFx_summary_incursion_data,
-                          max_dist > 20) 
+                          max_dist > 20)
+  VF1_filter30m <- filter(VFx_summary_incursion_data,
+                          max_dist > 30) 
+  VF1_filter40m <- filter(VFx_summary_incursion_data,
+                          max_dist > 40) 
   
-  # Cal the avearge time for events 2m/5m/10m/20m
+  # Cal the avearge time for events 2m/5m/10m/20m/30m/40m
   
   VF1_filter2m_ave <-  VF1_filter2m %>%
-    group_by(date) %>%
+    group_by(day_since_start) %>%
     summarise(average_time = mean(period_time),
+              sum_time = sum(period_time),
               n = n()) %>%
     mutate(max_dist_filter = 2)
+  
   VF1_filter5m_ave <-  VF1_filter5m %>%
-    group_by(date) %>%
+    group_by(day_since_start) %>%
     summarise(average_time = mean(period_time),
+              sum_time = sum(period_time),
               n = n()) %>%
     mutate(max_dist_filter = 5)
+  
   VF1_filter10m_ave <-  VF1_filter10m %>%
-    group_by(date) %>%
+    group_by(day_since_start) %>%
     summarise(average_time = mean(period_time),
+              sum_time = sum(period_time),
               n = n()) %>%
     mutate(max_dist_filter = 10)
-  VF1_filter20m_ave <-  VF1_filter10m %>%
-    group_by(date) %>%
+  
+  VF1_filter20m_ave <-  VF1_filter20m %>%
+    group_by(day_since_start) %>%
     summarise(average_time = mean(period_time) ,
+              sum_time = sum(period_time),
               n = n()) %>%
     mutate(max_dist_filter = 20)
   
+  VF1_filter30m_ave <-  VF1_filter30m %>%
+    group_by(day_since_start) %>%
+    summarise(average_time = mean(period_time) ,
+              sum_time = sum(period_time),
+              n = n()) %>%
+    mutate(max_dist_filter = 30)
+  
+  VF1_filter40m_ave <-  VF1_filter40m %>%
+    group_by(day_since_start) %>%
+    summarise(average_time = mean(period_time),
+              sum_time = sum(period_time),
+              n = n()) %>%
+    mutate(max_dist_filter = 40)
+  
   #merge the output togther
-  VF1_filter_5to20m_ave <- rbind(VF1_filter2m_ave,
+  VF1_filter_5to40m_ave <- rbind(VF1_filter2m_ave,
                                  VF1_filter5m_ave,
                                  VF1_filter10m_ave,
-                                 VF1_filter20m_ave)
+                                 VF1_filter20m_ave,
+                                 VF1_filter30m_ave,
+                                 VF1_filter40m_ave)
   
-  VF1_filter_5to20m_ave$date_factor <-
-    factor(VF1_filter_5to20m_ave$date)
-  return(VF1_filter_5to20m_ave)
+  VF1_filter_5to40m_ave$day_since_start_factor <-
+    factor(VF1_filter_5to40m_ave$day_since_start)
+  return(VF1_filter_5to40m_ave)
 }
 
 ### 13b. use the function (which summaries of max distance inside VF)
 VF1_filter_max_dist_inc <- filter_max_dist_inc(VF1_summary_incursion_data)
-# VF2_filter_max_dist_inc <- filter_max_dist_inc(VF2_summary_incursion_data)
-# VF3_filter_max_dist_inc <- filter_max_dist_inc(VF3_summary_incursion_data)
-# VF4_filter_max_dist_inc <- filter_max_dist_inc(VF4_summary_incursion_data)
-# VF5_filter_max_dist_inc <- filter_max_dist_inc(VF5_summary_incursion_data)
+VF2_filter_max_dist_inc <- filter_max_dist_inc(VF2_summary_incursion_data)
+VF3_filter_max_dist_inc <- filter_max_dist_inc(VF3_summary_incursion_data)
+VF4_filter_max_dist_inc <- filter_max_dist_inc(VF4_summary_incursion_data)
+VF5_filter_max_dist_inc <- filter_max_dist_inc(VF5_summary_incursion_data)
+
+VF1_5_filter_max_dist_inc <- rbind(VF1_filter_max_dist_inc,
+                                   VF2_filter_max_dist_inc,
+                                   VF3_filter_max_dist_inc,
+                                   VF4_filter_max_dist_inc,
+                                   VF5_filter_max_dist_inc)
 
 ##################################################################################################################
 
-#Plot data??
 
-ggplot(VF1_filter_5to20m_ave, aes(x = max_dist_filter, y = average_time))+
+head(VF1_5_filter_max_dist_inc)
+#Plot data??
+VF1_5_filter_max_dist_inc$max_dist_filter_factor <-
+  factor(VF1_5_filter_max_dist_inc$max_dist_filter)
+
+### max distance threshold vs number of event
+ggplot(VF1_5_filter_max_dist_inc, aes(x = max_dist_filter_factor, y = n))+
+  #geom_point()+
+  geom_boxplot()+
+  #facet_wrap(.~date_factor)+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  #scale_x_continuous(breaks =  c(2,5,10,20))+
+  labs(title= "",
+       x= "events that animal reached a max distance greater than",
+       y = "number of events")
+
+VF1_5_filter_max_dist_inc$day_since_start_factor
+
+### days since start vs number of event
+VF1_5_filter_max_dist_inc
+
+ggplot(VF1_5_filter_max_dist_inc, aes(x = day_since_start, y = n))+
+  facet_wrap(.~ max_dist_filter)+
   geom_point()+
   theme_bw()+
   theme(axis.text.x=element_text(angle=90,hjust=1))+
-  scale_x_continuous(breaks =  c(2,5,10,20))+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   labs(title= "",
-       x= "events that animal reached a max distance greater than",
-       y = "average time spent over VF (seconds)")
+       x= "days since start",
+       y = "number of events")
+
+### days since start vs average time of event
+ggplot(VF1_5_filter_max_dist_inc, aes(x = day_since_start, y = average_time))+
+  geom_point()+
+  facet_wrap(.~max_dist_filter_factor)+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  labs(title= "",
+       x= "Day since start",
+       y = "average time spent in non grazing zone per event")
+
+### days since start vs sum time of event
+ggplot(VF1_5_filter_max_dist_inc, aes(x = day_since_start, y = sum_time))+
+  geom_point()+
+  facet_wrap(.~max_dist_filter_factor)+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  labs(title= "",
+       x= "Day since start",
+       y = "sum of time spent in non grazing zone per event (seconds)")
