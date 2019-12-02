@@ -597,6 +597,8 @@ Fence3_Incl_animalID <- date_of_trial(Fence3_Inc_animalID)
 Fence4_Incl_animalID <- date_of_trial(Fence4_Inc_animalID)
 Fence5_Incl_animalID <- date_of_trial(Fence5_Inc_animalID)
 
+unique(Fence5_Incl_animalID$day_since_start)
+
 #########################################################################################
 #### 7. add in a clm for week of trial
 
@@ -749,6 +751,8 @@ VF3_recal <- Inclusion_recal_function(Fence3_Incl, fence3, VF3_NonGraz)
 VF4_recal <- Inclusion_recal_function(Fence4_Incl, fence4, VF4_NonGraz)
 VF5_recal <- Inclusion_recal_function(Fence5_Incl, fence5, VF5_NonGraz)
 
+head(VF1_recal)
+
 ### 10c. export output if needed - this is very slow consider if we need this step
 #write out files
 
@@ -764,6 +768,32 @@ Fence5csv <- paste0(output_folder,"/VF5_recal.csv")
 # st_write(VF3_recal, Fence3csv, layer_options = "GEOMETRY=AS_XY")
 # st_write(VF4_recal, Fence4csv, layer_options = "GEOMETRY=AS_XY")
 # st_write(VF5_recal, Fence5csv, layer_options = "GEOMETRY=AS_XY")
+
+### add an extra step to check output...positive values the animal is in the non grazing zone
+VF1_recal_non_grazing_pts <- filter(VF1_recal, distance_VF >0)
+VF2_recal_non_grazing_pts <- filter(VF2_recal, distance_VF >0)
+VF3_recal_non_grazing_pts <- filter(VF3_recal, distance_VF >0)
+VF4_recal_non_grazing_pts <- filter(VF4_recal, distance_VF >0)
+VF5_recal_non_grazing_pts <- filter(VF5_recal, distance_VF >0)
+
+
+output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
+Fence1_filtercsv <- paste0(output_folder,"/VF1_recal_non_grazing_pts.csv")
+Fence2_filtercsv <- paste0(output_folder,"/VF2_recal_non_grazing_pts.csv")
+Fence3_filtercsv <- paste0(output_folder,"/VF3_recal_non_grazing_pts.csv")
+Fence4_filtercsv <- paste0(output_folder,"/VF4_recal_non_grazing_pts.csv")
+Fence5_filtercsv <- paste0(output_folder,"/VF5_recal_non_grazing_pts1.csv")
+
+st_write(VF1_recal_non_grazing_pts, Fence1_filtercsv, layer_options = "GEOMETRY=AS_XY")
+st_write(VF2_recal_non_grazing_pts, Fence2_filtercsv, layer_options = "GEOMETRY=AS_XY")
+st_write(VF3_recal_non_grazing_pts, Fence3_filtercsv, layer_options = "GEOMETRY=AS_XY")
+st_write(VF4_recal_non_grazing_pts, Fence4_filtercsv, layer_options = "GEOMETRY=AS_XY")
+st_write(VF5_recal_non_grazing_pts, Fence5_filtercsv, layer_options = "GEOMETRY=AS_XY")
+
+
+
+
+
 
 ##################################################################################################################
 ### 11a. track the incursion events - function 
@@ -839,7 +869,8 @@ VF_recal_incursion_function <- function(df){
   # This makes a new df with new clm called Index - it indexs the start and end values using no fill clm
   # This is indexing all animal and then the event start - not sure if I need to add day here too?
   VF_recal_incursion <-
-    group_by(VF_recal_incursion, animal_ID, start_end_no_fill) %>%
+    #group_by(VF_recal_incursion, animal_ID, start_end_no_fill) %>%
+    group_by(VF_recal_incursion, animal_ID, day_since_start,start_end_no_fill) %>%
     mutate(Index = 1:n())
   
   VF_recal_incursion <- mutate(VF_recal_incursion,
@@ -885,6 +916,7 @@ VF2_recal_incl_events <- VF_recal_incursion_function(VF2_recal)
 VF3_recal_incl_events <- VF_recal_incursion_function(VF3_recal) 
 VF4_recal_incl_events <- VF_recal_incursion_function(VF4_recal)
 VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
+head(VF1_recal_incl_events)
 
 ### 11c. keep only points that are in the exclusion_zone
 VF1_recal_exclsuion_only <- filter(VF1_recal_incl_events,
@@ -897,6 +929,10 @@ VF4_recal_exclsuion_only <- filter(VF4_recal_incl_events,
                                    event == "exclusion_zone")
 VF5_recal_exclsuion_only <- filter(VF5_recal_incl_events,
                                    event == "exclusion_zone")
+VF5_recal_exclsuion_only1 <- filter(VF5_recal_exclsuion_only,
+                                   animal_ID != "NA")
+
+dim(VF5_recal_exclsuion_only1)
 #write out files
 
 output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
@@ -904,17 +940,65 @@ Fence1exclsuion_onlycsv <- paste0(output_folder,"/VF1_recal_exclsuion_only.csv")
 Fence2exclsuion_onlycsv <- paste0(output_folder,"/VF2_recal_exclsuion_only.csv")
 Fence3exclsuion_onlycsv <- paste0(output_folder,"/VF3_recal_exclsuion_only.csv")
 Fence4exclsuion_onlycsv <- paste0(output_folder,"/VF4_recal_exclsuion_only.csv")
-Fence5exclsuion_onlycsv <- paste0(output_folder,"/VF5_recal_exclsuion_only.csv")
+Fence5exclsuion_onlycsv <- paste0(output_folder,"/VF5_recal_exclsuion_only1.csv")
 
  st_write(VF1_recal_exclsuion_only, Fence1exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
  st_write(VF2_recal_exclsuion_only, Fence2exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
  st_write(VF3_recal_exclsuion_only, Fence3exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
  st_write(VF4_recal_exclsuion_only, Fence4exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
- st_write(VF5_recal_exclsuion_only, Fence5exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF5_recal_exclsuion_only1, Fence5exclsuion_onlycsv, layer_options = "GEOMETRY=AS_XY")
 
 #unique(VF1_recal_exclsuion_only$event)
 ##################################################################################################################
 ### 12. summaries the incursion events 
+ 
+ 
+ VF1_5_recal_exclsuion_only <- rbind(VF1_recal_exclsuion_only,
+                                     VF2_recal_exclsuion_only,
+                                     VF3_recal_exclsuion_only,
+                                     VF4_recal_exclsuion_only,
+                                     VF5_recal_exclsuion_only)
+ head(VF1_5_recal_exclsuion_only)
+ summary_incursion_animal <- function(df){
+   #  summaries the data 
+   VF_inc_events_sum <- filter(df, event_number != "NA") %>% 
+     group_by( animal_ID) %>% 
+     summarise(count_events = n())
+   
+   ###  if I have an NA value replace it with 0
+   VF_inc_events_sum$count_events[is.na(VF_inc_events_sum$count_events)] <- 0
+   
+   
+   return(VF_inc_events_sum)
+ }
+ 
+ summary_1_5_incursion_animal <- summary_incursion_animal(VF1_5_recal_exclsuion_only)
+ summary_1_5_incursion_animal <- st_set_geometry(summary_1_5_incursion_animal, NULL)
+ 
+ head(summary_1_5_incursion_animal)
+ 
+ 
+ filter(summary_1_5_incursion_animal, animal_ID != "NA") %>% 
+   ggplot( aes(x = animal_ID, y = count_events))+
+   #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+   geom_col()+
+   theme_classic()+
+   theme(axis.text.x=element_text(angle=90,hjust=1))+
+   labs(title= "Number of events per animal",
+        subtitle = "All days included",
+        caption = "Events are defined a period of time the animal moved into the non grazing zone",
+        "number of events",
+        x= "animals",
+        y = "number of events")
+ 
+ 
+ 
+ 
+ 
+ 
+ ################################### END FOR NOW ##################################
+ 
+ 
 
 ### 12a. summaries the incursion events data as a function
 summary_incursion_data <- function(df){
