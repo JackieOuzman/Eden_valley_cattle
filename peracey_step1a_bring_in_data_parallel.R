@@ -1000,49 +1000,10 @@ Fence5exclsuion_onlycsv <- paste0(output_folder,"/VF5_recal_exclsuion_only1.csv"
  
  
 
-### 12a. summaries the incursion events data as a function
-summary_incursion_data <- function(df){
-  #  summaries the data 
-  VF_inc_events_sum <- filter(df, event_number != "NA") %>% 
-    group_by( day_since_start, animal_ID, event_number) %>% 
-    summarise(max_dist = max(distance_VF ), 
-              mean_dis = mean(distance_VF ),
-              max_time = max(as_datetime(time, tz="GMT")), 
-              min_time = min(as_datetime(time, tz="GMT")),
-              period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1)
-    )
+### Graphing work is in sep file for now....
   
-  ###  Replace the NA event number with NA for the other cals
-  VF_inc_events_sum <- mutate(VF_inc_events_sum,
-                              max_dist = case_when(
-                                event_number != "NA" ~ max_dist), 
-                              mean_dis = case_when(
-                                event_number != "NA" ~ mean_dis),
-                              max_time = case_when(
-                                event_number != "NA" ~ max_time),
-                              min_time = case_when(
-                                event_number != "NA" ~ min_time),
-                              period_time = case_when(
-                                event_number != "NA" ~ period_time))
-  ###  if I have an NA value replace it with 0
-  VF_inc_events_sum$max_dist[is.na(VF_inc_events_sum$max_dist)] <- 0
-  VF_inc_events_sum$mean_dis[is.na(VF_inc_events_sum$mean_dis)] <- 0
-  #VF_inc_events_sum$max_time[is.na(VF_inc_events_sum$max_time)] <- 0 #didnt work
-  #VF_inc_events_sum$min_time[is.na(VF_inc_events_sum$min_time)] <- 0 #didnt work
-  VF_inc_events_sum$period_time[is.na(VF_inc_events_sum$period_time)] <- 0
-  
-  #VF_inc_events_sum$date_factor <- factor(VF_inc_events_sum$date)
-  VF_inc_events_sum$day_since_start_factor <- factor(VF_inc_events_sum$day_since_start)
-  return(VF_inc_events_sum)
-}
+ 
 
-### 12b. use the function (which summaries the incursion events data)
-VF1_summary_incursion_data <- summary_incursion_data(VF1_recal_incl_events)
-VF2_summary_incursion_data <- summary_incursion_data(VF2_recal_incl_events)
-VF3_summary_incursion_data <- summary_incursion_data(VF3_recal_incl_events)
-VF4_summary_incursion_data <- summary_incursion_data(VF4_recal_incl_events)
-VF5_summary_incursion_data <- summary_incursion_data(VF5_recal_incl_events)
-#head(VF1_summary_incursion_data)
 
 ##############################################################################
 ### 13. more alnalysis on incursion events, max distance from VF
