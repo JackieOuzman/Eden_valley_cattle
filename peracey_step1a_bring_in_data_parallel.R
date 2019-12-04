@@ -763,11 +763,11 @@ Fence3csv <- paste0(output_folder,"/VF3_recal.csv")
 Fence4csv <- paste0(output_folder,"/VF4_recal.csv")
 Fence5csv <- paste0(output_folder,"/VF5_recal.csv")
 
-# st_write(VF1_recal, Fence1csv, layer_options = "GEOMETRY=AS_XY")
-# st_write(VF2_recal, Fence2csv, layer_options = "GEOMETRY=AS_XY")
-# st_write(VF3_recal, Fence3csv, layer_options = "GEOMETRY=AS_XY")
-# st_write(VF4_recal, Fence4csv, layer_options = "GEOMETRY=AS_XY")
-# st_write(VF5_recal, Fence5csv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF1_recal, Fence1csv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF2_recal, Fence2csv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF3_recal, Fence3csv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF4_recal, Fence4csv, layer_options = "GEOMETRY=AS_XY")
+ st_write(VF5_recal, Fence5csv, layer_options = "GEOMETRY=AS_XY")
 
 ### add an extra step to check output...positive values the animal is in the non grazing zone
 VF1_recal_non_grazing_pts <- filter(VF1_recal, distance_VF >0)
@@ -917,6 +917,32 @@ VF3_recal_incl_events <- VF_recal_incursion_function(VF3_recal)
 VF4_recal_incl_events <- VF_recal_incursion_function(VF4_recal)
 VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
 head(VF1_recal_incl_events)
+unique(VF4_recal_incl_events$day_since_start) # data for all days?
+
+
+#how much data for trouble day 9?
+#day 9 is split over vf4 and vf3 look like we have it all
+# I have full day of data for day9 but nothing is logged in non grazing zone.
+day9 <- filter(VF4_recal_incl_events,day_since_start == 9 )
+head(day9)
+min(day9$time)
+max(day9$time)
+day9_VF3 <- filter(VF3_recal_incl_events,day_since_start == 9 )
+head(day9)
+min(day9_VF3$time)
+max(day9_VF3$time)
+#how much data for trouble day 15?
+#day 15 is split over vf5 and vf4 look like we have it all
+# I have full day of data for day15 but nothing is logged in non grazing zone.
+day15 <- filter(VF5_recal_incl_events,day_since_start == 15 )
+head(day15)
+min(day15$time)
+max(day15$time)
+day15vf4 <- filter(VF4_recal_incl_events,day_since_start == 15 )
+min(day15vf4$time)
+max(day15vf4$time)
+
+
 
 ### 11c. keep only points that are in the exclusion_zone
 VF1_recal_exclsuion_only <- filter(VF1_recal_incl_events,
@@ -933,6 +959,8 @@ VF5_recal_exclsuion_only1 <- filter(VF5_recal_exclsuion_only,
                                    animal_ID != "NA")
 
 dim(VF5_recal_exclsuion_only1)
+unique(VF3_recal_exclsuion_only$day_since_start)
+
 #write out files
 
 output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
@@ -993,14 +1021,90 @@ Fence5exclsuion_onlycsv <- paste0(output_folder,"/VF5_recal_exclsuion_only1.csv"
  
  
  
+ ###########################################################################################################
+ ### Remove the object I dont need  ######
  
  
+ rm(
+   list = c(
+     "Fence1exclsuion_onlycsv",
+     "Fence2exclsuion_onlycsv",
+     "Fence3exclsuion_onlycsv",
+     "Fence4exclsuion_onlycsv",
+     "Fence5exclsuion_onlycsv"
+   )
+ )
  
+rm(list = c("day9",  "day9_VF3", "day15", "day15vf4"))
+   
+rm(
+  list = c(
+    "VF1_recal_incl_events" ,
+    "VF2_recal_incl_events" ,
+    "VF3_recal_incl_events",
+    "VF4_recal_incl_events" ,
+    "VF5_recal_incl_events"
+  )
+)
+    
+rm(
+  list = c(
+    "Fence1_filtercsv",
+    "Fence2_filtercsv",
+    "Fence3_filtercsv",
+    "Fence4_filtercsv",
+    "Fence5_filtercsv"
+  )
+) 
+ 
+rm(
+  list = c(
+    "VF1_recal_non_grazing_pts",
+    "VF2_recal_non_grazing_pts",
+    "VF3_recal_non_grazing_pts",
+    "VF4_recal_non_grazing_pts",
+    "VF5_recal_non_grazing_pts"
+  )
+)
+
+
+rm(list = c(
+  "Fence1_Incl",
+  "Fence2_Incl",
+  "Fence3_Incl",
+  "Fence4_Incl",
+  "Fence5_Incl"
+)) 
+
+rm(list = c(
+  "Fence1_time",
+  "Fence2_time",
+  "Fence3_time",
+  "Fence4_time",
+  "Fence5_time"
+))
+
  ################################### END FOR NOW ##################################
  
  
 
-### Graphing work is in sep file for now....
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ ### Graphing work is in sep file for now....
   
  
 
@@ -1121,6 +1225,9 @@ VF1_5_filter_max_dist_inc <- rbind(VF1_filter_max_dist_inc,
                                    VF3_filter_max_dist_inc,
                                    VF4_filter_max_dist_inc,
                                    VF5_filter_max_dist_inc)
+
+
+
 
 ##################################################################################################################
 
