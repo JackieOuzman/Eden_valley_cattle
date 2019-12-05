@@ -144,9 +144,10 @@ Fence3_cue_recal <- cue_recal_function(Fence3_cue_data, fence3, VF3_NonGraz)
 Fence4_cue_recal <- cue_recal_function(Fence4_cue_data, fence4, VF4_NonGraz)
 Fence5_cue_recal <- cue_recal_function(Fence5_cue_data, fence5, VF5_NonGraz)
 
+### Note that fence 4 is the problem one, I only want to keep redaing that are within 10m of the VF4 modified.
+Fence4_cue_recal <- Fence4_cue_recal %>% 
+  filter(distance_VF > -10)
 
-
-head(Fence5_cue_recal)
 
 
 #### 5. drop geometry?
@@ -235,7 +236,8 @@ Fence1_5_started_aduio_pulse_summary2 <-
   filter(Fence1_5_started_aduio_pulse, animal_ID != "NA") %>% 
   group_by(event, day_since_start) %>% 
   summarise(count_cues = n()) 
-head(Fence1_5_started_aduio_pulse_summary2)
+
+head(filter(Fence1_5_started_aduio_pulse_summary2,day_since_start==9 ))
 
 
   ggplot(Fence1_5_started_aduio_pulse_summary2,aes(x = day_since_start, y = count_cues))+
@@ -253,7 +255,7 @@ head(Fence1_5_started_aduio_pulse_summary2)
 ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_summary_days1.png", device = "png" ,
        width = 20, height = 12, units = "cm")
 
-Fence1_5_started_aduio_pulse_summary$event <- factor(Fence1_5_started_aduio_pulse_summary$event, 
+Fence1_5_started_aduio_pulse_summary2$event <- factor(Fence1_5_started_aduio_pulse_summary2$event, 
                                                      levels=c("Pulse started", "Audio started"))
 
 ### stacked per day
@@ -262,7 +264,7 @@ Fence1_5_started_aduio_pulse_summary$event <- factor(Fence1_5_started_aduio_puls
   #facet_wrap(.~event)+
   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   geom_col(aes(fill= event))+
-  scale_fill_manual(values = c("red", "orange")) +
+  scale_fill_manual(values = c( "red", "orange")) +
   theme_classic()+
   theme(axis.text.x=element_text(angle=90,hjust=1),
         legend.position = "bottom",
@@ -366,4 +368,23 @@ ggplot(Fence1_5_started_aduio_pulse_ratio_day, aes(x = day_since_start, y = subt
 
 ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_diff_days1.png", device = "png" ,
        width = 20, height = 12, units = "cm")
+
+
+
+#####################################################################################################################
+#### DAY 9 problem - now fixed with removing data that was more than 10 meter from revised VF4
+
+Fence3_4_cue_recal <- rbind(Fence3_cue_recal, Fence4_cue_recal) %>%
+  filter(day_since_start == 9) %>%
+  filter(event == "Audio started" |
+           event == "Pulse started")
+head(Fence3_4_cue_recal)
+
+
+output_folder <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2019_processing")
+Fence3_4_cue_recal_day9csv <- paste0(output_folder,"/Fence3_4_cue_recal_day9.csv")
+st_write(Fence3_4_cue_recal, Fence3_4_cue_recal_day9csv, layer_options = "GEOMETRY=AS_XY")
+
+
+
 
