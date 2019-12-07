@@ -870,6 +870,7 @@ VF_recal_incursion_function <- function(df){
   # This is indexing all animal and then the event start - not sure if I need to add day here too?
   VF_recal_incursion <-
     #group_by(VF_recal_incursion, animal_ID, start_end_no_fill) %>%
+    #group_by(VF_recal_incursion, animal_ID, day_since_start,start_end_no_fill) %>%
     group_by(VF_recal_incursion, animal_ID, day_since_start,start_end_no_fill) %>%
     mutate(Index = 1:n())
   
@@ -916,8 +917,19 @@ VF2_recal_incl_events <- VF_recal_incursion_function(VF2_recal)
 VF3_recal_incl_events <- VF_recal_incursion_function(VF3_recal) 
 VF4_recal_incl_events <- VF_recal_incursion_function(VF4_recal)
 VF5_recal_incl_events <- VF_recal_incursion_function(VF5_recal)
-head(VF1_recal_incl_events)
-unique(VF4_recal_incl_events$day_since_start) # data for all days?
+
+#try running function for all the VF togther to get the incrementing correct accross changes in VF
+VF1_5_recal <- rbind(VF1_recal,
+                     VF2_recal,
+                     VF3_recal,
+                     VF4_recal,
+                     VF5_recal)
+unique(VF1_5_recal$day_since_start)
+#This merged file has all the days since start of the trial
+VF1_5_recal_incl_events <- VF_recal_incursion_function(VF1_5_recal)
+#double check this....
+head(VF1_5_recal_incl_events)
+unique(VF1_5_recal_incl_events$day_since_start) # data for all days YES IT IS:)
 
 
 #how much data for trouble day 9?
