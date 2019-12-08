@@ -391,6 +391,7 @@ ggsave(path= graph_path, filename = "average_events_per_day_sec.png", device = "
 ### 5. subsetting the data into groups - Animals / events at different distance from VF
 
 head(VF1_5_recal_incl_events) #start data
+### 5a. group the data by day animal and event then get the max distance travelled from the vf for event
 max_event_dist <- group_by(VF1_5_recal_incl_events,
                       day_since_start, animal_ID, event_number) %>%
   summarise(
@@ -404,7 +405,7 @@ head(max_event_dist)
 dim(max_event_dist)
 #event_max$day_since_start_factor <- factor(event_max$day_since_start)
 
-### 5b. keep values greater than 2m/5m/10m/20m/30/40m
+### 5b. subset data keeping values greater than 2m/5m/10m/20m/30/40m
 
 
   #create df with only keeping events with a certain distance from VF
@@ -421,7 +422,7 @@ dim(max_event_dist)
   Max_dist_filter40m <- filter(max_event_dist,
                           max_distance > 40) 
   
-  # Cal the avearge time for events 2m/5m/10m/20m/30m/40m
+### 5c. cal the avearge and sum and count of time per day and animal for events with max distance of grater than 2m/5m/10m/20m/30m/40m
   
   Max_dist_filter2m_av <-  Max_dist_filter2m %>%
     group_by(day_since_start, animal_ID) %>%
@@ -469,6 +470,7 @@ dim(max_event_dist)
   Max_dist_filter2_40m_av <- rbind( Max_dist_filter2m_av,
                                     Max_dist_filter5m_av,
                                    Max_dist_filter10m_av,
+                                   Max_dist_filter20m_av,
                                    Max_dist_filter30m_av,
                                    Max_dist_filter40m_av
                                   )
@@ -477,8 +479,109 @@ dim(max_event_dist)
     factor(Max_dist_filter2_40m_av$day_since_start)
 
 head( Max_dist_filter2_40m_av)
+dim(Max_dist_filter2_40m_av)
+
+
+
 ########################################################
-### another grouping animals ### CHECK THIS
+### 6a. group the max distance from vf databy animals and sum
+
+
+Summary_animal_Max_dist_filter2_40m_av <- Max_dist_filter2_40m_av %>%
+  group_by(animal_ID, max_dist_filter) %>%
+  summarise(
+    sum_time = sum(sum_time),
+    n = n())
+
+Summary_animal_Max_dist_filter2_40m_av 
+
+#just 2 and 5 
+filter(Summary_animal_Max_dist_filter2_40m_av, max_dist_filter == 2 | max_dist_filter ==5 | max_dist_filter ==10) %>% 
+ggplot( aes(x = animal_ID, y = sum_time))+
+  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_col()+
+  facet_wrap(.~ max_dist_filter)+
+  theme_classic()+
+  ylim(0, 800)+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        plot.subtitle= element_text(size = 8))+
+  labs(title= "Sum of event time per animal",
+       #subtitle = "Events for animal and days retained and summed
+       #for events with fixed distances greater than 2meters to 40meters",
+       caption = "Events are defined a period of time the animal moved into the non grazing zone",
+       "number of events",
+       x= "animal",
+       y = "sum of event time (seconds)")
+
+ggsave(path= graph_path, filename = "sum_time_animal_2_5_10m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
+
+#just 20 and 30 40 
+
+filter(Summary_animal_Max_dist_filter2_40m_av, max_dist_filter == 20 | max_dist_filter ==30 | max_dist_filter ==40) %>% 
+  ggplot( aes(x = animal_ID, y = sum_time))+
+  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_col()+
+  ylim(0, 400)+
+  facet_wrap(.~ max_dist_filter)+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        plot.subtitle= element_text(size = 8))+
+  labs(title= "Sum of event time per animal",
+       #subtitle = "Events for animal and days retained and summed
+       #for events with fixed distances greater than 2meters to 40meters",
+       caption = "Events are defined a period of time the animal moved into the non grazing zone",
+       "number of events",
+       x= "animal",
+       y = "sum of event time (seconds)")
+
+ggsave(path= graph_path, filename = "sum_time_animal_20_30_40m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
+
+
+filter(Summary_animal_Max_dist_filter2_40m_av, max_dist_filter == 2 | max_dist_filter ==5 | max_dist_filter ==10) %>%
+ggplot( aes(x = animal_ID, y = n))+
+  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_col()+
+  facet_wrap(.~ max_dist_filter)+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        plot.subtitle= element_text(size = 8))+
+  labs(title= "Number of events per animal",
+       #subtitle = "Events for animal and days retained and counted
+       #for events with fixed distances greater than 2meters to 40meters",
+       caption = "Events are defined a period of time the animal moved into the non grazing zone",
+       "number of events",
+       x= "animal",
+       y = "count of event ")
+
+ggsave(path= graph_path, filename = "count_time_animal_2_5_10m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
+
+filter(Summary_animal_Max_dist_filter2_40m_av, max_dist_filter == 20 | max_dist_filter ==30 | max_dist_filter ==40) %>%
+  ggplot( aes(x = animal_ID, y = n))+
+  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_col()+
+  facet_wrap(.~ max_dist_filter)+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        plot.subtitle= element_text(size = 8))+
+  labs(title= "Number of events per animal",
+       #subtitle = "Events for animal and days retained and counted
+       #for events with fixed distances greater than 2meters to 40meters",
+       caption = "Events are defined a period of time the animal moved into the non grazing zone",
+       "number of events",
+       x= "animal",
+       y = "count of event ")
+
+ggsave(path= graph_path, filename = "count_time_animal_20_30_40m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
+
+
+
+########################################################
+### 6a. group the max distance from vf data by DAY and sum
+
 
 Summary_Max_dist_filter2_40m_av <- Max_dist_filter2_40m_av %>%
   group_by(day_since_start, max_dist_filter) %>%
@@ -489,8 +592,8 @@ Summary_Max_dist_filter2_40m_av <- Max_dist_filter2_40m_av %>%
 Summary_Max_dist_filter2_40m_av 
 
 
-
-ggplot(Summary_Max_dist_filter2_40m_av, aes(x = day_since_start, y = sum_time))+
+filter(Summary_Max_dist_filter2_40m_av, max_dist_filter == 2 | max_dist_filter ==5 | max_dist_filter ==10) %>%
+ggplot( aes(x = day_since_start, y = sum_time))+
   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   geom_col()+
   facet_wrap(.~ max_dist_filter)+
@@ -498,16 +601,43 @@ ggplot(Summary_Max_dist_filter2_40m_av, aes(x = day_since_start, y = sum_time))+
   theme(axis.text.x=element_text(angle=90,hjust=1),
         plot.subtitle= element_text(size = 8))+
   labs(title= "Sum of event time per day",
-       subtitle = "Events for animal and days retained and summed
-       for events with fixed distances greater than 2meters to 40meters",
+       #subtitle = "Events for animal and days retained and summed
+       #for events with fixed distances greater than 2meters to 40meters",
        caption = "Events are defined a period of time the animal moved into the non grazing zone",
        "number of events",
        x= "day of trial",
        y = "sum of event time (seconds)")
 
+ggsave(path= graph_path, filename = "sum_time_day_2_5_10m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
+
+filter(Summary_Max_dist_filter2_40m_av, max_dist_filter == 20 | max_dist_filter ==30 | max_dist_filter ==40) %>%
+  ggplot( aes(x = day_since_start, y = sum_time))+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_col()+
+  facet_wrap(.~ max_dist_filter)+
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        plot.subtitle= element_text(size = 8))+
+  labs(title= "Sum of event time per day",
+       #subtitle = "Events for animal and days retained and summed
+       #for events with fixed distances greater than 2meters to 40meters",
+       caption = "Events are defined a period of time the animal moved into the non grazing zone",
+       "number of events",
+       x= "day of trial",
+       y = "sum of event time (seconds)")
+
+ggsave(path= graph_path, filename = "sum_time_day_20_30_40m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
 
 
-ggplot(Summary_Max_dist_filter2_40m_av, aes(x = day_since_start, y = n))+
+
+
+
+
+
+filter(Summary_Max_dist_filter2_40m_av, max_dist_filter == 2 | max_dist_filter ==5 | max_dist_filter ==10) %>%
+ggplot( aes(x = day_since_start, y = n))+
   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   geom_col()+
   facet_wrap(.~ max_dist_filter)+
@@ -515,57 +645,37 @@ ggplot(Summary_Max_dist_filter2_40m_av, aes(x = day_since_start, y = n))+
   theme(axis.text.x=element_text(angle=90,hjust=1),
         plot.subtitle= element_text(size = 8))+
   labs(title= "Number of events per day",
-       subtitle = "Events for animal and days retained and counted
-       for events with fixed distances greater than 2meters to 40meters",
+       #subtitle = "Events for animal and days retained and counted
+       #for events with fixed distances greater than 2meters to 40meters",
        caption = "Events are defined a period of time the animal moved into the non grazing zone",
        "number of events",
        x= "day of trial",
        y = "count of event ")
-################################################################
-#### Now by aniamls
-Summary2_Max_dist_filter2_40m_av <- Max_dist_filter2_40m_av %>%
-  group_by(animal_ID, max_dist_filter) %>%
-  summarise(
-    sum_time = sum(sum_time),
-    n = n())
+ggsave(path= graph_path, filename = "count_time_day_2_5_10m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
 
-Summary2_Max_dist_filter2_40m_av 
-ggplot(Summary2_Max_dist_filter2_40m_av, aes(x = animal_ID, y = sum_time))+
-  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+
+
+filter(Summary_Max_dist_filter2_40m_av, max_dist_filter == 20 | max_dist_filter ==30 | max_dist_filter ==40) %>%
+  ggplot( aes(x = day_since_start, y = n))+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   geom_col()+
   facet_wrap(.~ max_dist_filter)+
   theme_classic()+
   theme(axis.text.x=element_text(angle=90,hjust=1),
         plot.subtitle= element_text(size = 8))+
-  labs(title= "Sum of event time per animal",
-       subtitle = "Events for animal and days retained and summed
-       for events with fixed distances greater than 2meters to 40meters",
+  labs(title= "Number of events per day",
+       #subtitle = "Events for animal and days retained and counted
+       #for events with fixed distances greater than 2meters to 40meters",
        caption = "Events are defined a period of time the animal moved into the non grazing zone",
        "number of events",
-       x= "animal",
-       y = "sum of event time (seconds)")
-
-
-
-ggplot(Summary2_Max_dist_filter2_40m_av, aes(x = animal_ID, y = n))+
-  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  geom_col()+
-  facet_wrap(.~ max_dist_filter)+
-  theme_classic()+
-  theme(axis.text.x=element_text(angle=90,hjust=1),
-        plot.subtitle= element_text(size = 8))+
-  labs(title= "Number of events per animal",
-       subtitle = "Events for animal and days retained and counted
-       for events with fixed distances greater than 2meters to 40meters",
-       caption = "Events are defined a period of time the animal moved into the non grazing zone",
-       "number of events",
-       x= "animal",
+       x= "day of trial",
        y = "count of event ")
+ggsave(path= graph_path, filename = "count_time_day_20_30_40m_sec.png", device = "png" ,
+       width = 20, height = 12, units = "cm")
 
 
-
-
-
+##################### END ###########################################################
   
 
 
@@ -587,178 +697,3 @@ ggplot(Summary2_Max_dist_filter2_40m_av, aes(x = animal_ID, y = n))+
 
 
 
-
-
-##############################################################################
-### 13. more alnalysis on incursion events, max distance from VF
-
-## The output of 12. can be used as input for these two functions
-## 13a. Cal the max distance per day for each event
-## 13b. Cal the incursion events with defined max distance 
-
-### 13a. Summary of max distance inside VF as a function
-event_max <- function(VFx_summary_incursion_data) {
-  
-  event_max <- group_by(VFx_summary_incursion_data, day_since_start) %>%
-    summarise(max_event = max(event_number,  na.rm = TRUE))
-  event_max$day_since_start_factor <- factor(event_max$day_since_start)
-  return(event_max)
-}
-
-VF1_event_max <- event_max(VF1_summary_incursion_data)
-VF2_event_max <- event_max(VF2_summary_incursion_data)
-VF3_event_max <- event_max(VF3_summary_incursion_data)
-VF4_event_max <- event_max(VF4_summary_incursion_data)
-VF5_event_max <- event_max(VF5_summary_incursion_data)
-
-VF1_5_event_max <- rbind(VF1_event_max,
-                         VF2_event_max,
-                         VF3_event_max,
-                         VF4_event_max,
-                         VF5_event_max)
-
-VF1_5_event_max
-
-### 13b. keep values greater than 2m/5m/10m
-
-filter_max_dist_inc <- function(VFx_summary_incursion_data){
-  #create df with only keeping events with a certain distance from VF
-  VF1_filter2m <- filter(VFx_summary_incursion_data,
-                         max_dist > 2)
-  VF1_filter5m <- filter(VFx_summary_incursion_data,
-                         max_dist > 5)
-  VF1_filter10m <- filter(VFx_summary_incursion_data,
-                          max_dist > 10)
-  VF1_filter20m <- filter(VFx_summary_incursion_data,
-                          max_dist > 20)
-  VF1_filter30m <- filter(VFx_summary_incursion_data,
-                          max_dist > 30) 
-  VF1_filter40m <- filter(VFx_summary_incursion_data,
-                          max_dist > 40) 
-  
-  # Cal the avearge time for events 2m/5m/10m/20m/30m/40m
-  
-  VF1_filter2m_ave <-  VF1_filter2m %>%
-    group_by(day_since_start) %>%
-    summarise(average_time = mean(period_time),
-              sum_time = sum(period_time),
-              n = n()) %>%
-    mutate(max_dist_filter = 2)
-  
-  VF1_filter5m_ave <-  VF1_filter5m %>%
-    group_by(day_since_start) %>%
-    summarise(average_time = mean(period_time),
-              sum_time = sum(period_time),
-              n = n()) %>%
-    mutate(max_dist_filter = 5)
-  
-  VF1_filter10m_ave <-  VF1_filter10m %>%
-    group_by(day_since_start) %>%
-    summarise(average_time = mean(period_time),
-              sum_time = sum(period_time),
-              n = n()) %>%
-    mutate(max_dist_filter = 10)
-  
-  VF1_filter20m_ave <-  VF1_filter20m %>%
-    group_by(day_since_start) %>%
-    summarise(average_time = mean(period_time) ,
-              sum_time = sum(period_time),
-              n = n()) %>%
-    mutate(max_dist_filter = 20)
-  
-  VF1_filter30m_ave <-  VF1_filter30m %>%
-    group_by(day_since_start) %>%
-    summarise(average_time = mean(period_time) ,
-              sum_time = sum(period_time),
-              n = n()) %>%
-    mutate(max_dist_filter = 30)
-  
-  VF1_filter40m_ave <-  VF1_filter40m %>%
-    group_by(day_since_start) %>%
-    summarise(average_time = mean(period_time),
-              sum_time = sum(period_time),
-              n = n()) %>%
-    mutate(max_dist_filter = 40)
-  
-  #merge the output togther
-  VF1_filter_5to40m_ave <- rbind(VF1_filter2m_ave,
-                                 VF1_filter5m_ave,
-                                 VF1_filter10m_ave,
-                                 VF1_filter20m_ave,
-                                 VF1_filter30m_ave,
-                                 VF1_filter40m_ave)
-  
-  VF1_filter_5to40m_ave$day_since_start_factor <-
-    factor(VF1_filter_5to40m_ave$day_since_start)
-  return(VF1_filter_5to40m_ave)
-}
-
-### 13b. use the function (which summaries of max distance inside VF)
-VF1_filter_max_dist_inc <- filter_max_dist_inc(VF1_summary_incursion_data)
-VF2_filter_max_dist_inc <- filter_max_dist_inc(VF2_summary_incursion_data)
-VF3_filter_max_dist_inc <- filter_max_dist_inc(VF3_summary_incursion_data)
-VF4_filter_max_dist_inc <- filter_max_dist_inc(VF4_summary_incursion_data)
-VF5_filter_max_dist_inc <- filter_max_dist_inc(VF5_summary_incursion_data)
-
-VF1_5_filter_max_dist_inc <- rbind(VF1_filter_max_dist_inc,
-                                   VF2_filter_max_dist_inc,
-                                   VF3_filter_max_dist_inc,
-                                   VF4_filter_max_dist_inc,
-                                   VF5_filter_max_dist_inc)
-
-##################################################################################################################
-
-
-head(VF1_5_filter_max_dist_inc)
-#Plot data??
-VF1_5_filter_max_dist_inc$max_dist_filter_factor <-
-  factor(VF1_5_filter_max_dist_inc$max_dist_filter)
-
-### max distance threshold vs number of event
-ggplot(VF1_5_filter_max_dist_inc, aes(x = max_dist_filter_factor, y = n))+
-  #geom_point()+
-  geom_boxplot()+
-  #facet_wrap(.~date_factor)+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  #scale_x_continuous(breaks =  c(2,5,10,20))+
-  labs(title= "",
-       x= "events that animal reached a max distance greater than",
-       y = "number of events")
-
-VF1_5_filter_max_dist_inc$day_since_start_factor
-
-### days since start vs number of event
-VF1_5_filter_max_dist_inc
-
-ggplot(VF1_5_filter_max_dist_inc, aes(x = day_since_start, y = n))+
-  facet_wrap(.~ max_dist_filter)+
-  geom_point()+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  labs(title= "",
-       x= "days since start",
-       y = "number of events")
-
-### days since start vs average time of event
-ggplot(VF1_5_filter_max_dist_inc, aes(x = day_since_start, y = average_time))+
-  geom_point()+
-  facet_wrap(.~max_dist_filter_factor)+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  labs(title= "",
-       x= "Day since start",
-       y = "average time spent in non grazing zone per event")
-
-### days since start vs sum time of event
-ggplot(VF1_5_filter_max_dist_inc, aes(x = day_since_start, y = sum_time))+
-  geom_point()+
-  facet_wrap(.~max_dist_filter_factor)+
-  theme_bw()+
-  theme(axis.text.x=element_text(angle=90,hjust=1))+
-  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
-  labs(title= "",
-       x= "Day since start",
-       y = "sum of time spent in non grazing zone per event (seconds)")
