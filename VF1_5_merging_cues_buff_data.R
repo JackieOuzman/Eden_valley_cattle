@@ -6,6 +6,13 @@ head(VF_week1_2_3)
 ###########################################################################################################################################################
 ### 1. the data I will use - this the same as the Fence1_data_clean.rds 
 ### W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence1_data_clean.rds
+Fence1_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence1_data_clean.rds", refhook = NULL)
+Fence2_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence2_data_clean.rds", refhook = NULL)
+Fence3_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence3_data_clean.rds", refhook = NULL)
+Fence4_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence4_data_clean.rds", refhook = NULL)
+Fence5_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence5_data_clean.rds", refhook = NULL)
+
+
 
 
 head(Fence1_Incl_animalID)
@@ -13,6 +20,12 @@ head(Fence2_Incl_animalID)
 head(Fence3_Incl_animalID)
 head(Fence4_Incl_animalID)
 head(Fence5_Incl_animalID)
+
+### Dana said that some animal may be receieving a weak signal and that we should check this
+### looking for a low value or entry that says low.... I think I have removed the text???
+
+unique(Fence1_Incl_animalID$value)
+
 
 ##what is in the event clm that I want
 table(Fence1_Incl_animalID$event)
