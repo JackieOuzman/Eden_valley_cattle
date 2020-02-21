@@ -4,7 +4,7 @@ library(dplyr)
 library(readr)
 library(gridExtra)
 
-NDVI_LAI_pasture_cuts <- read_csv("W:/VF/Eden_Valley/Pasture_CC_Survey_190704/extracted_pts_sampling_sites_NDVI_LAI_pasture_cuts.csv")
+NDVI_LAI_pasture_cuts <- read_csv("W:/VF/Eden_Valley/Pasture_CC_Survey_190704/extracted_pts_sampling_sites_NDVI_LAI.csv")
 str(NDVI_LAI_pasture_cuts)
 
 #Remove the na values
@@ -32,7 +32,9 @@ NDVI_LAI_pasture_cuts$zone_labels <- ordered(NDVI_LAI_pasture_cuts$zone_labels,
 
 
 ### pasture cut results on the day - after trial had eneded
-Biomass <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, kriged_NDV, colour = zone_labels))+
+
+
+Biomass <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, Plant_wt_T, colour = zone_labels))+
   geom_boxplot(alpha=0.1 )+
   scale_color_manual(values=c("red", "blue", "green"))+
   geom_point(colour = "black", alpha = 0.1) +
@@ -40,7 +42,7 @@ Biomass <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, kriged_NDV, colour = 
                 width = .75, linetype = "dashed")+
    theme_bw()+
    theme(legend.position = "none") +
-   ylim(0,1)+
+  # ylim(0,1)+
    theme(axis.text=element_text(size=6),
          axis.title=element_text(size=8,))+
     labs(x = "",
@@ -174,7 +176,7 @@ NDF <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, ndf, colour = zone_labels
   theme(axis.text=element_text(size=8),
         axis.title=element_text(size=10,))+
   labs(x = "",
-       y= "Neutral Detergent Fibre(NDF)")
+       y= "Neutral Detergent Fibre")
 #,
 #title = "Sampling 04/07/2019 - end of trial")
 NDF
@@ -191,7 +193,7 @@ adf <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, adf, colour = zone_labels
   theme(axis.text=element_text(size=8),
         axis.title=element_text(size=10,))+
   labs(x = "",
-       y= "Acid Detergent Fibre (ADF)")
+       y= "Acid Detergent Fibre")
 #,
 #title = "Sampling 04/07/2019 - end of trial")
 adf
@@ -211,7 +213,7 @@ dmdc <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, dmdc, colour = zone_labe
   theme(axis.text=element_text(size=8),
         axis.title=element_text(size=10,))+
   labs(x = "",
-       y= "DMDC - Digestibility of Dry Matter (DMD)")
+       y= "DMDC")
 #,
 #title = "Sampling 04/07/2019 - end of trial")
 dmdc
