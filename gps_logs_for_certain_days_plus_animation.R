@@ -784,6 +784,8 @@ ggsave(path= graph_path, filename = "day4_8Vf3_BW.png", device = "png" ,
 
 ### 1c. Day 9-14 balck and white
 unique(VF5_recal$day_since_start) 
+unique(VF5_recal$date)
+unique(VF5_recal$week_number)
 
 day4_5Vf3 <- filter(VF3_recal, between(VF3_recal$day_since_start,4,8) & VF == 3)
 unique(day4_5Vf3$day_since_start) 
