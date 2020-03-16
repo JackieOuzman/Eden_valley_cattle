@@ -148,9 +148,50 @@ Fence4 <-
     "20190602",
     "20190603")
 
-Fence5 <-
+Fence5_part1 <-
   c(
     "20190603",
+    "20190604",
+    "20190605",
+    "20190606",
+    "20190607",
+    "20190608",
+    "20190609",
+    "20190610",
+    "20190611",
+    "20190612",
+    "20190613"
+    )
+
+Fence5_part2 <-
+  c("20190614",
+    "20190615",
+    "20190616",
+    "20190617",
+    "20190618",
+    "20190619",
+    "20190620"
+  )
+Fence5_part3 <-
+  c(
+"20190621",
+ "20190622",
+ "20190623",
+ "20190624"
+)
+Fence5_part4 <-
+  c("20190625",
+    "20190626",
+    "20190627",
+    "20190628",
+    "20190629",
+"20190630",
+"20190701",
+"20190702")
+
+
+Fence5 <-
+  c("20190603",
     "20190604",
     "20190605",
     "20190606",
@@ -180,8 +221,7 @@ Fence5 <-
     "20190630",
     "20190701",
     "20190702"
-    )
-
+  )
 
 
 ### 3b. set up computer to run code in non parellael / and parallel
@@ -194,6 +234,7 @@ Fence4_import <- import_function(Fence4)
 Fence5_import <- import_function(Fence5)
 
 
+unique(Fence5_import$date)
 
 detectCores() #I have 8
 #specfiy the number of cores and create a cluster object
@@ -449,10 +490,13 @@ Fence4_Inc_animalID <- mutate(Fence4_time,
 # 5e.i The collar were changed over on the 7/6/2019 at 15:34, before they were changed over the collar were deactivated
 # This means the logging events that occured between 6/6/2019 16:35 and 7/6/2019 15:35 should be removed
 
+
+
 Fence5_time_test <- filter(Fence5_time,  !between(
   time,as_datetime('2019-06-06 16:35:00', tz = "GMT"),as_datetime('2019-06-07 16:35:00', tz =
                                                                       "GMT")
 ))
+
 # # other data that needs removing according to notes
 
 Fence5_Inc_animalID <- mutate(Fence5_time_test,
@@ -751,7 +795,7 @@ VF3_recal <- Inclusion_recal_function(Fence3_Incl, fence3, VF3_NonGraz)
 VF4_recal <- Inclusion_recal_function(Fence4_Incl, fence4, VF4_NonGraz)
 VF5_recal <- Inclusion_recal_function(Fence5_Incl, fence5, VF5_NonGraz)
 
-head(VF1_recal)
+head(Fence5_Incl)
 
 ### 10c. export output if needed - this is very slow consider if we need this step
 #write out files
@@ -782,7 +826,7 @@ Fence1_filtercsv <- paste0(output_folder,"/VF1_recal_non_grazing_pts.csv")
 Fence2_filtercsv <- paste0(output_folder,"/VF2_recal_non_grazing_pts.csv")
 Fence3_filtercsv <- paste0(output_folder,"/VF3_recal_non_grazing_pts.csv")
 Fence4_filtercsv <- paste0(output_folder,"/VF4_recal_non_grazing_pts.csv")
-Fence5_filtercsv <- paste0(output_folder,"/VF5_recal_non_grazing_pts1.csv")
+Fence5_filtercsv <- paste0(output_folder,"/VF5_recal_non_grazing_pts2.csv")
 
 st_write(VF1_recal_non_grazing_pts, Fence1_filtercsv, layer_options = "GEOMETRY=AS_XY")
 st_write(VF2_recal_non_grazing_pts, Fence2_filtercsv, layer_options = "GEOMETRY=AS_XY")
