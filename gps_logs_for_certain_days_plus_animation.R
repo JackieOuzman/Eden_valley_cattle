@@ -1,5 +1,6 @@
 ### Graphing the cows movement a certain days....
 install.packages("DT")
+install.packages("hexbin")
 library(tidyverse)
 library(dplyr)
 library(lubridate)
@@ -16,7 +17,7 @@ library(png)
 library(gifski)
 library(transformr)
 library(DT)
-
+library(hexbin)
 
 graph_path <- file.path("W:", "VF", "Eden_valley", "graphs")
 
@@ -37,7 +38,10 @@ VF5_recal <- mutate(VF5_recal, VF = 5)
 
 str(VF1_recal)
 unique(VF5_recal$date)
+
 #need to make df into spatial object for graphing and try clipping to paddock boundary
+eden_valley <- st_read("W:/VF/Eden_Valley/VF_Boundary/EdenValley_site1GDA_a.shp")
+
 VF1_recal <-
   st_as_sf(VF1_recal,
            coords = c("X", "Y"),
@@ -742,7 +746,7 @@ anim_save(animation = animation_20thVf1 , filename = "animation_20thVf1.gif")
 
 day1_3Vf2 <- filter(VF2_recal, between(VF2_recal$day_since_start,1,3) & VF == 2)
 unique(day1_3Vf2$day_since_start) 
-
+str(day1_3Vf2)
 
 
 ### 1b. Day 1-3 balck and white
@@ -756,6 +760,14 @@ ggplot() +
   labs(title= "Day 1, 2, 3 VF 2")+
   xlab("") +
   ylab("") 
+
+Day1_3 <- ggplot()+
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence2, color = "blue") 
+
+Day1_3 +
+  geom_hex(data = day1_3Vf2, aes() )
+
 
 ggsave(path= graph_path, filename = "day1_3Vf2_BW.png", device = "png" ,
        width = 20, height = 12, units = "cm")
