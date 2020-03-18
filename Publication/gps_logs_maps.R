@@ -28,13 +28,14 @@ output_data <- file.path("W:", "VF", "Eden_valley", "logged_VF_data", "Jax_Dec_2
 
 # VF1_recal <- read_csv(paste0(input_data, "/VF1_recal.csv"))
  VF2_recal <- read_csv(paste0(input_data, "/VF2_recal.csv"))
-# VF3_recal <- read_csv(paste0(input_data, "/VF3_recal.csv"))
-# VF4_recal <- read_csv(paste0(input_data, "/VF4_recal.csv"))
+ VF3_recal <- read_csv(paste0(input_data, "/VF3_recal.csv"))
+ VF4_recal <- read_csv(paste0(input_data, "/VF4_recal.csv"))
 VF5_recal <- read_csv(paste0(input_data, "/VF5_recal.csv"))
 
 #add clm with the VF 
 VF2_recal <- mutate(VF2_recal, VF = 2)
 VF3_recal <- mutate(VF3_recal, VF = 3)
+VF4_recal <- mutate(VF4_recal, VF = 4)
 VF5_recal <- mutate(VF5_recal, VF = 5)
 
 str(VF5_recal)
@@ -150,9 +151,10 @@ write_csv(VF5_recal_week_4,
           path = paste0(output_data, "/VF5_recal_week_4.csv"))
 #---------------------------------------------------------------------------------------------------------
 #week 5
+VF5_recal_week_5 <- filter(VF5_recal, week_number == 5 & VF == 5)
 VF5_recal_week_5 <- select(VF5_recal_week_5,
                            X ,
-                           Y
+                           Y,
                            time,
                            event,
                            collar_ID,
@@ -167,6 +169,7 @@ write_csv(VF5_recal_week_5,
 
 #---------------------------------------------------------------------------------------------------------
 #week 6
+VF5_recal_week_6 <- filter(VF5_recal, week_number == 6 & VF == 5)
 VF5_recal_week_6 <- select(VF5_recal_week_6,
                            X ,
                            Y,
@@ -183,6 +186,7 @@ write_csv(VF5_recal_week_6,
           path = paste0(output_data, "/VF5_recal_week_6.csv"))
 #---------------------------------------------------------------------------------------------------------
 #week 7
+VF5_recal_week_7 <- filter(VF5_recal, week_number == 7 & VF == 5)
 VF5_recal_week_7 <- select(VF5_recal_week_7,
                            X ,
                            Y,
