@@ -19,6 +19,9 @@ library(gifski)
 library(tmap)
 library(parallel)
 
+graph_path <- file.path("W:", "VF", "Eden_Valley", "temp_graphs")
+
+
 Fence1_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence1_data_clean.rds", refhook = NULL)
 Fence2_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence2_data_clean.rds", refhook = NULL)
 Fence3_Incl_animalID <- readRDS("W:/VF/Eden_valley/logged_VF_data/Jax_Dec_2019_processing/Fence3_data_clean.rds", refhook = NULL)
@@ -121,8 +124,30 @@ pulse_started_values_fence1 <- ggplot(Fence1_cue_data_pulse_fill_start, aes(anim
        x ="animal ID", 
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45, size = 6))
+pulse_started_values_fence1
+-------------------------------------------------------------------------------------------------------------
+#Just the problem cows Q26, 29 36
+unique(Fence1_cue_data_pulse_fill_start$animal_ID)
 
-pulse_started_values_fence2 <- ggplot(Fence2_cue_data_pulse_fill_start, aes(animal_ID, as.double(value)))+
+pulse_started_values_fence1_problem_cows <- filter(Fence1_cue_data_pulse_fill_start, animal_ID == "Q26" |
+                                                     animal_ID == "Q29" |
+                                                     animal_ID == "Q36" ) %>% 
+  ggplot( aes(animal_ID, as.double(value)))+
+  geom_point()+
+  facet_wrap(.~ day_since_start)+
+  geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
+  labs(title="Pulse started - fence 1",
+       x ="animal ID", 
+       y = "value of 'pulse result'")+
+  theme(axis.text.x = element_text(angle = 45, size = 6))
+
+pulse_started_values_fence1_problem_cows
+ggsave(path= graph_path, filename = "pulse_started_values_fence1_problem_cows.png", device = "png", 
+       width = 21, height = 15, units = "cm")
+
+
+-------------------------------------------------------------------------------------------------------------
+pulse_started_values_fence2 <-   ggplot(Fence2_cue_data_pulse_fill_start, aes(animal_ID, as.double(value)))+
   geom_point()+
   facet_wrap(.~ day_since_start)+
   geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
@@ -131,7 +156,22 @@ pulse_started_values_fence2 <- ggplot(Fence2_cue_data_pulse_fill_start, aes(anim
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45, size = 6))
 
+pulse_started_values_fence2_problem_cows <-  filter(Fence2_cue_data_pulse_fill_start, animal_ID == "Q26" |
+                                                         animal_ID == "Q29" |
+                                                         animal_ID == "Q36" ) %>% 
+  ggplot( aes(animal_ID, as.double(value)))+ 
+  geom_point()+
+  facet_wrap(.~ day_since_start)+
+  geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
+  labs(title="Pulse started - fence 2",
+       x ="animal ID", 
+       y = "value of 'pulse result'")+
+  theme(axis.text.x = element_text(angle = 45, size = 6))
+pulse_started_values_fence2_problem_cows
+ggsave(path= graph_path, filename = "pulse_started_values_fence2_problem_cows.png", device = "png", 
+       width = 21, height = 15, units = "cm")
 
+------------------------------------------------------------------------------------------------------------
 
 Fence3_cue_data_pulse_fill_start  <- filter(Fence3_cue_data_pulse_fill_start , animal_ID != "NA")
 unique(Fence3_cue_data_pulse_fill_start$animal_ID)
@@ -145,6 +185,22 @@ pulse_started_values_fence3 <- ggplot( Fence3_cue_data_pulse_fill_start, aes(ani
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45, size = 6))
 
+pulse_started_values_fence3_problem_cows <-  filter(Fence3_cue_data_pulse_fill_start, animal_ID == "Q26" |
+                                                      animal_ID == "Q29" |
+                                                      animal_ID == "Q36" ) %>% 
+  ggplot( aes(animal_ID, as.double(value)))+ 
+  geom_point()+
+  facet_wrap(.~ day_since_start)+
+  geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
+  labs(title="Pulse started - fence 3",
+       x ="animal ID", 
+       y = "value of 'pulse result'")+
+  theme(axis.text.x = element_text(angle = 45, size = 6))
+pulse_started_values_fence3_problem_cows
+
+ggsave(path= graph_path, filename = "pulse_started_values_fence3_problem_cows.png", device = "png", 
+       width = 21, height = 15, units = "cm")
+-----------------------------------------------------------------------------------------------------------
 pulse_started_values_fence4 <- ggplot( Fence4_cue_data_pulse_fill_start, aes(animal_ID, as.double(value)))+
   geom_point()+
   facet_wrap(.~ day_since_start)+
@@ -154,6 +210,23 @@ pulse_started_values_fence4 <- ggplot( Fence4_cue_data_pulse_fill_start, aes(ani
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45, size = 6))
 
+pulse_started_values_fence4_problem_cows <-  filter(Fence4_cue_data_pulse_fill_start, animal_ID == "Q26" |
+                                                      animal_ID == "Q29" |
+                                                      animal_ID == "Q36" ) %>% 
+  ggplot( aes(animal_ID, as.double(value)))+ 
+  geom_point()+
+  facet_wrap(.~ day_since_start)+
+  geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
+  labs(title="Pulse started - fence 4",
+       x ="animal ID", 
+       y = "value of 'pulse result'")+
+  theme(axis.text.x = element_text(angle = 45, size = 6))
+pulse_started_values_fence4_problem_cows
+
+ggsave(path= graph_path, filename = "pulse_started_values_fence4_problem_cows.png", device = "png", 
+       width = 21, height = 15, units = "cm")
+
+----------------------------------------------------------------------------------------------------------
 Fence5_cue_data_pulse_fill_start  <- filter(Fence5_cue_data_pulse_fill_start , animal_ID != "NA")
 unique(Fence5_cue_data_pulse_fill_start$animal_ID)
 
@@ -167,6 +240,24 @@ pulse_started_values_fence5 <- ggplot( Fence5_cue_data_pulse_fill_start, aes(ani
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45, size = 6))
 
+pulse_started_values_fence5_problem_cows <-  filter(Fence5_cue_data_pulse_fill_start, animal_ID == "Q26" |
+                                                      animal_ID == "Q29" |
+                                                      animal_ID == "Q36" ) %>% 
+  ggplot( aes(animal_ID, as.double(value)))+ 
+  geom_point()+
+  facet_wrap(.~ day_since_start)+
+  geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
+  labs(title="Pulse started - fence 5",
+       x ="animal ID", 
+       y = "value of 'pulse result'")+
+  theme(axis.text.x = element_text(angle = 45, size = 6))
+pulse_started_values_fence5_problem_cows
+
+getwd()
+
+ggsave(path= graph_path, filename = "pulse_started_values_fence5_problem_cows.png", device = "png", 
+       width = 21, height = 15, units = "cm")
+--------------------------------------------------------------------------------------------------------------
 pulse_started_values_fence1
 pulse_started_values_fence2
 pulse_started_values_fence3
@@ -179,7 +270,7 @@ ggsave(path= graph_path, filename = "pulse_started_values_fence5.png", device = 
        width = 21, height = 15, units = "cm")
 
 
-|### just look at day 36
+### just look at day 36
 str(Fence5_cue_data_pulse_fill_start)
 Fence5_cue_data_pulse_fill_start_day36_animal36  <- filter(Fence5_cue_data_pulse_fill_start , animal_ID != "NA" &
                                                     day_since_start == 36 &
@@ -193,13 +284,18 @@ check <- filter(Fence5_cue_data_pulse_fill_start_day36_animal36, collar_ID == "a
 unique(check$collar_ID)
 check2 <- filter(Fence5_cue_data_pulse_fill_start_day36_animal36, collar_ID == "ad2640")
 
+
+
+Fence5_cue_data_pulse_fill_start_day36  <- filter(Fence5_cue_data_pulse_fill_start , animal_ID != "NA" &
+                                                             day_since_start == 36 )
+
 str(Fence5_cue_data_pulse_fill_start_day36)
 
 ggplot( Fence5_cue_data_pulse_fill_start_day36, aes(animal_ID, as.double(value)))+
   geom_point()+
   #facet_wrap(.~ day_since_start)+
   geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
-  labs(title="Pulse started - fence 3",
+  labs(title="Pulse started - fence x",
        x ="animal ID", 
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45))
