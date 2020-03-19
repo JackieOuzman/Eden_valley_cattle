@@ -285,7 +285,7 @@ Fence1_5_started_aduio_pulse_summary2$event <- factor(Fence1_5_started_aduio_pul
     labs(title= "Number of cues per day since start of trial",
          subtitle = "All animals included",
          #caption = "cues are start aduio or start pulse",
-         x= "days since start of trail",
+         x= "days since start of trial",
          y = "count of cues")
 ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_summary_day_stacked.png", device = "png",
        width = 20, height = 12, units = "cm")
