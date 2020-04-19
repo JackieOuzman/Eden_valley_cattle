@@ -244,7 +244,7 @@ Fence1_time <- filter(Fence1_import,
                         mutate(VF = "VF1")
 
 #Fence 2 called training mk1
-Fence2_time <- filter(Fence2,
+Fence2_time <- filter(Fence2_import,
                       between(
                         time,
                         as_datetime('2019-05-20 14:50:00', tz = "GMT"),
@@ -254,7 +254,7 @@ Fence2_time <- filter(Fence2,
                         mutate(VF = "VF2"))
 
 #Fence 3 called bron next traing fence
-Fence3_time <- filter(Fence3,
+Fence3_time <- filter(Fence3_import,
                       between(
                         time,
                         as_datetime('2019-05-23 08:30:00', tz = "GMT"),
@@ -264,7 +264,7 @@ Fence3_time <- filter(Fence3,
                         mutate(VF = "VF3"))
 
 #Fence 4 called bron next traing fence check that the time range is working
-Fence4_time <- filter(Fence4,
+Fence4_time <- filter(Fence4_import,
                       between(
                         time,
                         as_datetime('2019-05-28 11:15:00', tz = "GMT"),
@@ -274,7 +274,7 @@ Fence4_time <- filter(Fence4,
                         mutate(VF = "VF4"))
 
 #Fence 5 called bron next traing fence Cant don this yet without the full data set
-Fence4_time <- filter(Fence5,
+Fence5_time <- filter(Fence5_import,
                       between(
                         time,
                         as_datetime('2019-06-03 09:31:00', tz = "GMT"),
