@@ -18,6 +18,8 @@ library(gifski)
 library(transformr)
 library(DT)
 library(hexbin)
+library(transformr)
+install.packages("transformr")
 
 graph_path <- file.path("W:", "VF", "Eden_valley", "graphs")
 
@@ -48,8 +50,14 @@ VF1_recal <-
            crs = 28354,
            agr = "constant") %>% 
   st_intersection( eden_valley)
+##### Junk example for hacky hour#######
+temp <- select(VF1_recal,time, animal_ID, geometry)
+eden_valley_example <- select(eden_valley, OID_, geometry)
+str(eden_valley_example)  
 
-VF2_recal <-
+
+
+  VF2_recal <-
   st_as_sf(VF2_recal,
            coords = c("X", "Y"),
            crs = 28354,
@@ -111,7 +119,32 @@ head(VF1_recal)
 day1Vf1 <- filter(VF1_recal, day_since_start == 1 & VF == 1) 
 head(day1Vf1)
 str(day1Vf1)
+### temp for hacky hour####
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) 
 
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = day1Vf1,alpha = 0.01) +
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-20")
+
+
+ggplot() +
+  geom_sf(data = eden_valley, color = "black", fill = NA) +
+  geom_sf(data = fence1, color = "grey") +
+  geom_sf(data = day1Vf1, aes(colour = animal_ID, alpha = 0.01)) +
+  facet_wrap(.~animal_ID)+
+  theme_bw()+
+  theme(legend.position = "none",
+        axis.ticks = element_blank(), axis.text.x = element_blank(), axis.text.y = element_blank())+
+  labs(title= "2019-05-20")
+  
+
+#####
 
   ggplot() +
   geom_sf(data = eden_valley, color = "black", fill = NA) +
@@ -724,16 +757,28 @@ p4a <- ggplot() +
   geom_sf(data = day1Vf1, aes(colour = animal_ID))+
   theme_bw()+
   theme(legend.position = "none",
+        axis.ticks = element_blank(), 
         axis.text.x=element_blank(),
-        axis.text.y=element_blank())
-p4a  
+        axis.text.y=element_blank())+
+  labs(title= "2019-05-20")
+p4a 
+
+str(day1Vf1)
+day1Vf1$time <- as_datetime(day1Vf1$time)
 p4b <- p4a +
-  labs( #title =   'Date:  {format(as_datetime(frame_time ), tz="GMT")}',
-        title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
-        #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
-        caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+  labs( title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+    caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
   transition_time(time) +
   shadow_wake(0.3)
+
+# p4b <- p4a +
+#   labs( #title =   'Date:  {format(as_datetime(frame_time ), tz="GMT")}',
+#         title =   'Date:  {format(as_datetime(frame_time, "%b %e"), tz="GMT")}',
+#         #subtitle = 'Hour: {format(as_datetime(frame_time, "%H"), tz="GMT")}',
+#         caption = "Frame {frame} of {nframes} ({progress * 100}%)") +
+#   transition_time(time) +
+#   shadow_wake(0.3)
+
 animation_20thVf1 <- animate(p4b, duration = 60) 
 animation_20thVf1
 anim_save(animation = animation_20thVf1 , filename = "animation_20thVf1.gif")
