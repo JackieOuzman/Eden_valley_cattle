@@ -227,11 +227,11 @@ ompc <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, ompc, colour = zone_labe
                width = .75, linetype = "dashed")+
   theme_bw()+
   theme(legend.position = "none") +
-  ylim(90,100)+
+  ylim(85,100)+
   # annotate("rect", xmin = -Inf, xmax = Inf, ymin = 55, ymax = 65, 
   #          alpha = .2) +
   theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=10,))+
+        axis.title=element_text(size=10))+
   labs(x = "",
        y= "OMPC")
 #,
@@ -251,7 +251,7 @@ n <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, n, colour = zone_labels))+
   # annotate("rect", xmin = -Inf, xmax = Inf, ymin = 55, ymax = 65, 
   #          alpha = .2) +
   theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=10,))+
+        axis.title=element_text(size=10))+
   labs(x = "",
        y= "N")
 #,
@@ -274,7 +274,7 @@ CP <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, `CP (crude protein %) n x 
   # annotate("rect", xmin = -Inf, xmax = Inf, ymin = 55, ymax = 65, 
   #          alpha = .2) +
   theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=10,))+
+        axis.title=element_text(size=10))+
   labs(x = "",
        y= "Crude protein")
 #,
