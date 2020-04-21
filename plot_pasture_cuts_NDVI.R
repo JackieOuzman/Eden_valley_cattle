@@ -31,6 +31,11 @@ NDVI_LAI_pasture_cuts$zone_labels <- ordered(NDVI_LAI_pasture_cuts$zone_labels,
                                                         "Grazing zone pre trial" ))
 
 
+#### dropthe pre trial analsyis
+str(NDVI_LAI_pasture_cuts)
+unique(NDVI_LAI_pasture_cuts$zone_labels)
+NDVI_LAI_pasture_cuts <- filter(NDVI_LAI_pasture_cuts, zone_labels != "Grazing zone pre trial")
+
 ### pasture cut results on the day - after trial had eneded
 
 
@@ -44,7 +49,7 @@ Biomass <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, Plant_wt_T, colour = 
    theme(legend.position = "none") +
   # ylim(0,1)+
    theme(axis.text=element_text(size=6),
-         axis.title=element_text(size=8,))+
+         axis.title=element_text(size=8))+
     labs(x = "",
          y= "Pasture measure - Plant t/ha")
          #,
@@ -62,7 +67,7 @@ NDVI <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, kriged_NDV, colour = zon
   theme(legend.position = "none") +
   ylim(0,1)+
   theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=8,))+
+        axis.title=element_text(size=8))+
   labs(x = "",
        y= "NDVI")
        #title = "Sampling 04/07/2019 - end of trial",
@@ -80,7 +85,7 @@ LAI <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, kriged_LAI, colour = zone
   theme(legend.position = "none") +
   ylim(0,1)+
   theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=8,))+
+        axis.title=element_text(size=8))+
   labs(x = "",
        y= "Leaf area index")
        #title = "Sampling 04/07/2019 - end of trial",
@@ -97,7 +102,7 @@ ggplot( aes(kriged_LAI, kriged_NDV, colour = zone_labels))+
   
   theme(legend.position = "none") +
   theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=8,))+
+        axis.title=element_text(size=8))+
   labs(x = "Leaf area index",
        y= "NDVI")
        #title = "Sampling 04/07/2019 - end of trial",
@@ -113,7 +118,7 @@ LAI_regression <- filter(NDVI_LAI_pasture_cuts, sample_dat == "4/07/2019") %>%
   
   theme(legend.position = "none") +
   theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=8,))+
+        axis.title=element_text(size=8))+
   labs(x = "Leaf area index",
        y= "Pasture measure - Plant t/ha")
        #title = "Sampling 04/07/2019 - end of trial",
@@ -128,7 +133,7 @@ NDVI_regression <- filter(NDVI_LAI_pasture_cuts, sample_dat == "4/07/2019") %>%
   theme_bw()+
   theme(legend.position = "none") +
   theme(axis.text=element_text(size=6),
-        axis.title=element_text(size=8,))+
+        axis.title=element_text(size=8))+
   labs(x = "Normalised Difference Vegetative Index (NDVI)",
        y= "Pasture measure - Plant t/ha")
        #title = "Sampling 04/07/2019 - end of trial",
@@ -147,14 +152,17 @@ LAI_regression
 NDVI_regression
 
 graph_path <- file.path("W:", "VF", "Eden_Valley", "Pasture_cut_results")
-
+graph_path
 biomass_crop_circle <- grid.arrange(Biomass, LAI_NDVI_regression,  
              LAI, NDVI, 
              LAI_regression, NDVI_regression, 
              nrow = 3)
 
-ggsave(path= graph_path, filename = paste0("biomass_crop_circle.png"), device = "png", 
-       width = 21, height = 15, units = "cm", biomass_crop_circle)
+ ggsave(path= graph_path, filename ="biomass_crop_circle_drop_pre_trial.png", device = "png", 
+        width = 21, height = 15, units = "cm", biomass_crop_circle)
+path
+
+
 #########################################################################################################################
 
 
@@ -211,7 +219,7 @@ dmdc <- ggplot( NDVI_LAI_pasture_cuts, aes(zone_labels, dmdc, colour = zone_labe
   annotate("rect", xmin = -Inf, xmax = Inf, ymin = 55, ymax = 65, 
            alpha = .2) +
   theme(axis.text=element_text(size=8),
-        axis.title=element_text(size=10,))+
+        axis.title=element_text(size=10))+
   labs(x = "",
        y= "DMDC")
 #,
@@ -298,7 +306,7 @@ biomass_lab_results <- grid.arrange(NDF, adf,
              n, CP, 
              nrow = 3)
 
-ggsave(path= graph_path, filename = paste0("biomass_lab_results.png"), device = "png", 
+ggsave(path= graph_path, filename = paste0("biomass_lab_results_drop_pre_trial.png"), device = "png", 
        width = 21, height = 15, units = "cm", biomass_lab_results)
 
 ##### multiple regressions
