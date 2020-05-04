@@ -125,7 +125,7 @@ pulse_started_values_fence1 <- ggplot(Fence1_cue_data_pulse_fill_start, aes(anim
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45, size = 6))
 pulse_started_values_fence1
--------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------
 #Just the problem cows Q26, 29 36
 unique(Fence1_cue_data_pulse_fill_start$animal_ID)
 
@@ -144,6 +144,9 @@ pulse_started_values_fence1_problem_cows <- filter(Fence1_cue_data_pulse_fill_st
 pulse_started_values_fence1_problem_cows
 ggsave(path= graph_path, filename = "pulse_started_values_fence1_problem_cows.png", device = "png", 
        width = 21, height = 15, units = "cm")
+
+
+
 
 
 -------------------------------------------------------------------------------------------------------------
@@ -257,7 +260,7 @@ getwd()
 
 ggsave(path= graph_path, filename = "pulse_started_values_fence5_problem_cows.png", device = "png", 
        width = 21, height = 15, units = "cm")
---------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------
 pulse_started_values_fence1
 pulse_started_values_fence2
 pulse_started_values_fence3
@@ -299,3 +302,144 @@ ggplot( Fence5_cue_data_pulse_fill_start_day36, aes(animal_ID, as.double(value))
        x ="animal ID", 
        y = "value of 'pulse result'")+
   theme(axis.text.x = element_text(angle = 45))
+
+
+
+###########################################################################################################################
+
+## Dana now wants me to  summaries pulse data for days 36,37,38,39
+#1. extrcat these dats from my data set.
+head(Fence5_cue_data_pulse_fill_start)
+view(Fence5_cue_data_pulse_fill_start)
+
+unique(Fence5_cue_data_pulse_fill_start$animal_ID)
+unique(Fence5_cue_data_pulse_fill_start$day_since_start)
+
+
+#Now lets make 2 groups of cows
+#1. group one problem cows Q26,29,Q36
+Fence5_cue_data_pulse_fill_start  <- filter(Fence5_cue_data_pulse_fill_start , animal_ID != "NA" )
+Fence5_cue_data_pulse_fill_start$value <- as.double(Fence5_cue_data_pulse_fill_start$value)
+
+
+Fence5_cue_data_pulse_fill_start <- Fence5_cue_data_pulse_fill_start %>% 
+  mutate(
+    grouping_cows = case_when(animal_ID == "Q26" ~ "problem_cows",
+                              animal_ID == "Q29" ~ "problem_cows",
+                              animal_ID == "Q36" ~ "problem_cows",
+                              TRUE ~ "good_cows"))
+
+
+
+Fence5_cue_data_pulse_fill_start_day36_39  <- filter(Fence5_cue_data_pulse_fill_start,
+                                                       (between(day_since_start, 36,39)))
+
+
+                                                   
+unique(Fence5_cue_data_pulse_fill_start_day36_39$day_since_start)
+unique(Fence5_cue_data_pulse_fill_start_day36_39$animal_ID)
+unique(Fence5_cue_data_pulse_fill_start_day36_39$grouping_cows)
+
+##This is data for fence 5 pulse value for days 36 37 38 and 39
+
+summary_stats_day36_39 <- group_by(Fence5_cue_data_pulse_fill_start_day36_39, day_since_start) %>% 
+  summarise(av_pulse_value = mean(value),
+            max_pulse_value = max(value),
+            min_pulse_value = min(value),
+            stdev_pulse_values = sd(value),
+            count = n()) %>% 
+  mutate(grouping = "all_cows")
+
+print(summary_stats_day36_39)
+
+summary_stats_day36_39_cow_group <- group_by(Fence5_cue_data_pulse_fill_start_day36_39, day_since_start, grouping_cows) %>% 
+    summarise(av_pulse_value = mean(value),
+              max_pulse_value = max(value),
+              min_pulse_value = min(value),
+              stdev_pulse_values = sd(value),
+              count = n())%>% 
+  mutate(grouping = "grouped_cows")
+
+print(summary_stats_day36_39_cow_group)
+
+summary_stats_start_day36_39_one <- Fence5_cue_data_pulse_fill_start_day36_39 %>% 
+  summarise(av_pulse_value = mean(value),
+            max_pulse_value = max(value),
+            min_pulse_value = min(value),
+            stdev_pulse_values = sd(value),
+            count = n()) %>% 
+  mutate(grouping = "all_cows",
+         grouping_cows = "all_cows")
+print(summary_stats_start_day36_39_one)
+
+summary_stats_day36_39_cow_group_one <- group_by(Fence5_cue_data_pulse_fill_start_day36_39, grouping_cows) %>% 
+  summarise(av_pulse_value = mean(value),
+            max_pulse_value = max(value),
+            min_pulse_value = min(value),
+            stdev_pulse_values = sd(value),
+            count = n())%>% 
+  mutate(grouping = "grouped_cows")
+
+print(summary_stats_day36_39_cow_group_one)
+
+summary_stats_day36_39_one <- rbind(summary_stats_day36_39_cow_group_one, summary_stats_start_day36_39_one)
+summary_stats_day36_39_one <- dplyr::select(summary_stats_day36_39_one, -grouping)
+
+print(summary_stats_day36_39_one)
+write.csv(summary_stats_day36_39_one, file = "W:/VF/Eden_Valley/temp_graphs/summary_stats_day36_39.csv")
+
+#just the data for Dana
+print(Fence5_cue_data_pulse_fill_start_day36_39)
+write_csv(Fence5_cue_data_pulse_fill_start_day36_39, "W:/VF/Eden_Valley/temp_graphs/Fence5_cue_data_pulse_fill_start_day36_39.csv")
+
+######
+
+summary_stats_one <- group_by(Fence5_cue_data_pulse_fill_start, day_since_start) %>% 
+  summarise(av_pulse_value = mean(value),
+            max_pulse_value = max(value),
+            min_pulse_value = min(value),
+            stdev_pulse_values = sd(value),
+            count = n()) %>% 
+  mutate(grouping = "all_cows",
+         grouping_cows = "all_cows") %>% 
+  ungroup()
+print(summary_stats_one) 
+  
+
+summary_stats_cow_group_one <- group_by(Fence5_cue_data_pulse_fill_start, day_since_start,grouping_cows) %>% 
+  summarise(av_pulse_value = mean(value),
+            max_pulse_value = max(value),
+            min_pulse_value = min(value),
+            stdev_pulse_values = sd(value),
+            count = n())%>% 
+  mutate(grouping = "grouped_cows") %>% 
+  ungroup()
+
+
+print(summary_stats_one)
+print(summary_stats_cow_group_one)
+
+summary_stats_by_day <- rbind(summary_stats_one, summary_stats_cow_group_one)
+summary_stats_by_day <- dplyr::select(summary_stats_by_day, -grouping)
+print(summary_stats_by_day)
+getwd()#I:/Users/ouz001/Eden_valley_cattle
+
+write.csv(summary_stats_by_day, file = "W:/VF/Eden_Valley/temp_graphs/summary_pulse_values.csv")
+
+
+
+
+
+
+
+
+ggplot( summary_stats_by_day, aes(as.factor(day_since_start), av_pulse_value, fill= grouping_cows))+
+  #geom_point()#+
+geom_col(position = "dodge")+ 
+  facet_wrap(.~day_since_start)
+  #facet_wrap(.~ day_since_start)+
+  # geom_hline(yintercept = 80, linetype = "dashed", color = "red", size =.5)+
+  # labs(title="Pulse started - fence x",
+  #      x ="animal ID", 
+  #      y = "value of 'pulse result'")+
+  # theme(axis.text.x = element_text(angle = 45)
