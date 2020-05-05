@@ -312,8 +312,61 @@ ggplot( Fence5_cue_data_pulse_fill_start_day36, aes(animal_ID, as.double(value))
 head(Fence5_cue_data_pulse_fill_start)
 view(Fence5_cue_data_pulse_fill_start)
 
+
+##################################################################
+### double check bit
 unique(Fence5_cue_data_pulse_fill_start$animal_ID)
 unique(Fence5_cue_data_pulse_fill_start$day_since_start)
+#do we have data for good cows on day37?
+test_cow10 <- filter(Fence5_cue_data_pulse_fill_start,animal_ID == "Q10" )
+unique(test_cow10$day_since_start)
+#do we have data for problem cows on day37?
+test_cow26 <- filter(Fence5_cue_data_pulse_fill_start,animal_ID == "Q26" )
+unique(test_cow26$day_since_start)
+
+#what about the data brfore I add the fill? yip its the same
+test1_cow10 <- filter(Fence5_cue_data_pulse,animal_ID == "Q10" )
+unique(test1_cow10$day_since_start)
+test1_cow26 <- filter(Fence5_cue_data_pulse,animal_ID == "Q26" )
+unique(test1_cow26$day_since_start)
+#how many pulse values do I have?
+str(Fence5_cue_data_pulse)
+unique(Fence5_cue_data_pulse$event)
+Fence5_cue_data_pulse_count <- group_by(Fence5_cue_data_pulse,animal_ID, day_since_start, event) %>% 
+  summarise(count = n()) 
+
+head(Fence5_cue_data_pulse_count)
+Fence5_cue_data_pulse_count  <- filter(Fence5_cue_data_pulse_count , animal_ID != "NA" )                                       
+Fence5_cue_data_pulse_count <- filter(Fence5_cue_data_pulse_count,between(day_since_start, 36,39) )
+
+unique(Fence5_cue_data_pulse_count$event)
+filter(Fence5_cue_data_pulse_count, event == "Pulse ceased" ) %>% 
+ggplot(  aes(day_since_start, count, colour = event))+
+  geom_point()+
+  facet_wrap(event~ animal_ID)+
+  
+  labs(title="Pulse data - fence 5",
+       x ="days since started", 
+       y = "count of value'")+
+  theme(axis.text.x = element_text(angle = 45))
+graph_path
+ggsave(path= graph_path, filename = "Fence5_pulse_cease_count.png", device = "png", 
+       width = 21, height = 15, units = "cm")
+
+filter(Fence5_cue_data_pulse_count, event == "Pulse started" ) %>% 
+  ggplot(  aes(day_since_start, count, colour = event))+
+  geom_point()+
+  facet_wrap(event~ animal_ID)+
+  
+  labs(title="Pulse data - fence 5",
+       x ="days since started", 
+       y = "count of value'")+
+  theme(axis.text.x = element_text(angle = 45))
+view(Fence5_cue_data_pulse_count)
+ggsave(path= graph_path, filename = "Fence5_Pulse started_count_select_days.png", device = "png", 
+       width = 21, height = 15, units = "cm")
+#end of double check
+###############################################################################################################
 
 
 #Now lets make 2 groups of cows
