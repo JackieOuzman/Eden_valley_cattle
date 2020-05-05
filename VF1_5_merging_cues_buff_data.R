@@ -243,6 +243,7 @@ ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_summary_animal
 
 
 
+
 #### 7b. summary for day
 head(Fence1_5_started_aduio_pulse)
 Fence1_5_started_aduio_pulse_summary2 <- 
@@ -400,4 +401,68 @@ st_write(Fence3_4_cue_recal, Fence3_4_cue_recal_day9csv, layer_options = "GEOMET
 
 
 
+####################################################################################################################
+####### Ratio of cues to pulses for the paper
 
+head(Fence1_5_started_aduio_pulse)
+unique(Fence1_5_started_aduio_pulse$day_since_start)
+#remove the animals with NA
+unique(Fence1_5_started_aduio_pulse$animal_ID)
+ratio_for_paper <- filter(Fence1_5_started_aduio_pulse, animal_ID != "NA")
+unique(ratio_for_paper$animal_ID)
+unique(ratio_for_paper$day_since_start)
+#remove problem cows for days 36-39
+
+
+ratio_for_paper_remove_prob_cows <- filter(ratio_for_paper,between(day_since_start, 1,35) |  day_since_start > 39 & !animal_ID %in% c("Q26", "Q29", "Q36")) 
+unique(ratio_for_paper_remove_prob_cows$day_since_start)
+test_filter <- filter(ratio_for_paper_remove_prob_cows,animal_ID == "Q36" )
+unique(test_filter$day_since_start)
+unique(test_filter$animal_ID)
+
+##### what do I want to event summaries?
+
+unique(ratio_for_paper_remove_prob_cows$event)
+
+#### Ratio of cues per animal
+ratio_for_paper_remove_prob_cows_summary <- ratio_for_paper_remove_prob_cows %>% 
+  group_by(event, animal_ID) %>% 
+  summarise(count_cues = n()) 
+
+ratio_for_paper_remove_prob_cows_summary
+ratio_for_paper_remove_prob_cows_summary_wide <- spread(ratio_for_paper_remove_prob_cows_summary, event, count_cues)
+
+ratio_for_paper_remove_prob_cows_summary_wide <- mutate(ratio_for_paper_remove_prob_cows_summary_wide,
+                                                        ratio = (`Pulse started`/`Audio started`)*100)
+
+ratio_for_paper_remove_prob_cows_summary_wide
+write.csv(ratio_for_paper_remove_prob_cows_summary_wide, file = "W:/VF/Eden_Valley/temp_graphs/ratio_remove_prob_cows_summary_per_cow.csv")
+
+#### Ratio of cues per day
+ratio_for_paper_remove_prob_cows_summary_per_day <- ratio_for_paper_remove_prob_cows %>% 
+  group_by(event, day_since_start) %>% 
+  summarise(count_cues = n()) 
+
+ratio_for_paper_remove_prob_cows_summary_per_day
+ratio_for_paper_remove_prob_cows_summary_per_day_wide <- spread(ratio_for_paper_remove_prob_cows_summary_per_day, event, count_cues)
+
+ratio_for_paper_remove_prob_cows_summary_per_day_wide <- mutate(ratio_for_paper_remove_prob_cows_summary_per_day_wide,
+                                                        ratio = (`Pulse started`/`Audio started`)*100)
+
+ratio_for_paper_remove_prob_cows_summary_per_day_wide
+write.csv(ratio_for_paper_remove_prob_cows_summary_per_day_wide, file = "W:/VF/Eden_Valley/temp_graphs/ratio_remove_prob_cows_summary_per_day.csv")
+
+
+#### Ratio of cues whole data set
+ratio_for_paper_remove_prob_cows_summary <- ratio_for_paper_remove_prob_cows %>% 
+  group_by(event) %>% 
+  summarise(count_cues = n()) 
+
+ratio_for_paper_remove_prob_cows_summary
+ratio_for_paper_remove_prob_cows_summary_wide <- spread(ratio_for_paper_remove_prob_cows_summary, event, count_cues)
+ratio_for_paper_remove_prob_cows_summary_wide
+ratio_for_paper_remove_prob_cows_summary_wide <- mutate(ratio_for_paper_remove_prob_cows_summary_wide,
+                                                                ratio = (`Pulse started`/`Audio started`)*100)
+
+ratio_for_paper_remove_prob_cows_summary_wide
+write.csv(ratio_for_paper_remove_prob_cows_summary_wide, file = "W:/VF/Eden_Valley/temp_graphs/ratio_for_paper_remove_prob_cows_summary_wide.csv")
