@@ -309,6 +309,13 @@ biomass_lab_results <- grid.arrange(NDF, adf,
 ggsave(path= graph_path, filename = paste0("biomass_lab_results_drop_pre_trial.png"), device = "png", 
        width = 21, height = 15, units = "cm", biomass_lab_results)
 
+
+biomass_lab_results_subset <- grid.arrange(CP,dmdc, 
+                                    nrow = 1)
+ggsave(path= graph_path, filename = paste0("biomass_lab_results_subset.png"), device = "png", 
+       width = 21, height = 8, units = "cm", biomass_lab_results_subset)
+graph_path
+
 ##### multiple regressions
 
 str(NDVI_LAI_pasture_cuts_post)
