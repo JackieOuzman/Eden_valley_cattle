@@ -68,15 +68,16 @@ getwd()
 
 head(VF1_5_recal_incl_events)
 #dont need this at the monment its in the environments as VF1_5_recal_incl_events
-# VF1_recal_exclsuion_only <- read_csv("Fence1_5exclsuion_only.csv")
-
+getwd()
+ VF1_recal_exclsuion_only <- read_csv("Fence1_5exclsuion_only.csv")
+ VF1_5_recal_incl_events <- VF1_recal_exclsuion_only #I think this is the same file - I hope so...
 #files seperate
-# VF1_recal_exclsuion_only <- read_csv("VF1_recal_exclsuion_only.csv" )
-# VF2_recal_exclsuion_only <- read_csv("VF2_recal_exclsuion_only.csv" )
-# VF3_recal_exclsuion_only <- read_csv("VF3_recal_exclsuion_only.csv" )
-# VF4_recal_exclsuion_only <- read_csv("VF4_recal_exclsuion_only.csv" )
-# #VF5_recal_exclsuion_only <- read_csv("VF5_recal_exclsuion_only.csv" )
-# VF5_recal_exclsuion_only1 <- read_csv("VF5_recal_exclsuion_only1.csv" )
+ #VF1_recal_exclsuion_only <- read_csv("VF1_recal_exclsuion_only.csv" )
+ # VF2_recal_exclsuion_only <- read_csv("VF2_recal_exclsuion_only.csv" )
+ # VF3_recal_exclsuion_only <- read_csv("VF3_recal_exclsuion_only.csv" )
+ # VF4_recal_exclsuion_only <- read_csv("VF4_recal_exclsuion_only.csv" )
+ # #VF5_recal_exclsuion_only <- read_csv("VF5_recal_exclsuion_only.csv" )
+ # VF5_recal_exclsuion_only1 <- read_csv("VF5_recal_exclsuion_only1.csv" )
 
 dim(VF1_5_recal_incl_events)
 
@@ -198,6 +199,7 @@ Vf1_5sum_max_perday <-
   summarise(sum_max_value = sum(max_value))
 
 Vf1_5sum_max_perday
+unique(Vf1_5sum_max_perday$day_since_start)
 
 ggplot(Vf1_5sum_max_perday, aes(x = day_since_start, y = sum_max_value))+
   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
@@ -495,7 +497,7 @@ Summary_animal_Max_dist_filter2_40m_av <- Max_dist_filter2_40m_av %>%
 
 Summary_animal_Max_dist_filter2_40m_av 
 
-#just 2 and 5 
+#just 2 and 5 and 10 
 filter(Summary_animal_Max_dist_filter2_40m_av, max_dist_filter == 2 | max_dist_filter ==5 | max_dist_filter ==10) %>% 
 ggplot( aes(x = animal_ID, y = sum_time))+
   #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
@@ -522,7 +524,7 @@ filter(Summary_animal_Max_dist_filter2_40m_av, max_dist_filter == 20 | max_dist_
   ggplot( aes(x = animal_ID, y = sum_time))+
   #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   geom_col()+
-  ylim(0, 400)+
+  ylim(0, 600)+
   facet_wrap(.~ max_dist_filter)+
   theme_classic()+
   theme(axis.text.x=element_text(angle=90,hjust=1),
@@ -615,6 +617,7 @@ filter(Summary_Max_dist_filter2_40m_av, max_dist_filter == 20 | max_dist_filter 
   ggplot( aes(x = day_since_start, y = sum_time))+
   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
   geom_col()+
+  ylim(0, 600)+
   facet_wrap(.~ max_dist_filter)+
   theme_classic()+
   theme(axis.text.x=element_text(angle=90,hjust=1),
@@ -631,7 +634,7 @@ ggsave(path= graph_path, filename = "sum_time_day_20_30_40m_sec.png", device = "
        width = 20, height = 12, units = "cm")
 
 
-
+graph_path
 
 
 
@@ -678,22 +681,146 @@ ggsave(path= graph_path, filename = "count_time_day_20_30_40m_sec.png", device =
 ##################### END ###########################################################
   
 
+###############################################################################
+#### Dana / Rick want some of the graphs converted to tables and summary stats
+###############################################################################
+### PART 1
+
+### 3c.Group again - what is the sum of the max value per DAY
+
+
+##### This below bit is just understanding what is going on #######
+head(VF1_5_recal_incl_events) #this is the input data I have heaps of records but the records are grouped toghter with an event number.
+# so you might have 60 records all that are part of one event, the animal is walking around the non grazing zone in 'one' event
+
+### 3a. summaries the incursion events - what is the max events per animal per day?
+test <- filter(VF1_5_recal_incl_events, event_number != "NA") %>% 
+  group_by( animal_ID, day_since_start) %>% 
+  summarise(count_events = n(), 
+            max_value = max(event_number)
+  )
+
+###  if I have an NA value replace it with 0
+test$count_events[is.na(test$count_events)] <- 0
+
+head(VF1_5_recal_incl_events)
+view(VF1_5_recal_incl_events)
+head(test)
+##### This above bit is just understanding what is going on #######
+
+
+Vf1_5sum_max_perday1 <-
+  Vf1_5summary_incursion_max_animal_perday %>%
+  group_by(day_since_start) %>%
+  summarise(sum_max_value = sum(max_value),
+            av_max_value = mean(max_value),
+            min_max_value = min(max_value),
+            max_max_value = max(max_value),
+            n=n(),
+            sd_max_value = sd(max_value),
+            se_max_value = sd_max_value/sqrt(n))
+
+Vf1_5sum_max_perday1
+unique(Vf1_5sum_max_perday1$day_since_start)
+
+#save output
+write.csv(Vf1_5sum_max_perday1, 
+          file = "W:/VF/Eden_Valley/temp_graphs/Vf1_5summary_stats_for_max_value_perday1.csv")
+head(Vf1_5summary_incursion_max_animal_perday)
+
+##Now I want to do the same thing without the grouping
+
+print(Vf1_5summary_incursion_max_animal_perday) #pretty sure this is my starting point...
+
+#sapply(Vf1_5summary_incursion_max_animal_perday, mean, na.rm=TRUE)
+install.packages("psych")
+library(psych)
+summary_stats_all_max_value <- describe(Vf1_5summary_incursion_max_animal_perday)
+
+#save these files
+
+write.csv(Vf1_5summary_incursion_max_animal_perday, 
+          file = "W:/VF/Eden_Valley/temp_graphs/Vf1_5summary_incursion_max_animal_perday.csv")
+write.csv(summary_stats_all_max_value, 
+          file = "W:/VF/Eden_Valley/temp_graphs/summary_stats_all_max_value.csv")
+
+###############################################################################
+#### Dana / Rick want some of the graphs converted to tables and summary stats
+###############################################################################
+### PART 2
+
+## 4a. SUM of time spent in the non grazing zone per ANIMAL.
+VF_inc_events_time_period_v1 <- filter(VF1_5_recal_incl_events,
+                                    event_number != "NA") %>%
+  group_by(day_since_start, animal_ID, event_number ) %>%
+  summarise(max_time = max(as_datetime(time, tz="GMT")), 
+            min_time = min(as_datetime(time, tz="GMT")),
+            period_time = round((time_in_exlusion_zone = max_time - min_time), digits = 1))
+
+
+Vf1_5sum_time_period_animal_v1 <-
+  VF_inc_events_time_period_v1 %>%
+  group_by(animal_ID) %>%
+  summarise(sum_time_period = sum(period_time))
+
+head(Vf1_5sum_time_period_animal_v1)
+Vf1_5sum_time_period_animal_v1 <- mutate(
+  Vf1_5sum_time_period_animal_v1,
+  mins = 
+    seconds_to_period(Vf1_5sum_time_period_animal_v1$sum_time_period),
+  minutes = floor(Vf1_5sum_time_period_animal_v1$sum_time_period/60),
+  hours = floor(Vf1_5sum_time_period_animal_v1$sum_time_period/(60*60)))
+
+head(Vf1_5sum_time_period_animal_v1)
+#input data Vf1_5sum_time_period_animal_v1
+summary_Vf1_5sum_time_period_animal_v1 <- describe(Vf1_5sum_time_period_animal_v1)
+summary_Vf1_5sum_time_period_animal_v1
+
+write.csv(Vf1_5sum_time_period_animal_v1, 
+          file = "W:/VF/Eden_Valley/temp_graphs/Vf1_5sum_time_period_animal_v1.csv")
+write.csv(summary_Vf1_5sum_time_period_animal_v1, 
+          file = "W:/VF/Eden_Valley/temp_graphs/summary_Vf1_5sum_time_period_animal_v1.csv")
 
 
 
+###########################################################################################
+#### more suggestions from Rick
+
+### 1. how many hours in the trial
+### 2. how many hours spent in the non grazing zone (for the duration of the trial)
+### 3. how many hours spent in the non grazing zone more than 10m past the VF (for the duration of the trial)
 
 
+#I think I want to save the file Vf1_5sum_time_period_animal_v1 with the correct format
+#2.
+sum_time_format_export <- Vf1_5sum_time_period_animal_v1
+str(sum_time_format_export)
+sum_time <- (sum(sum_time_format_export$sum_time_period))
+sum_time
+time<- hms::as.hms(sum_time)
+time
 
+#sum_time_format_export$sum_time_period <- as.double(sum_time_format_export$sum_time_period)
 
+#3.
+head(max_event_dist)
+Max_dist_filter10m_v2 <- filter(max_event_dist,
+                             max_distance > 10)
+str(Max_dist_filter10m_v2)
+view(Max_dist_filter10m_v2)
 
+sum_time_max_dist_10 <- sum(Max_dist_filter10m_v2$period_time)
+sum_time_max_dist_10
+sum_time_max_dist_10_format<- hms::as.hms(sum_time_max_dist_10)
+sum_time_max_dist_10_format
 
+#1. the trail started and ended when????
 
+start_of_trial <- "2019-05-20_10:15:00"  
+end_of_trial <-   "2019-07-02_06:11:00"
 
+ ymd_hms(start_of_trial)
+ ymd_hms(end_of_trial)
 
-
-
-
-
-
-
-
+difftime(as.POSIXct(end_of_trial), as.POSIXct(start_of_trial, tz="UTC"), units="days")
+difftime(as.POSIXct(end_of_trial), as.POSIXct(start_of_trial, tz="UTC"), units="hours")
