@@ -774,6 +774,8 @@ Vf1_5sum_time_period_animal_v1 <- mutate(
 head(Vf1_5sum_time_period_animal_v1)
 #input data Vf1_5sum_time_period_animal_v1
 summary_Vf1_5sum_time_period_animal_v1 <- describe(Vf1_5sum_time_period_animal_v1)
+
+
 summary_Vf1_5sum_time_period_animal_v1
 
 write.csv(Vf1_5sum_time_period_animal_v1, 
@@ -781,7 +783,51 @@ write.csv(Vf1_5sum_time_period_animal_v1,
 write.csv(summary_Vf1_5sum_time_period_animal_v1, 
           file = "W:/VF/Eden_Valley/temp_graphs/summary_Vf1_5sum_time_period_animal_v1.csv")
 
+###something is wrong with above appraoch!
 
+str(Vf1_5sum_time_period_animal_v1)
+sum_time_inc <- (sum(Vf1_5sum_time_period_animal_v1$sum_time_period))
+sum_time_inc<- hms::as.hms(sum_time_inc)
+sum_time_inc
+
+min_time_inc <- (min(Vf1_5sum_time_period_animal_v1$sum_time_period))
+min_time_inc<- hms::as.hms(min_time_inc)
+min_time_inc
+
+max_time_inc <- (max(Vf1_5sum_time_period_animal_v1$sum_time_period))
+max_time_inc<- hms::as.hms(max_time_inc)
+max_time_inc
+
+#range_time_inc <- (range(Vf1_5sum_time_period_animal_v1$sum_time_period))
+range_time_inc <- max_time_inc -min_time_inc
+range_time_inc<- hms::as.hms(range_time_inc)
+range_time_inc
+
+sd_time_inc <- (sd(Vf1_5sum_time_period_animal_v1$sum_time_period))
+sd_time_inc<- hms::as.hms(sd_time_inc)
+sd_time_inc
+
+dim(Vf1_5sum_time_period_animal_v1) #20 
+count_time_inc <- 20
+
+se_time_inc <- sd_time_inc / sqrt(count_time_inc)
+se_time_inc
+se_time_inc<- hms::as.hms(se_time_inc)
+se_time_inc
+
+#lets make a data frame from this...
+summary_stats_manual <- data.frame(row.names = "time_period_clm",
+                                   sum = sum_time_inc,
+                                   min = min_time_inc,
+                                   max = max_time_inc, 
+                                   range = range_time_inc,
+                                   sd = sd_time_inc,
+                                   se = se_time_inc)
+
+summary_stats_manual
+
+write.csv(summary_stats_manual, 
+          file = "W:/VF/Eden_Valley/temp_graphs/summary_stats_manual.csv")
 
 ###########################################################################################
 #### more suggestions from Rick
