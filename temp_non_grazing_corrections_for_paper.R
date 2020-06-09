@@ -66,7 +66,7 @@ getwd()
 ### 1c. check the data
 
 
-head(VF1_5_recal_incl_events)
+#head(VF1_5_recal_incl_events)
 #dont need this at the monment its in the environments as VF1_5_recal_incl_events
 getwd()
  VF1_recal_exclsuion_only <- read_csv("Fence1_5exclsuion_only.csv")
@@ -762,16 +762,37 @@ write.csv(Vf1_5sum_max_perday1,
           file = "W:/VF/Eden_Valley/temp_graphs/Vf1_5summary_stats_for_max_value_perday1.csv")
 head(Vf1_5summary_incursion_max_animal_perday)
 
-##Now I want to do the same thing without the grouping
+##Now I want to do the same thing without the grouping This has few more for correction
 
 print(Vf1_5summary_incursion_max_animal_perday) #pretty sure this is my starting point...
 
 #sapply(Vf1_5summary_incursion_max_animal_perday, mean, na.rm=TRUE)
-install.packages("psych")
+#install.packages("psych")
 library(psych)
 summary_stats_all_max_value <- describe(Vf1_5summary_incursion_max_animal_perday)
-
+print(summary_stats_all_max_value)
 #save these files
+### correction for paper add in quantiles
+#input data - Vf1_5summary_incursion_max_animal_perday #need to group first
+str(Vf1_5summary_incursion_max_animal_perday)
+View(Vf1_5summary_incursion_max_animal_perday)
+test <- ungroup(Vf1_5summary_incursion_max_animal_perday)
+str(test)               
+
+test1 <- test %>% 
+summarise_at(vars(max_value), 
+             funs(mean, 
+                  sd,
+                  max,
+                  min,
+                  n(),
+                  quantile = list(as.tibble(as.list(quantile(., 
+                                                             probs = c(0.25, 0.5, 0.75))))))) %>%
+  unnest
+test1 
+
+write.csv(test1, 
+          file = "W:/VF/Eden_Valley/temp_graphs/summary_stats_all_qaunt_max_value.csv")
 
 write.csv(Vf1_5summary_incursion_max_animal_perday, 
           file = "W:/VF/Eden_Valley/temp_graphs/Vf1_5summary_incursion_max_animal_perday.csv")
@@ -836,6 +857,18 @@ max_time_inc
 range_time_inc <- max_time_inc -min_time_inc
 range_time_inc<- hms::as.hms(range_time_inc)
 range_time_inc
+# mean time
+mean_time_inc <- (mean(Vf1_5sum_time_period_animal_v1$sum_time_period))
+mean_time_inc<- hms::as.hms(mean_time_inc)
+mean_time_inc
+
+# precentiles time
+double <- as.double(Vf1_5sum_time_period_animal_v1$sum_time_period)
+str(double)
+#percent_time_inc <- (quantile((double)))
+percent_time_inc <- (quantile((Vf1_5sum_time_period_animal_v1$sum_time_period)))
+percent_time_inc<- hms::as.hms(percent_time_inc)
+percent_time_inc
 
 sd_time_inc <- (sd(Vf1_5sum_time_period_animal_v1$sum_time_period))
 sd_time_inc<- hms::as.hms(sd_time_inc)
@@ -849,6 +882,22 @@ se_time_inc
 se_time_inc<- hms::as.hms(se_time_inc)
 se_time_inc
 
+str(Vf1_5sum_time_period_animal_v1)
+check <- Vf1_5sum_time_period_animal_v1 %>% 
+  summarise_at(vars(sum_time_period), 
+               funs(mean, 
+                    sd,
+                    max,
+                    min,
+                    n(),
+                    quantile = list(as.tibble(as.list(quantile(., 
+                                                               probs = c(0.25, 0.5, 0.75))))))) %>%
+  unnest
+check <- hms::as.hms(check) 
+check
+
+
+
 #lets make a data frame from this...
 summary_stats_manual <- data.frame(row.names = "time_period_clm",
                                    sum = sum_time_inc,
@@ -856,12 +905,17 @@ summary_stats_manual <- data.frame(row.names = "time_period_clm",
                                    max = max_time_inc, 
                                    range = range_time_inc,
                                    sd = sd_time_inc,
-                                   se = se_time_inc)
-
+                                   se = se_time_inc,
+                                   mean = mean_time_inc)
 summary_stats_manual
-
 write.csv(summary_stats_manual, 
           file = "W:/VF/Eden_Valley/temp_graphs/summary_stats_manual.csv")
+
+
+summary_stats_manual_quantile <- data.frame(percent_time_inc)
+summary_stats_manual_quantile
+write.csv(summary_stats_manual_quantile, 
+          file = "W:/VF/Eden_Valley/temp_graphs/summary_stats_quantile.csv")
 
 ###########################################################################################
 #### more suggestions from Rick
@@ -973,3 +1027,40 @@ filter(Summary_Max_dist_filter2_40m_av, max_dist_filter == "20m" | max_dist_filt
 ggsave(path= graph_path, filename = "sum_time_day_20_30_40m_sec_correction.png", device = "png" ,
        width = 20, height = 12, units = "cm")
 
+
+########################
+## R/V 2 corrections - more!
+
+str(Max_dist_filter2_40m_av)
+problem_cows26_max_dist <- filter(Max_dist_filter2_40m_av,
+                                animal_ID == "Q26")
+problem_cows26_max_dist <- problem_cows26_max_dist %>%
+  group_by(max_dist_filter) %>%
+  summarise(
+        Q26 = n())
+
+problem_cows29_max_dist <- filter(Max_dist_filter2_40m_av,
+                                  animal_ID == "Q29")
+problem_cows29_max_dist <- problem_cows26_max_dist %>%
+  group_by(max_dist_filter) %>%
+  summarise(
+    Q29 = n())
+
+problem_cows36_max_dist <- filter(Max_dist_filter2_40m_av,
+                                  animal_ID == "Q36")
+problem_cows36_max_dist <- problem_cows36_max_dist %>%
+  group_by(max_dist_filter) %>%
+  summarise(
+    Q36 = n())
+problem_cows26_max_dist
+problem_cows29_max_dist
+problem_cows36_max_dist
+
+problem_cows26_29_36_max_dist <- cbind(problem_cows26_max_dist, problem_cows29_max_dist,
+                                       problem_cows36_max_dist)
+
+problem_cows26_29_36_max_dist <- problem_cows26_29_36_max_dist[,c(1,2,4,6)] 
+problem_cows26_29_36_max_dist
+
+write.csv(problem_cows26_29_36_max_dist, 
+          file = "W:/VF/Eden_Valley/temp_graphs/problem_cows26_29_36_max_dist.csv")

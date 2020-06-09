@@ -466,3 +466,249 @@ ratio_for_paper_remove_prob_cows_summary_wide <- mutate(ratio_for_paper_remove_p
 
 ratio_for_paper_remove_prob_cows_summary_wide
 write.csv(ratio_for_paper_remove_prob_cows_summary_wide, file = "W:/VF/Eden_Valley/temp_graphs/ratio_for_paper_remove_prob_cows_summary_wide.csv")
+
+
+
+
+
+#########################################################################################################
+#### correction for paper r/v 1
+
+#### 7a. graph counts per animal - stacked
+
+Fence1_5_started_aduio_pulse_summary$event <- factor(Fence1_5_started_aduio_pulse_summary$event, 
+                                                     levels=c("Pulse started", "Audio started"))
+names(Fence1_5_started_aduio_pulse_summary)
+unique(Fence1_5_started_aduio_pulse_summary$animal_ID)
+
+Fence1_5_started_aduio_pulse_summary_corr <-
+  Fence1_5_started_aduio_pulse_summary %>%
+  mutate(animal_ID = case_when(
+    animal_ID == "Q2"  ~ "Q02",
+    animal_ID == "Q8"  ~ "Q08",
+    animal_ID == "Q9"  ~ "Q09",
+    TRUE ~ animal_ID
+  ))
+
+unique(Fence1_5_started_aduio_pulse_summary_corr$animal_ID)
+
+Fence1_5_started_aduio_pulse_summary_corr$animal_ID <- factor(Fence1_5_started_aduio_pulse_summary_corr$animal_ID, 
+                                                              levels = c("Q02", "Q08", "Q09", "Q10",
+                                                                         "Q11", "Q15",
+                                                                          "Q26", "Q27", "Q28", "Q29",
+                                                                          "Q36", "Q42","Q45",
+                                                                           "Q46", "Q47", "Q51", "Q75",
+                                                                            "Q108", "Q109" ,  "Q110", 
+                                                                             "NA"))
+
+     
+      
+
+
+filter(Fence1_5_started_aduio_pulse_summary_corr, animal_ID != "NA") %>% 
+  ggplot( aes(x = animal_ID, y = count_cues))+
+  #facet_wrap(.~event)+
+  #geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_col(aes(fill= event))+
+  scale_fill_manual(values = c("red", "orange")) +
+  theme_classic()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "bottom",
+        legend.title=element_blank())+
+  labs(#title= "Number of cues per animal",
+       #subtitle = "All days included",
+       #caption = "cues are start aduio or start pulse",
+       x= "animals",
+       y = "count of cues")
+
+ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_summary_animal_stacked_correction.png", device = "png",
+       width = 20, height = 12, units = "cm")
+
+
+
+#########################################################################################################
+#### correction for paper r/v 2
+
+#### 7a. graph counts per animal - stacked
+
+Fence1_5_started_aduio_pulse_summary
+Fence1_5_started_aduio_pulse_summary_1 <- Fence1_5_started_aduio_pulse %>% 
+  #group_by(event, animal_ID) %>% 
+  group_by(event, animal_ID) %>% 
+  summarise(count_cues = n()) 
+
+
+str(Fence1_5_started_aduio_pulse_summary_1)
+print(Fence1_5_started_aduio_pulse_summary_1)
+view(Fence1_5_started_aduio_pulse_summary_1)
+
+
+Fence1_5_started_aduio_pulse_summary_1_wide <- spread(Fence1_5_started_aduio_pulse_summary_1, 
+                                                      event, count_cues)
+
+view(Fence1_5_started_aduio_pulse_summary_1_wide)
+str(Fence1_5_started_aduio_pulse_summary_1_wide)
+Fence1_5_started_aduio_pulse_summary_1_wide <- mutate(Fence1_5_started_aduio_pulse_summary_1_wide, 
+                                                      total = `Audio started` + `Pulse started`)
+
+Fence1_5_started_aduio_pulse_summary_1_wide$total <- as.double(Fence1_5_started_aduio_pulse_summary_1_wide$total)
+summary(Fence1_5_started_aduio_pulse_summary_1_wide$total)
+
+## now group the animals into low med high counts
+# try low as less than 50, 100, 200
+
+#remove the NA
+Fence1_5_started_aduio_pulse_summary_1_wide <- filter(Fence1_5_started_aduio_pulse_summary_1_wide, 
+                                                      animal_ID != "NA")
+hist(Fence1_5_started_aduio_pulse_summary_1_wide$total, breaks = 50)
+test <-
+  Fence1_5_started_aduio_pulse_summary_1_wide %>%
+  mutate(cue_class = case_when(
+    total < 100  ~ "Low",
+    total >300  ~ "High",
+    TRUE ~ "Med"
+  ))
+
+view(test)
+str(test)
+#so this is the list of animals that have class
+
+animal_cue_class <- select(test, animal_ID, cue_class)
+print(animal_cue_class)
+ 
+#now join this to the count of cues per day of trial
+#### 7b. summary for day
+head(Fence1_5_started_aduio_pulse)
+dim(Fence1_5_started_aduio_pulse)
+#join cue class clm
+Fence1_5_started_aduio_pulse <- left_join(Fence1_5_started_aduio_pulse,animal_cue_class )
+view(Fence1_5_started_aduio_pulse)
+str(Fence1_5_started_aduio_pulse)
+# Fence1_5_started_aduio_pulse_summary2 <- 
+#   filter(Fence1_5_started_aduio_pulse, animal_ID != "NA") %>% 
+#   group_by(event, day_since_start, cue_class) %>% 
+#   summarise(count_cues = n()) 
+
+reviwer2_7 <- Fence1_5_started_aduio_pulse %>% 
+  select(day_since_start,
+         event,
+         animal_ID,
+         cue_class)
+str(reviwer2_7)
+#test <- filter(test, event == "Audio started")
+reviwer2_7 <- reviwer2_7 %>% 
+ group_by( animal_ID, day_since_start, cue_class, event) %>% 
+ summarise(count_cues = n()) 
+#view(reviwer2_7)
+
+filter(reviwer2_7, animal_ID != "NA") %>% 
+ggplot( aes(x = day_since_start, y = count_cues, 
+            group = day_since_start))+
+  facet_grid(cue_class~event, scales = "free")+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_boxplot()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "bottom",
+        legend.title=element_blank())+
+  labs(title= "Number of cues per day since start of trial",
+       subtitle = "Animals grouped into cue class",
+       caption = "pulse and aduio summed and animals grouped; Low = <100, Med = 100-300, High = >300, ",
+       x= "days since start of trial",
+       y = "count of cues")
+
+ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_summary_reviwer2_7_correction.png", device = "png",
+       width = 20, height = 12, units = "cm")
+
+##### another option?? no grouping of low medium and high
+reviwer2_7_nogroup <- Fence1_5_started_aduio_pulse %>% 
+  select(day_since_start,
+         event,
+         animal_ID
+         )
+str(reviwer2_7_nogroup)
+#test <- filter(test, event == "Audio started")
+reviwer2_7_nogroup <- reviwer2_7_nogroup %>% 
+  group_by( animal_ID, day_since_start, event) %>% 
+  summarise(count_cues = n()) 
+
+filter(reviwer2_7_nogroup, animal_ID != "NA") %>% 
+  ggplot( aes(x = day_since_start, y = count_cues, 
+              group = day_since_start))+
+  facet_grid(.~event, scales = "free")+
+  geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+  geom_boxplot()+
+  theme_bw()+
+  theme(axis.text.x=element_text(angle=90,hjust=1),
+        legend.position = "bottom",
+        legend.title=element_blank())+
+  labs(title= "Number of cues per day since start of trial",
+        x= "days since start of trial",
+       y = "count of cues")
+ggsave(path= graph_path, filename = "Fence1_5_started_aduio_pulse_summary_reviwer2_7_option2_correction.png", device = "png",
+       width = 20, height = 12, units = "cm")
+
+
+
+# ggplot(Fence1_5_started_aduio_pulse_summary2, aes(x = day_since_start, y = count_cues))+
+#   facet_wrap(.~cue_class)+
+#   geom_vline(xintercept= c(1,4,9,15), colour= "blue", alpha = 0.2) +
+#   geom_col(aes(fill= event))+
+#   scale_fill_manual(values = c( "red", "orange")) +
+#   theme_classic()+
+#   theme(axis.text.x=element_text(angle=90,hjust=1),
+#         legend.position = "bottom",
+#         legend.title=element_blank())+
+#   labs(title= "Number of cues per day since start of trial",
+#        subtitle = "Animals grouped into cue class",
+#        caption = "pulse and aduio summed and animals grouped; Low = <100, Med = 100-300, High = >300, ",
+#        x= "days since start of trial",
+#        y = "count of cues")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Fence1_5_started_aduio_pulse_summary$event <- factor(Fence1_5_started_aduio_pulse_summary$event, 
+                                                     levels=c("Pulse started", "Audio started"))
+names(Fence1_5_started_aduio_pulse_summary)
+unique(Fence1_5_started_aduio_pulse_summary$animal_ID)
+
+Fence1_5_started_aduio_pulse_summary_corr <-
+  Fence1_5_started_aduio_pulse_summary %>%
+  mutate(animal_ID = case_when(
+    animal_ID == "Q2"  ~ "Q02",
+    animal_ID == "Q8"  ~ "Q08",
+    animal_ID == "Q9"  ~ "Q09",
+    TRUE ~ animal_ID
+  ))
+
+unique(Fence1_5_started_aduio_pulse_summary_corr$animal_ID)
+
+Fence1_5_started_aduio_pulse_summary_corr$animal_ID <- factor(Fence1_5_started_aduio_pulse_summary_corr$animal_ID, 
+                                                              levels = c("Q02", "Q08", "Q09", "Q10",
+                                                                         "Q11", "Q15",
+                                                                         "Q26", "Q27", "Q28", "Q29",
+                                                                         "Q36", "Q42","Q45",
+                                                                         "Q46", "Q47", "Q51", "Q75",
+                                                                         "Q108", "Q109" ,  "Q110", 
+                                                                         "NA"))
+
+unique(Fence1_5_started_aduio_pulse_summary_corr$animal_ID)
+str(Fence1_5_started_aduio_pulse_summary_corr)
+
