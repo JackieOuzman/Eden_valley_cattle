@@ -411,7 +411,11 @@ dim(max_event_dist)
 
 
   #create df with only keeping events with a certain distance from VF
-  Max_dist_filter2m <- filter(max_event_dist,
+# temp <- max_event_dist
+# write.csv(temp, "temp_jax11_06_2020.csv")
+# getwd()  
+
+Max_dist_filter2m <- filter(max_event_dist,
                          max_distance > 2)
   Max_dist_filter5m <- filter(max_event_dist,
                          max_distance > 5)
@@ -423,8 +427,14 @@ dim(max_event_dist)
                           max_distance > 30) 
   Max_dist_filter40m <- filter(max_event_dist,
                           max_distance > 40) 
+  dim(Max_dist_filter2m)
+  dim(Max_dist_filter5m)
+  dim(Max_dist_filter10m)
+  dim(Max_dist_filter20m)
+  dim(Max_dist_filter30m)
+  dim(Max_dist_filter40m)
   
-### 5c. cal the avearge and sum and count of time per day and animal for events with max distance of grater than 2m/5m/10m/20m/30m/40m
+  ### 5c. cal the avearge and sum and count of time per day and animal for events with max distance of grater than 2m/5m/10m/20m/30m/40m
   
   Max_dist_filter2m_av <-  Max_dist_filter2m %>%
     group_by(day_since_start, animal_ID) %>%
@@ -468,6 +478,17 @@ dim(max_event_dist)
               n = n()) %>%
     mutate(max_dist_filter = 40)
   
+  dim(Max_dist_filter2m_av)
+  dim(Max_dist_filter5m_av)
+  dim(Max_dist_filter10m_av)
+  dim(Max_dist_filter20m_av)
+  dim(Max_dist_filter30m_av)
+  dim(Max_dist_filter40m_av)
+  
+  # temp2 <- Max_dist_filter2m_av
+  # write.csv(temp2, "temp2_jax11_06_2020.csv")
+   
+  
   #merge the output togther
   Max_dist_filter2_40m_av <- rbind( Max_dist_filter2m_av,
                                     Max_dist_filter5m_av,
@@ -483,7 +504,9 @@ dim(max_event_dist)
 head( Max_dist_filter2_40m_av)
 dim(Max_dist_filter2_40m_av)
 
-
+# temp3 <- Max_dist_filter2_40m_av
+# write.csv(temp3, "temp3_jax11_06_2020.csv")
+ 
 
 ########################################################
 ### 6a. group the max distance from vf databy animals and sum
@@ -777,6 +800,8 @@ print(summary_stats_all_max_value)
 str(Vf1_5summary_incursion_max_animal_perday)
 View(Vf1_5summary_incursion_max_animal_perday)
 test <- ungroup(Vf1_5summary_incursion_max_animal_perday)
+# temp4 <- Vf1_5summary_incursion_max_animal_perday
+# write.csv(temp4, "temp4_jax11_06_2020.csv")
 str(test)               
 
 test1 <- test %>% 
@@ -1032,26 +1057,29 @@ ggsave(path= graph_path, filename = "sum_time_day_20_30_40m_sec_correction.png",
 ## R/V 2 corrections - more!
 
 str(Max_dist_filter2_40m_av)
-problem_cows26_max_dist <- filter(Max_dist_filter2_40m_av,
-                                animal_ID == "Q26")
+ungroup(Max_dist_filter2_40m_av)
+str(Max_dist_filter2_40m_av)
+
+
+problem_cows26_max_dist <- ungroup(Max_dist_filter2_40m_av) %>% 
+  filter(animal_ID == "Q26")
+str(problem_cows26_max_dist)
 problem_cows26_max_dist <- problem_cows26_max_dist %>%
   group_by(max_dist_filter) %>%
-  summarise(
-        Q26 = n())
+  summarise(Q26_count = sum(n))
 
-problem_cows29_max_dist <- filter(Max_dist_filter2_40m_av,
-                                  animal_ID == "Q29")
-problem_cows29_max_dist <- problem_cows26_max_dist %>%
+problem_cows29_max_dist <- ungroup(Max_dist_filter2_40m_av) %>% 
+  filter(animal_ID == "Q29")
+problem_cows29_max_dist <- problem_cows29_max_dist %>%
   group_by(max_dist_filter) %>%
-  summarise(
-    Q29 = n())
+  summarise(Q29_count = sum(n))
 
-problem_cows36_max_dist <- filter(Max_dist_filter2_40m_av,
-                                  animal_ID == "Q36")
+problem_cows36_max_dist <- ungroup(Max_dist_filter2_40m_av) %>% 
+  filter(animal_ID == "Q36")
 problem_cows36_max_dist <- problem_cows36_max_dist %>%
   group_by(max_dist_filter) %>%
-  summarise(
-    Q36 = n())
+  summarise(Q36_count = sum(n))
+
 problem_cows26_max_dist
 problem_cows29_max_dist
 problem_cows36_max_dist
@@ -1064,3 +1092,30 @@ problem_cows26_29_36_max_dist
 
 write.csv(problem_cows26_29_36_max_dist, 
           file = "W:/VF/Eden_Valley/temp_graphs/problem_cows26_29_36_max_dist.csv")
+
+
+### same as above but now for all cows
+str(Max_dist_filter2_40m_av)
+all_cows_max_dist <- ungroup(Max_dist_filter2_40m_av)  %>%
+  group_by(max_dist_filter, animal_ID) %>%
+  summarise(sum_of_count = sum(n))
+all_cows_max_dist
+
+all_cows_max_dist_wide <- all_cows_max_dist %>% 
+  pivot_wider(names_from = animal_ID, values_from = sum_of_count)
+all_cows_max_dist_wide
+  
+summary_all_cows <- apply(cowsall_max_dist_wide, 1, sum, na.rm = TRUE)
+summary_all_cows <- as.data.frame(summary_all_cows, row.names = c("2m", "5m", "10m", "20m", "30m", "40m"))
+summary_all_cows
+
+
+
+Max_dist_filter2m
+Max_dist_filter2m_test <- Max_dist_filter2m %>%
+  group_by(max_dist_filter, animal_ID) %>%
+  summarise(
+    count = n())
+test <- apply(Max_dist_filter2m, 1, count, na.rm = TRUE)
+
+
